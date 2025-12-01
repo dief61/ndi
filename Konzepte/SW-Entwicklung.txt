@@ -1,0 +1,5 @@
+hier dokumentiere ich, wie die gesamte Entwicklungsumgebung aufgesetzt wird und wie ich die CI/CD-Pipeline baue.
+
+1. Git 
+der Hauptorner von Git liegt beim User pi im Orgdner NDI
+
