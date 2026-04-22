@@ -1,4 +1,4 @@
-name: ndi
+name: mnr
 
 services:
 
@@ -67,9 +67,6 @@ services:
         mc mb --ignore-existing local/mnr-informationsmodelle;
         echo 'MinIO Buckets bereit.';
       "
-  networks:
-    mnr_net:
-      name: mnr-Netzwerk
 
 volumes:
   postgres_data:
