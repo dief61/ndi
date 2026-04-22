@@ -49,7 +49,7 @@ services:
       retries: 5
 
   # ─────────────────────────────────────────────
-  # MinIO Init – legt den Default-Bucket an
+  # MinIO Init – legt die Buckets an
   # läuft einmalig, dann beendet (restart: no)
   # ─────────────────────────────────────────────
   minio-init:
@@ -67,6 +67,22 @@ services:
         mc mb --ignore-existing local/mnr-informationsmodelle;
         echo 'MinIO Buckets bereit.';
       "
+
+  # ─────────────────────────────────────────────
+  # Apache Tika 2.x – Dokument-Parsing
+  # Unterstützt PDF, DOCX, HTML, RTF u.v.m.
+  # ─────────────────────────────────────────────
+  tika:
+    image: apache/tika:2.9.2-full
+    container_name: mnr-tika
+    restart: unless-stopped
+    ports:
+      - "${TIKA_PORT}:9998"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9998/tika || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
 
 volumes:
   postgres_data:
