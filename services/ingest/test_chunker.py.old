@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+# services/ingest/test_chunker.py
+#
+# Testet den Chunking-Router mit dem MNR-Architektur-PDF (Klasse B)
+# und zwei synthetischen Texten für Klasse A und C.
+#
+# Aufruf: python test_chunker.py <pfad-zur-pdf>
+
+import asyncio
+import sys
+from pathlib import Path
+from collections import Counter
+
+sys.path.insert(0, str(Path(__file__).parent))
+
+from app.services.parser import TikaParser
+from app.services.chunker import ChunkingRouter
+
+
+# ── Synthetischer Klasse-A-Text (Gesetzestext) ────────────────────────────
+KLASSE_A_TEXT = """
+§ 1 Anwendungsbereich
+Dieses Gesetz regelt die Erhebung, Speicherung und Übermittlung von Meldedaten.
+Es gilt für alle Personen, die eine Wohnung in Deutschland beziehen.
+
+(1) Die Meldebehörde ist verpflichtet, die Meldedaten der betroffenen Person zu speichern.
+(2) Die Daten dürfen nicht ohne Einwilligung an Dritte übermittelt werden.
+(3) Im Sinne dieses Gesetzes ist eine betroffene Person jede natürliche Person,
+die eine Wohnung anmeldet.
+
+§ 2 Meldepflicht
+Jede Person, die eine Wohnung bezieht, muss sich innerhalb von zwei Wochen anmelden.
+Die Anmeldung hat bei der zuständigen Meldebehörde zu erfolgen.
+
+(1) Die Anmeldepflicht obliegt der einziehenden Person.
+(2) Bei Minderjährigen sind die Erziehungsberechtigten zuständig.
+(3) Die Meldebehörde kann Ausnahmen gewähren, sofern nicht öffentliche Interessen
+entgegenstehen.
+
+§ 3 Meldedaten
+Die Meldebehörde speichert folgende Grunddaten:
+Als Grunddaten sind zu speichern: Familienname, Vornamen, Geburtsdatum, Geburtsort.
+
+(1) Familienname und Vornamen sind vollständig zu erfassen.
+(2) Das Geburtsdatum muss im Format JJJJ-MM-TT gespeichert werden.
+(3) Im Sinne dieses Gesetzes ist der Geburtsort die Gemeinde, in der die Person geboren wurde.
+"""
+
+# ── Synthetischer Klasse-C-Text (Handreichung) ───────────────────────────
+KLASSE_C_TEXT = """
+Häufig gestellte Fragen zur Ummeldung. Wenn Sie umziehen, müssen Sie sich ummelden.
+Die Ummeldung ist innerhalb von zwei Wochen nach dem Einzug vorzunehmen. Sie können
+die Ummeldung persönlich oder in manchen Kommunen auch online durchführen. Bringen Sie
+bitte Ihren Personalausweis und eine Wohnungsgeberbestätigung mit. Diese Bestätigung
+erhalten Sie von Ihrem Vermieter. Ohne diese Bestätigung kann die Ummeldung nicht
+vorgenommen werden. Bei Fragen wenden Sie sich bitte an Ihre zuständige Meldebehörde.
+Die Öffnungszeiten finden Sie auf der Website Ihrer Gemeinde. Eine Ummeldung ist
+gebührenfrei. Es fallen keine Kosten für Sie an.
+"""
+
+
+def print_separator(title: str):
+    print(f"\n{'='*65}")
+    print(f"  {title}")
+    print(f"{'='*65}")
+
+
+def print_chunk_summary(chunks, doc_class: str):
+    print(f"\n  Klasse {doc_class}: {len(chunks)} Chunks erstellt")
+    print(f"  {'─'*55}")
+
+    type_counter = Counter(c.chunk_type for c in chunks)
+    level_counter = Counter(c.hierarchy_level for c in chunks)
+
+    print(f"  Chunk-Typen:    {dict(type_counter)}")
+    print(f"  Hierarchie:     {dict(level_counter)}")
+    print(f"  Confidence:     {set(c.confidence_weight for c in chunks)}")
+
+    print(f"\n  Erste 3 Chunks:")
+    for i, chunk in enumerate(chunks[:3]):
+        print(f"\n  [{i+1}] chunk_type={chunk.chunk_type} | "
+              f"level={chunk.hierarchy_level} | "
+              f"tokens={chunk.token_count}")
+        if chunk.norm_reference:
+            print(f"      norm_ref:   {chunk.norm_reference}")
+        if chunk.section_path:
+            print(f"      section:    {chunk.section_path}")
+        if chunk.heading_breadcrumb:
+            print(f"      breadcrumb: {chunk.heading_breadcrumb[:60]}")
+        if chunk.requirement_id:
+            print(f"      req_id:     {chunk.requirement_id}")
+        print(f"      text:       {chunk.text[:100].strip()}...")
+
+
+async def main():
+    router = ChunkingRouter()
+
+    # ── Test 1: Klasse A (synthetischer Gesetzestext) ────────────────────
+    print_separator("Test 1: Klasse A – Synthetischer Gesetzestext")
+
+    from app.services.parser import DocumentStructure
+    structure_a = DocumentStructure(
+        has_paragraph_markers=True,
+        paragraph_count=3,
+        has_heading_hierarchy=False,
+        has_toc=False,
+    )
+
+    class FakeMetadata:
+        source_type = "gesetz"
+        version = "1.0"
+        valid_from = None
+
+    chunks_a = router.route_and_chunk(
+        text=KLASSE_A_TEXT,
+        structure=structure_a,
+        doc_id="test-doc-a",
+        metadata=FakeMetadata(),
+    )
+    print_chunk_summary(chunks_a, "A")
+
+    # ── Test 2: Klasse C (synthetischer FAQ-Text) ─────────────────────────
+    print_separator("Test 2: Klasse C – Synthetische Handreichung")
+
+    structure_c = DocumentStructure(
+        has_paragraph_markers=False,
+        paragraph_count=0,
+        has_heading_hierarchy=False,
+        has_toc=False,
+    )
+
+    chunks_c = router.route_and_chunk(
+        text=KLASSE_C_TEXT,
+        structure=structure_c,
+        doc_id="test-doc-c",
+        metadata=FakeMetadata(),
+        doc_class_override="C",
+    )
+    print_chunk_summary(chunks_c, "C")
+
+    # ── Test 3: Klasse B (MNR-Architektur-PDF) ───────────────────────────
+    if len(sys.argv) >= 2:
+        filepath = Path(sys.argv[1])
+        if filepath.exists():
+            print_separator(f"Test 3: Klasse B – {filepath.name}")
+            content = filepath.read_bytes()
+            parser = TikaParser()
+            print("  Parsing läuft...")
+            result = await parser.parse(content=content, filename=filepath.name)
+
+            chunks_b = router.route_and_chunk(
+                text=result.text,
+                structure=result.structure,
+                doc_id="test-doc-b",
+                metadata=FakeMetadata(),
+            )
+            print_chunk_summary(chunks_b, "B")
+        else:
+            print(f"\n  PDF nicht gefunden: {filepath}")
+    else:
+        print("\n  Tipp: PDF als Argument übergeben für Klasse-B-Test:")
+        print("  python test_chunker.py ../../docu/Konzepte/MNR-RAG-Architektur_v1.1.pdf")
+
+    print(f"\n{'='*65}")
+    print("  Chunker-Test abgeschlossen")
+    print(f"{'='*65}\n")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

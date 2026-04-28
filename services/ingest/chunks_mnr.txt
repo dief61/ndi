@@ -1,0 +1,1885 @@
+NDI Chunker-Test – Ausgabe
+Erstellt: 2026-04-28 13:57:05
+=================================================================
+
+
+=================================================================
+  Test 1: Klasse A – Synthetischer Gesetzestext
+=================================================================
+
+  Klasse A: 12 Chunks erstellt
+  ───────────────────────────────────────────────────────
+  Chunk-Typen:    {'tatbestand': 6, 'may': 2, 'definition': 2, 'competence': 1, 'must': 1}
+  Hierarchie:     {1: 3, 2: 9}
+  Confidence:     {1.0}
+
+  Alle 12 Chunks:
+
+  [001/12] chunk_type=tatbestand | level=1 | tokens=111 | confidence=1.0
+       norm_ref:   § 1 Anwendungsbereich
+       cross_refs: ['§ 1']
+       text:       § 1 Anwendungsbereich
+Dieses Gesetz regelt die Erhebung, Speicherung und Übermittlung von Meldedaten.
+Es gilt für alle Personen, die eine Wohnung in Deutschland beziehen.
+
+(1) Die Meldebehörde ist verpflichtet, die Meldedaten der betroffenen Person zu speichern.
+(2) Die Daten dürfen nicht ohne Einwilligung an Dritte übermittelt werden.
+(3) Im Sinne dieses Gesetzes ist eine betroffene Person jede natürliche Person,
+die eine Wohnung anmeldet.
+
+  [002/12] chunk_type=tatbestand | level=2 | tokens=22 | confidence=1.0
+       norm_ref:   § 1 Anwendungsbereich
+       parent_id:  2698f6d0...
+       text:       (1) Die Meldebehörde ist verpflichtet, die Meldedaten der betroffenen Person zu speichern.
+
+  [003/12] chunk_type=may | level=2 | tokens=18 | confidence=1.0
+       norm_ref:   § 1 Anwendungsbereich
+       parent_id:  2698f6d0...
+       text:       (2) Die Daten dürfen nicht ohne Einwilligung an Dritte übermittelt werden.
+
+  [004/12] chunk_type=definition | level=2 | tokens=26 | confidence=1.0
+       norm_ref:   § 1 Anwendungsbereich
+       parent_id:  2698f6d0...
+       text:       (3) Im Sinne dieses Gesetzes ist eine betroffene Person jede natürliche Person,
+die eine Wohnung anmeldet.
+
+  [005/12] chunk_type=tatbestand | level=1 | tokens=96 | confidence=1.0
+       norm_ref:   § 2 Meldepflicht
+       cross_refs: ['§ 2']
+       text:       § 2 Meldepflicht
+Jede Person, die eine Wohnung bezieht, muss sich innerhalb von zwei Wochen anmelden.
+Die Anmeldung hat bei der zuständigen Meldebehörde zu erfolgen.
+
+(1) Die Anmeldepflicht obliegt der einziehenden Person.
+(2) Bei Minderjährigen sind die Erziehungsberechtigten zuständig.
+(3) Die Meldebehörde kann Ausnahmen gewähren, sofern nicht öffentliche Interessen
+entgegenstehen.
+
+  [006/12] chunk_type=competence | level=2 | tokens=13 | confidence=1.0
+       norm_ref:   § 2 Meldepflicht
+       parent_id:  dd427099...
+       text:       (1) Die Anmeldepflicht obliegt der einziehenden Person.
+
+  [007/12] chunk_type=tatbestand | level=2 | tokens=16 | confidence=1.0
+       norm_ref:   § 2 Meldepflicht
+       parent_id:  dd427099...
+       text:       (2) Bei Minderjährigen sind die Erziehungsberechtigten zuständig.
+
+  [008/12] chunk_type=may | level=2 | tokens=24 | confidence=1.0
+       norm_ref:   § 2 Meldepflicht
+       parent_id:  dd427099...
+       text:       (3) Die Meldebehörde kann Ausnahmen gewähren, sofern nicht öffentliche Interessen
+entgegenstehen.
+
+  [009/12] chunk_type=tatbestand | level=1 | tokens=92 | confidence=1.0
+       norm_ref:   § 3 Meldedaten
+       cross_refs: ['§ 3']
+       text:       § 3 Meldedaten
+Die Meldebehörde speichert folgende Grunddaten:
+Als Grunddaten sind zu speichern: Familienname, Vornamen, Geburtsdatum, Geburtsort.
+
+(1) Familienname und Vornamen sind vollständig zu erfassen.
+(2) Das Geburtsdatum muss im Format JJJJ-MM-TT gespeichert werden.
+(3) Im Sinne dieses Gesetzes ist der Geburtsort die Gemeinde, in der die Person geboren wurde.
+
+  [010/12] chunk_type=tatbestand | level=2 | tokens=14 | confidence=1.0
+       norm_ref:   § 3 Meldedaten
+       parent_id:  f6011203...
+       text:       (1) Familienname und Vornamen sind vollständig zu erfassen.
+
+  [011/12] chunk_type=must | level=2 | tokens=16 | confidence=1.0
+       norm_ref:   § 3 Meldedaten
+       parent_id:  f6011203...
+       text:       (2) Das Geburtsdatum muss im Format JJJJ-MM-TT gespeichert werden.
+
+  [012/12] chunk_type=definition | level=2 | tokens=23 | confidence=1.0
+       norm_ref:   § 3 Meldedaten
+       parent_id:  f6011203...
+       text:       (3) Im Sinne dieses Gesetzes ist der Geburtsort die Gemeinde, in der die Person geboren wurde.
+
+=================================================================
+  Test 2: Klasse C – Synthetische Handreichung
+=================================================================
+
+  Klasse C: 2 Chunks erstellt
+  ───────────────────────────────────────────────────────
+  Chunk-Typen:    {'tatbestand': 2}
+  Hierarchie:     {1: 2}
+  Confidence:     {0.65}
+
+  Alle 2 Chunks:
+
+  [001/2] chunk_type=tatbestand | level=1 | tokens=150 | confidence=0.65
+       text:       Häufig gestellte Fragen zur Ummeldung. Wenn Sie umziehen, müssen Sie sich ummelden. Die Ummeldung ist innerhalb von zwei Wochen nach dem Einzug vorzunehmen. Sie können
+die Ummeldung persönlich oder in manchen Kommunen auch online durchführen. Bringen Sie
+bitte Ihren Personalausweis und eine Wohnungsgeberbestätigung mit. Diese Bestätigung
+erhalten Sie von Ihrem Vermieter. Ohne diese Bestätigung kann die Ummeldung nicht
+vorgenommen werden. Bei Fragen wenden Sie sich bitte an Ihre zuständige Meldebehörde. Die Öffnungszeiten finden Sie auf der Website Ihrer Gemeinde. Eine Ummeldung ist
+gebührenfrei.
+
+  [002/2] chunk_type=tatbestand | level=1 | tokens=32 | confidence=0.65
+       overlap:    0.2
+       text:       Die Öffnungszeiten finden Sie auf der Website Ihrer Gemeinde. Eine Ummeldung ist
+gebührenfrei. Es fallen keine Kosten für Sie an.
+
+=================================================================
+  Test 3: Klasse B – Hundegesetz.pdf
+=================================================================
+  Parsing läuft...
+  Parsing abgeschlossen: 22,508 Zeichen, 3,179 Wörter
+
+  Klasse B: 80 Chunks erstellt
+  ───────────────────────────────────────────────────────
+  Chunk-Typen:    {'tatbestand': 54, 'must': 3, 'may': 19, 'deadline': 4}
+  Hierarchie:     {1: 19, 2: 51, 3: 10}
+  Confidence:     {1.0}
+
+  Alle 80 Chunks:
+
+  [001/80] chunk_type=tatbestand | level=1 | tokens=180 | confidence=1.0
+       norm_ref:   § 1 Zweck des Gesetzes, Geltungsbereich
+       cross_refs: ['§ 1']
+       text:       § 1
+
+Zweck des Gesetzes, Geltungsbereich
+
+
+
+(1) Zweck des Gesetzes ist es, Gefahren für die öffentliche Sicherheit und Ordnung
+
+vorzubeugen und abzuwehren, die mit dem Halten und dem Führen von Hunden verbunden
+
+sind.
+
+
+
+(2) Dieses Gesetz gilt für das Halten von Hunden in Niedersachsen durch
+
+Hundehalterinnen und Hundehalter, die
+
+1. in Niedersachsen mit alleiniger Wohnung oder mit Hauptwohnung gemeldet sind,
+
+2. sich länger als zwei Monate ununterbrochen in Niedersachsen aufhalten, wobei
+
+unwesentliche Unterbrechungen unberücksichtigt bleiben, oder
+
+3. den Sitz, eine Niederlassung oder eine Betriebsstätte in Niedersachsen haben und der
+
+Hund sich dort aufhält,
+
+sowie für das Führen von Hunden in Niedersachsen.
+
+  [002/80] chunk_type=tatbestand | level=2 | tokens=43 | confidence=1.0
+       norm_ref:   § 1 Zweck des Gesetzes, Geltungsbereich
+       parent_id:  466ab361...
+       text:       (1) Zweck des Gesetzes ist es, Gefahren für die öffentliche Sicherheit und Ordnung
+
+vorzubeugen und abzuwehren, die mit dem Halten und dem Führen von Hunden verbunden
+
+sind.
+
+  [003/80] chunk_type=tatbestand | level=2 | tokens=124 | confidence=1.0
+       norm_ref:   § 1 Zweck des Gesetzes, Geltungsbereich
+       parent_id:  466ab361...
+       text:       (2) Dieses Gesetz gilt für das Halten von Hunden in Niedersachsen durch
+
+Hundehalterinnen und Hundehalter, die
+
+1. in Niedersachsen mit alleiniger Wohnung oder mit Hauptwohnung gemeldet sind,
+
+2. sich länger als zwei Monate ununterbrochen in Niedersachsen aufhalten, wobei
+
+unwesentliche Unterbrechungen unberücksichtigt bleiben, oder
+
+3. den Sitz, eine Niederlassung oder eine Betriebsstätte in Niedersachsen haben und der
+
+Hund sich dort aufhält,
+
+sowie für das Führen von Hunden in Niedersachsen.
+
+  [004/80] chunk_type=tatbestand | level=1 | tokens=37 | confidence=1.0
+       norm_ref:   § 2 Allgemeine Pflichten
+       cross_refs: ['§ 2']
+       text:       § 2
+
+Allgemeine Pflichten
+
+
+
+Hunde sind so zu halten und zu führen, dass von ihnen keine Gefahren für die
+
+öffentliche Sicherheit und Ordnung ausgehen.
+
+  [005/80] chunk_type=tatbestand | level=2 | tokens=37 | confidence=1.0
+       norm_ref:   § 2 Allgemeine Pflichten
+       parent_id:  f5ff330c...
+       text:       § 2
+
+Allgemeine Pflichten
+
+
+
+Hunde sind so zu halten und zu führen, dass von ihnen keine Gefahren für die
+
+öffentliche Sicherheit und Ordnung ausgehen.
+
+  [006/80] chunk_type=tatbestand | level=1 | tokens=1107 | confidence=1.0
+       norm_ref:   § 3 Sachkunde1)
+       cross_refs: ['§ 42', '§ 11 Abs. 1 Satz 1', '§ 2 Abs. 2', '§ 3', '§ 3 Abs. 1']
+       text:       § 3
+
+Sachkunde1)
+
+
+
+(1) 1Wer einen Hund hält, muss die dafür erforderliche Sachkunde besitzen. 2Sie ist der
+
+Gemeinde auf Verlangen durch die erfolgreiche Ablegung einer theoretischen und einer
+
+
+*) Dieses Gesetz dient auch der Umsetzung der Richtlinie 2006/123/EG des Europäischen Parlaments und des
+
+Rates vom 12. Dezember 2006 über Dienstleistungen im Binnenmarkt (ABl. EU Nr. L 376 S. 36).
+
+3
+
+praktischen Sachkundeprüfung nachzuweisen. 3Die theoretische Sachkundeprüfung ist vor
+
+der Aufnahme der Hundehaltung, die praktische Prüfung während des ersten Jahres der
+
+Hundehaltung abzulegen. 4Wird der Hund von einer juristischen Person gehalten, so muss
+
+die für die Betreuung des Hundes verantwortliche Person die erforderliche Sachkunde
+
+besitzen.
+
+
+
+(2) 1In der theoretischen Sachkundeprüfung sind die erforderlichen Kenntnisse über
+
+1. die Anforderungen an die Hundehaltung unter Berücksichtigung des Tierschutzrechts,
+
+2. das Sozialverhalten von Hunden und rassespezifische Eigenschaften von Hunden,
+
+3. das Erkennen und Beurteilen von Gefahrensituationen mit Hunden,
+
+4. das Erziehen und Ausbilden von Hunden und
+
+5. Rechtsvorschriften für den Umgang mit Hunden
+
+nachzuweisen. 2In der praktischen Sachkundeprüfung ist nachzuweisen, dass die nach
+
+Satz 1 erforderlichen Kenntnisse im Umgang mit einem Hund angewendet werden können.
+3Die die Prüfung abnehmende Person oder Stelle hat über das Bestehen der jeweiligen
+
+Prüfung eine Bescheinigung auszustellen und dafür ein vom Fachministerium für verbindlich
+
+erklärtes Muster zu verwenden.
+
+
+
+(3) 1Die Sachkundeprüfungen werden von Personen und Stellen abgenommen, die eine
+
+Fachbehörde zu diesem Zweck anerkannt hat. 2Die Anerkennung erhält auf Antrag, wer die
+
+für die Abnahme der Prüfungen erforderlichen Kenntnisse und Fähigkeiten nachweist.
+
+
+
+(4) Eine Person oder Stelle, die
+
+1. in einem anderen Mitgliedstaat der Europäischen Union,
+
+2. in einem anderen Vertragsstaat des Abkommens über den Europäischen Wirtschafts-
+
+raum oder
+
+3. in einem Staat, demgegenüber die Mitgliedstaaten der Europäischen Union vertrags-
+
+rechtlich zur Gleichbehandlung seiner Staatsangehörigen verpflichtet sind,
+
+nach gleichwertigen Anforderungen oder in einem anderen Bundesland eine entsprechende
+
+Anerkennung erhalten hat, gilt in Niedersachsen als anerkannt.
+
+
+
+
+1) § 3 Abs. 1 bis 3 Satz 1 und Abs. 4 tritt erst am 1. Juli 2013 in Kraft (Artikel 3 Abs. 1 Satz 2 des G vom 26. Mai
+
+2011, Nds. GVBl. S. 130).
+
+4
+
+(5) 1Das Anerkennungsverfahren kann über eine einheitliche Stelle nach den Vor-
+
+schriften des Verwaltungsverfahrensgesetzes abgewickelt werden. 2Hat die Fachbehörde
+
+nicht innerhalb einer Frist von drei Monaten über den Antrag auf Anerkennung entschieden,
+
+so gilt die Anerkennung als erteilt; im Übrigen findet § 42 a des Verwaltungsverfahrens-
+
+gesetzes Anwendung. 3Wer eine Anerkennung erhalten hat und die Anerkennungsvoraus-
+
+setzungen nicht mehr erfüllt, hat dies der Fachbehörde oder einer einheitlichen Stelle mitzu-
+
+teilen.
+
+
+
+(6) 1Die nach Absatz 1 Satz 1 erforderliche Sachkunde besitzt auch, wer nachweislich
+
+1. innerhalb der letzten zehn Jahre vor der Aufnahme der Hundehaltung oder Betreuung
+
+für eine juristische Person über einen Zeitraum von mindestens zwei Jahren
+
+ununterbrochen einen Hund gehalten oder für eine juristische Person betreut hat,
+
+2. Tierärztin oder Tierarzt oder Inhaberin oder Inhaber einer Erlaubnis nach § 2 Abs. 2 der
+
+Bundes-Tierärzteordnung zur vorübergehenden Ausübung des tierärztlichen Berufs ist,
+
+3. Brauchbarkeitsprüfungen für Jagdhunde abnimmt oder eine solche Prüfung mit einem
+
+Hund erfolgreich abgelegt hat,
+
+4. eine sonstige Prüfung bestanden hat, die vom Fachministerium als den Prüfungen nach
+
+Absatz 1 Satz 2 gleichwertig anerkannt worden ist,
+
+5. eine Erlaubnis nach § 11 Abs. 1 Satz 1 Nrn. 2 oder 2 b des Tierschutzgesetzes
+
+(TierSchG) zum Halten von Hunden in einem Tierheim oder einer ähnlichen Einrichtung
+
+für die dort gehaltenen Hunde oder zur Ausbildung von Hunden zu Schutzzwecken für
+
+Dritte zur Unterhaltung einer Einrichtung hierfür besitzt,
+
+6. für die Betreuung eine
+
+  [007/80] chunk_type=must | level=2 | tokens=183 | confidence=1.0
+       norm_ref:   § 3 Sachkunde1)
+       parent_id:  6e3d7617...
+       text:       (1) 1Wer einen Hund hält, muss die dafür erforderliche Sachkunde besitzen. 2Sie ist der
+
+Gemeinde auf Verlangen durch die erfolgreiche Ablegung einer theoretischen und einer
+
+
+*) Dieses Gesetz dient auch der Umsetzung der Richtlinie 2006/123/EG des Europäischen Parlaments und des
+
+Rates vom 12. Dezember 2006 über Dienstleistungen im Binnenmarkt (ABl. EU Nr. L 376 S. 36).
+
+3
+
+praktischen Sachkundeprüfung nachzuweisen. 3Die theoretische Sachkundeprüfung ist vor
+
+der Aufnahme der Hundehaltung, die praktische Prüfung während des ersten Jahres der
+
+Hundehaltung abzulegen. 4Wird der Hund von einer juristischen Person gehalten, so muss
+
+die für die Betreuung des Hundes verantwortliche Person die erforderliche Sachkunde
+
+besitzen.
+
+  [008/80] chunk_type=may | level=2 | tokens=197 | confidence=1.0
+       norm_ref:   § 3 Sachkunde1)
+       parent_id:  6e3d7617...
+       text:       (2) 1In der theoretischen Sachkundeprüfung sind die erforderlichen Kenntnisse über
+
+1. die Anforderungen an die Hundehaltung unter Berücksichtigung des Tierschutzrechts,
+
+2. das Sozialverhalten von Hunden und rassespezifische Eigenschaften von Hunden,
+
+3. das Erkennen und Beurteilen von Gefahrensituationen mit Hunden,
+
+4. das Erziehen und Ausbilden von Hunden und
+
+5. Rechtsvorschriften für den Umgang mit Hunden
+
+nachzuweisen. 2In der praktischen Sachkundeprüfung ist nachzuweisen, dass die nach
+
+Satz 1 erforderlichen Kenntnisse im Umgang mit einem Hund angewendet werden können.
+3Die die Prüfung abnehmende Person oder Stelle hat über das Bestehen der jeweiligen
+
+Prüfung eine Bescheinigung auszustellen und dafür ein vom Fachministerium für verbindlich
+
+erklärtes Muster zu verwenden.
+
+  [009/80] chunk_type=tatbestand | level=2 | tokens=63 | confidence=1.0
+       norm_ref:   § 3 Sachkunde1)
+       parent_id:  6e3d7617...
+       text:       (3) 1Die Sachkundeprüfungen werden von Personen und Stellen abgenommen, die eine
+
+Fachbehörde zu diesem Zweck anerkannt hat. 2Die Anerkennung erhält auf Antrag, wer die
+
+für die Abnahme der Prüfungen erforderlichen Kenntnisse und Fähigkeiten nachweist.
+
+  [010/80] chunk_type=tatbestand | level=2 | tokens=162 | confidence=1.0
+       norm_ref:   § 3 Sachkunde1)
+       parent_id:  6e3d7617...
+       text:       (4) Eine Person oder Stelle, die
+
+1. in einem anderen Mitgliedstaat der Europäischen Union,
+
+2. in einem anderen Vertragsstaat des Abkommens über den Europäischen Wirtschafts-
+
+raum oder
+
+3. in einem Staat, demgegenüber die Mitgliedstaaten der Europäischen Union vertrags-
+
+rechtlich zur Gleichbehandlung seiner Staatsangehörigen verpflichtet sind,
+
+nach gleichwertigen Anforderungen oder in einem anderen Bundesland eine entsprechende
+
+Anerkennung erhalten hat, gilt in Niedersachsen als anerkannt.
+
+
+
+
+1) § 3 Abs. 1 bis 3 Satz 1 und Abs. 4 tritt erst am 1. Juli 2013 in Kraft (Artikel 3 Abs. 1 Satz 2 des G vom 26. Mai
+
+2011, Nds. GVBl. S. 130).
+
+4
+
+  [011/80] chunk_type=may | level=2 | tokens=133 | confidence=1.0
+       norm_ref:   § 3 Sachkunde1)
+       parent_id:  6e3d7617...
+       text:       (5) 1Das Anerkennungsverfahren kann über eine einheitliche Stelle nach den Vor-
+
+schriften des Verwaltungsverfahrensgesetzes abgewickelt werden. 2Hat die Fachbehörde
+
+nicht innerhalb einer Frist von drei Monaten über den Antrag auf Anerkennung entschieden,
+
+so gilt die Anerkennung als erteilt; im Übrigen findet § 42 a des Verwaltungsverfahrens-
+
+gesetzes Anwendung. 3Wer eine Anerkennung erhalten hat und die Anerkennungsvoraus-
+
+setzungen nicht mehr erfüllt, hat dies der Fachbehörde oder einer einheitlichen Stelle mitzu-
+
+teilen.
+
+  [012/80] chunk_type=tatbestand | level=3 | tokens=127 | confidence=1.0
+       norm_ref:   § 3 Sachkunde1)
+       parent_id:  6e3d7617...
+       text:       (6) 1Die nach Absatz 1 Satz 1 erforderliche Sachkunde besitzt auch, wer nachweislich
+
+1. innerhalb der letzten zehn Jahre vor der Aufnahme der Hundehaltung oder Betreuung
+
+für eine juristische Person über einen Zeitraum von mindestens zwei Jahren
+
+ununterbrochen einen Hund gehalten oder für eine juristische Person betreut hat,
+
+2. Tierärztin oder Tierarzt oder Inhaberin oder Inhaber einer Erlaubnis nach § 2 Abs. 2 der
+
+Bundes-Tierärzteordnung zur vorübergehenden Ausübung des tierärztlichen Berufs ist,
+
+3.
+
+  [013/80] chunk_type=tatbestand | level=3 | tokens=75 | confidence=1.0
+       norm_ref:   § 3 Sachkunde1)
+       parent_id:  6e3d7617...
+       text:       Brauchbarkeitsprüfungen für Jagdhunde abnimmt oder eine solche Prüfung mit einem
+
+Hund erfolgreich abgelegt hat,
+
+4. eine sonstige Prüfung bestanden hat, die vom Fachministerium als den Prüfungen nach
+
+Absatz 1 Satz 2 gleichwertig anerkannt worden ist,
+
+5. eine Erlaubnis nach § 11 Abs. 1 Satz 1 Nrn.
+
+  [014/80] chunk_type=tatbestand | level=3 | tokens=126 | confidence=1.0
+       norm_ref:   § 3 Sachkunde1)
+       parent_id:  6e3d7617...
+       text:       2 oder 2 b des Tierschutzgesetzes
+
+(TierSchG) zum Halten von Hunden in einem Tierheim oder einer ähnlichen Einrichtung
+
+für die dort gehaltenen Hunde oder zur Ausbildung von Hunden zu Schutzzwecken für
+
+Dritte zur Unterhaltung einer Einrichtung hierfür besitzt,
+
+6. für die Betreuung eines von einer juristischen Person des öffentlichen Rechts oder
+
+fremder Streitkräfte gehaltenen Diensthundes verantwortlich ist, oder
+
+7. einen Blindenführhund oder einen Behindertenbegleithund hält. 2Die nach Satz 1 Nr.
+
+  [015/80] chunk_type=tatbestand | level=3 | tokens=28 | confidence=1.0
+       norm_ref:   § 3 Sachkunde1)
+       parent_id:  6e3d7617...
+       text:       4 als gleichwertig anerkannten Prüfungen macht das Fachministerium
+
+im Niedersächsischen Ministerialblatt bekannt.
+
+  [016/80] chunk_type=tatbestand | level=1 | tokens=183 | confidence=1.0
+       norm_ref:   § 4 Kennzeichnung
+       cross_refs: ['§ 4']
+       text:       § 4
+
+Kennzeichnung
+
+
+1Ein Hund, der älter als sechs Monate ist, ist durch ein elektronisches Kennzeichen
+
+(Transponder) mit einer Kennnummer zu kennzeichnen. 2Der Transponder muss in der
+
+Codestruktur und dem Informationsgehalt dem Standard ISO 11784 („Radio-frequency
+
+5
+
+identification of animals - Code structure“, Ausgabe August 1996) entsprechen. 3Der
+
+Transponder muss den im Standard ISO 11785 („Radio-frequency identification of animals -
+
+Technical Concept“, Ausgabe Oktober 1996, Berichtigung Dezember 2008) festgelegten
+
+technischen Anforderungen entsprechen. 4Die ISO-Normen können bei der Beuth-Verlag
+
+GmbH, 10772 Berlin, bezogen werden; sie sind beim Deutschen Patent- und Markenamt
+
+archivmäßig gesichert niedergelegt.
+
+  [017/80] chunk_type=must | level=2 | tokens=183 | confidence=1.0
+       norm_ref:   § 4 Kennzeichnung
+       parent_id:  053125dc...
+       text:       § 4
+
+Kennzeichnung
+
+
+1Ein Hund, der älter als sechs Monate ist, ist durch ein elektronisches Kennzeichen
+
+(Transponder) mit einer Kennnummer zu kennzeichnen. 2Der Transponder muss in der
+
+Codestruktur und dem Informationsgehalt dem Standard ISO 11784 („Radio-frequency
+
+5
+
+identification of animals - Code structure“, Ausgabe August 1996) entsprechen. 3Der
+
+Transponder muss den im Standard ISO 11785 („Radio-frequency identification of animals -
+
+Technical Concept“, Ausgabe Oktober 1996, Berichtigung Dezember 2008) festgelegten
+
+technischen Anforderungen entsprechen. 4Die ISO-Normen können bei der Beuth-Verlag
+
+GmbH, 10772 Berlin, bezogen werden; sie sind beim Deutschen Patent- und Markenamt
+
+archivmäßig gesichert niedergelegt.
+
+  [018/80] chunk_type=tatbestand | level=1 | tokens=133 | confidence=1.0
+       norm_ref:   § 5 Haftpflichtversicherung
+       cross_refs: ['§ 117 Abs. 2 Satz 1', '§ 5', '§ 17 Abs. 1']
+       text:       § 5
+
+Haftpflichtversicherung
+
+
+1Für die durch einen Hund, der älter als sechs Monate ist, verursachten Schäden ist eine
+
+Haftpflichtversicherung mit einer Mindestversicherungssumme von 500 000 Euro für
+
+Personenschäden und von 250 000 Euro für Sachschäden abzuschließen. 2Zuständige
+
+Stelle nach § 117 Abs. 2 Satz 1 des Versicherungsvertragsgesetzes ist die nach § 17 Abs. 1
+
+zuständige Gemeinde. 3Satz 1 gilt nicht für juristische Personen des öffentlichen Rechts und
+
+für fremde Streitkräfte für die von ihnen gehaltenen Diensthunde.
+
+  [019/80] chunk_type=tatbestand | level=2 | tokens=133 | confidence=1.0
+       norm_ref:   § 5 Haftpflichtversicherung
+       parent_id:  b9086d81...
+       text:       § 5
+
+Haftpflichtversicherung
+
+
+1Für die durch einen Hund, der älter als sechs Monate ist, verursachten Schäden ist eine
+
+Haftpflichtversicherung mit einer Mindestversicherungssumme von 500 000 Euro für
+
+Personenschäden und von 250 000 Euro für Sachschäden abzuschließen. 2Zuständige
+
+Stelle nach § 117 Abs. 2 Satz 1 des Versicherungsvertragsgesetzes ist die nach § 17 Abs. 1
+
+zuständige Gemeinde. 3Satz 1 gilt nicht für juristische Personen des öffentlichen Rechts und
+
+für fremde Streitkräfte für die von ihnen gehaltenen Diensthunde.
+
+  [020/80] chunk_type=tatbestand | level=1 | tokens=261 | confidence=1.0
+       norm_ref:   § 62 Mitteilungspflicht
+       cross_refs: ['§ 6', '§ 62', '§ 4 Satz 1', '§ 16']
+       text:       § 62)
+
+Mitteilungspflicht
+
+
+
+(1) 1Wer einen Hund hält, hat vor Vollendung des siebten Lebensmonats des Hundes
+
+gegenüber der das zentrale Register (§ 16) führenden Stelle Folgendes anzugeben:
+
+1. seinen Namen, bei natürlichen Personen auch Vorname, Geburtstag und Geburtsort,
+
+2. seine Anschrift,
+
+3. das Geschlecht und das Geburtsdatum des Hundes,
+
+4. die Rassezugehörigkeit des Hundes oder, soweit feststellbar, die Angabe der Kreuzung
+
+und
+
+5. die Kennnummer des Hundes (§ 4 Satz 1).
+
+2Ist der Hund bei der Aufnahme der Hundehaltung älter als sechs Monate, so sind die
+
+Angaben innerhalb eines Monats nach Aufnahme der Hundehaltung zu machen.
+
+
+
+(2) Die folgenden Änderungen hat die Hundehalterin oder der Hundehalter innerhalb
+
+eines Monats gegenüber der das zentrale Register führenden Stelle anzugeben:
+
+
+2) § 6 tritt erst am 1. Juli 2013 in Kraft (Artikel 3 Abs. 1 Satz 2 des G vom 26. Mai 2011, Nds. GVBl. S. 130).
+
+6
+
+1. die Aufgabe des Haltens des Hundes,
+
+2. das Abhandenkommen und den Tod des Hundes sowie
+
+3. Änderungen der Anschrift.
+
+  [021/80] chunk_type=tatbestand | level=2 | tokens=6 | confidence=1.0
+       norm_ref:   § 62 Mitteilungspflicht
+       parent_id:  38c5c684...
+       text:       § 62)
+
+Mitteilungspflicht
+
+  [022/80] chunk_type=tatbestand | level=2 | tokens=154 | confidence=1.0
+       norm_ref:   § 62 Mitteilungspflicht
+       parent_id:  38c5c684...
+       text:       (1) 1Wer einen Hund hält, hat vor Vollendung des siebten Lebensmonats des Hundes
+
+gegenüber der das zentrale Register (§ 16) führenden Stelle Folgendes anzugeben:
+
+1. seinen Namen, bei natürlichen Personen auch Vorname, Geburtstag und Geburtsort,
+
+2. seine Anschrift,
+
+3. das Geschlecht und das Geburtsdatum des Hundes,
+
+4. die Rassezugehörigkeit des Hundes oder, soweit feststellbar, die Angabe der Kreuzung
+
+und
+
+5. die Kennnummer des Hundes (§ 4 Satz 1).
+
+2Ist der Hund bei der Aufnahme der Hundehaltung älter als sechs Monate, so sind die
+
+Angaben innerhalb eines Monats nach Aufnahme der Hundehaltung zu machen.
+
+  [023/80] chunk_type=tatbestand | level=2 | tokens=99 | confidence=1.0
+       norm_ref:   § 62 Mitteilungspflicht
+       parent_id:  38c5c684...
+       text:       (2) Die folgenden Änderungen hat die Hundehalterin oder der Hundehalter innerhalb
+
+eines Monats gegenüber der das zentrale Register führenden Stelle anzugeben:
+
+
+2) § 6 tritt erst am 1. Juli 2013 in Kraft (Artikel 3 Abs. 1 Satz 2 des G vom 26. Mai 2011, Nds. GVBl. S. 130).
+
+6
+
+1. die Aufgabe des Haltens des Hundes,
+
+2. das Abhandenkommen und den Tod des Hundes sowie
+
+3. Änderungen der Anschrift.
+
+  [024/80] chunk_type=tatbestand | level=1 | tokens=300 | confidence=1.0
+       norm_ref:   § 7 Gefährliche Hunde
+       cross_refs: ['§ 1 Abs. 2', '§ 7']
+       text:       § 7
+
+Gefährliche Hunde
+
+
+
+(1) 1Erhält die Fachbehörde einen Hinweis darauf, dass ein Hund, der von einer
+
+Hundehalterin oder einem Hundehalter nach § 1 Abs. 2 gehalten wird, eine gesteigerte
+
+Aggressivität aufweist, insbesondere
+
+1. Menschen oder Tiere gebissen oder sonst eine über das natürliche Maß hinausgehende
+
+Kampfbereitschaft, Angriffslust oder Schärfe gezeigt hat oder
+
+2. auf Angriffslust, auf über das natürliche Maß hinausgehende Kampfbereitschaft oder
+
+Schärfe oder auf ein anderes in der Wirkung gleichstehendes Merkmal gezüchtet,
+
+ausgebildet oder abgerichtet ist,
+
+so hat sie den Hinweis zu prüfen. 2Ergibt die Prüfung nach Satz 1 Tatsachen, die den
+
+Verdacht rechtfertigen, dass von dem Hund eine Gefahr für die öffentliche Sicherheit
+
+ausgeht, so stellt die Fachbehörde fest, dass der Hund gefährlich ist. 3Die Klage gegen die
+
+Feststellung nach Satz 2 hat keine aufschiebende Wirkung.
+
+
+
+(2) 1Wer einen Hund hält, der außerhalb des Geltungsbereiches dieses Gesetzes durch
+
+Verwaltungsakt als gefährlich eingestuft worden ist, hat dies der Fachbehörde unverzüglich
+
+mitzuteilen. 2Die Fachbehörde hat zu prüfen, ob der Hund gefährlich ist; Absatz 1 Sätze 2
+
+und 3 gilt entsprechend.
+
+  [025/80] chunk_type=tatbestand | level=2 | tokens=5 | confidence=1.0
+       norm_ref:   § 7 Gefährliche Hunde
+       parent_id:  64d853f5...
+       text:       § 7
+
+Gefährliche Hunde
+
+  [026/80] chunk_type=tatbestand | level=2 | tokens=219 | confidence=1.0
+       norm_ref:   § 7 Gefährliche Hunde
+       parent_id:  64d853f5...
+       text:       (1) 1Erhält die Fachbehörde einen Hinweis darauf, dass ein Hund, der von einer
+
+Hundehalterin oder einem Hundehalter nach § 1 Abs. 2 gehalten wird, eine gesteigerte
+
+Aggressivität aufweist, insbesondere
+
+1. Menschen oder Tiere gebissen oder sonst eine über das natürliche Maß hinausgehende
+
+Kampfbereitschaft, Angriffslust oder Schärfe gezeigt hat oder
+
+2. auf Angriffslust, auf über das natürliche Maß hinausgehende Kampfbereitschaft oder
+
+Schärfe oder auf ein anderes in der Wirkung gleichstehendes Merkmal gezüchtet,
+
+ausgebildet oder abgerichtet ist,
+
+so hat sie den Hinweis zu prüfen. 2Ergibt die Prüfung nach Satz 1 Tatsachen, die den
+
+Verdacht rechtfertigen, dass von dem Hund eine Gefahr für die öffentliche Sicherheit
+
+ausgeht, so stellt die Fachbehörde fest, dass der Hund gefährlich ist. 3Die Klage gegen die
+
+Feststellung nach Satz 2 hat keine aufschiebende Wirkung.
+
+  [027/80] chunk_type=must | level=2 | tokens=73 | confidence=1.0
+       norm_ref:   § 7 Gefährliche Hunde
+       parent_id:  64d853f5...
+       text:       (2) 1Wer einen Hund hält, der außerhalb des Geltungsbereiches dieses Gesetzes durch
+
+Verwaltungsakt als gefährlich eingestuft worden ist, hat dies der Fachbehörde unverzüglich
+
+mitzuteilen. 2Die Fachbehörde hat zu prüfen, ob der Hund gefährlich ist; Absatz 1 Sätze 2
+
+und 3 gilt entsprechend.
+
+  [028/80] chunk_type=tatbestand | level=1 | tokens=138 | confidence=1.0
+       norm_ref:   § 8 Erlaubnisvorbehalt für das Halten gefährlicher Hunde
+       cross_refs: ['§ 11 Abs. 1 Satz 1', '§ 7', '§ 8']
+       text:       § 8
+
+Erlaubnisvorbehalt für das Halten gefährlicher Hunde
+
+
+
+(1) Das Halten eines Hundes, dessen Gefährlichkeit nach § 7 festgestellt worden ist,
+
+bedarf der Erlaubnis der Fachbehörde.
+
+
+
+7
+
+(2) Einer Erlaubnis nach Absatz 1 bedürfen nicht
+
+1. die Inhaberinnen und Inhaber einer Erlaubnis nach § 11 Abs. 1 Satz 1 Nr. 2 TierSchG
+
+zum Halten von Hunden in einem Tierheim oder einer ähnlichen Einrichtung für die dort
+
+gehaltenen Hunde und
+
+2. juristische Personen des öffentlichen Rechts und fremde Streitkräfte für die von ihnen
+
+gehaltenen Diensthunde.
+
+  [029/80] chunk_type=tatbestand | level=2 | tokens=32 | confidence=1.0
+       norm_ref:   § 8 Erlaubnisvorbehalt für das Halten gefährlicher Hunde
+       parent_id:  90d9d0d8...
+       text:       (1) Das Halten eines Hundes, dessen Gefährlichkeit nach § 7 festgestellt worden ist,
+
+bedarf der Erlaubnis der Fachbehörde.
+
+
+
+7
+
+  [030/80] chunk_type=tatbestand | level=2 | tokens=90 | confidence=1.0
+       norm_ref:   § 8 Erlaubnisvorbehalt für das Halten gefährlicher Hunde
+       parent_id:  90d9d0d8...
+       text:       (2) Einer Erlaubnis nach Absatz 1 bedürfen nicht
+
+1. die Inhaberinnen und Inhaber einer Erlaubnis nach § 11 Abs. 1 Satz 1 Nr. 2 TierSchG
+
+zum Halten von Hunden in einem Tierheim oder einer ähnlichen Einrichtung für die dort
+
+gehaltenen Hunde und
+
+2. juristische Personen des öffentlichen Rechts und fremde Streitkräfte für die von ihnen
+
+gehaltenen Diensthunde.
+
+  [031/80] chunk_type=tatbestand | level=1 | tokens=180 | confidence=1.0
+       norm_ref:   § 9 Beantragung der Erlaubnis
+       cross_refs: ['§ 9', '§ 8']
+       text:       § 9
+
+Beantragung der Erlaubnis
+
+
+1Die Hundehalterin oder der Hundehalter hat unverzüglich nach der Feststellung der
+
+Gefährlichkeit des Hundes eine Erlaubnis nach § 8 zu beantragen oder das Halten des
+
+Hundes aufzugeben. 2Wird die Erlaubnis beantragt, so gilt das Halten des gefährlichen
+
+Hundes bis zur Entscheidung über den Antrag als erlaubt. 3Wird die Haltung des Hundes
+
+aufgegeben, so sind der Fachbehörde Name und Anschrift der neuen Halterin oder des
+
+neuen Halters anzugeben; diese oder dieser ist darauf hinzuweisen, dass die Gefährlichkeit
+
+des Hundes festgestellt worden ist. 4Ab Feststellung der Gefährlichkeit ist der Hund
+
+außerhalb ausbruchsicherer Grundstücke anzuleinen und hat einen Beißkorb zu tragen.
+
+  [032/80] chunk_type=deadline | level=2 | tokens=180 | confidence=1.0
+       norm_ref:   § 9 Beantragung der Erlaubnis
+       parent_id:  efc19016...
+       text:       § 9
+
+Beantragung der Erlaubnis
+
+
+1Die Hundehalterin oder der Hundehalter hat unverzüglich nach der Feststellung der
+
+Gefährlichkeit des Hundes eine Erlaubnis nach § 8 zu beantragen oder das Halten des
+
+Hundes aufzugeben. 2Wird die Erlaubnis beantragt, so gilt das Halten des gefährlichen
+
+Hundes bis zur Entscheidung über den Antrag als erlaubt. 3Wird die Haltung des Hundes
+
+aufgegeben, so sind der Fachbehörde Name und Anschrift der neuen Halterin oder des
+
+neuen Halters anzugeben; diese oder dieser ist darauf hinzuweisen, dass die Gefährlichkeit
+
+des Hundes festgestellt worden ist. 4Ab Feststellung der Gefährlichkeit ist der Hund
+
+außerhalb ausbruchsicherer Grundstücke anzuleinen und hat einen Beißkorb zu tragen.
+
+  [033/80] chunk_type=tatbestand | level=1 | tokens=383 | confidence=1.0
+       norm_ref:   § 10 Voraussetzungen und Inhalt der Erlaubnis
+       cross_refs: ['§ 10', '§ 5', '§ 12', '§ 4', '§ 8', '§ 13', '§ 3', '§ 3 Abs. 6', '§ 11']
+       text:       § 10
+
+Voraussetzungen und Inhalt der Erlaubnis
+
+
+
+(1) Die Erlaubnis nach § 8 ist nur zu erteilen, wenn
+
+1. die Hundehalterin oder der Hundehalter
+
+a) das 18. Lebensjahr vollendet hat,
+
+b) die zum Halten des Hundes erforderliche Zuverlässigkeit (§ 11) und persönliche
+
+Eignung (§ 12) besitzt und
+
+c) nach der Feststellung der Gefährlichkeit des Hundes eine praktische Sachkunde-
+
+prüfung gemäß § 3 mit dem Hund bestanden hat, § 3 Abs. 6 findet insoweit keine
+
+Anwendung,
+
+2. die Fähigkeit des Hundes zu sozialverträglichem Verhalten durch einen Wesenstest
+
+(§ 13) nachgewiesen ist und
+
+8
+
+3. der Hund gemäß § 4 gekennzeichnet und für ihn eine Versicherung nach § 5 nach-
+
+gewiesen ist.
+
+
+
+(2) Ist die Hundehalterin oder der Hundehalter eine juristische Person, so sind die
+
+Anforderungen des Absatzes 1 Nr. 1 durch die für die Betreuung des Hundes verantwortliche
+
+Person zu erfüllen.
+
+
+
+(3) 1Die Hundehalterin oder der Hundehalter hat der Behörde innerhalb von drei
+
+Monaten nach Antragstellung die Unterlagen vorzulegen, die erforderlich sind, um das
+
+Vorliegen der Erlaubnisvoraussetzungen zu prüfen. 2Die Frist kann auf Antrag einmal um
+
+höchstens drei Monate verlängert werden. 3Nach Ablauf der Frist ist die Erlaubnis zu
+
+versagen.
+
+
+
+(4) 1Die Erlaubnis kann befristet und unter Vorbehalt des Widerrufs erteilt sowie mit
+
+Bedingungen und Auflagen verbunden werden. 2Auflagen können auch nachträglich
+
+aufgenommen, geändert oder ergänzt werden.
+
+
+
+(5) Die Klage gegen die Versagung der Erlaubnis hat keine aufschiebende Wirkung.
+
+  [034/80] chunk_type=tatbestand | level=2 | tokens=158 | confidence=1.0
+       norm_ref:   § 10 Voraussetzungen und Inhalt der Erlaubnis
+       parent_id:  4bf5cbe3...
+       text:       (1) Die Erlaubnis nach § 8 ist nur zu erteilen, wenn
+
+1. die Hundehalterin oder der Hundehalter
+
+a) das 18. Lebensjahr vollendet hat,
+
+b) die zum Halten des Hundes erforderliche Zuverlässigkeit (§ 11) und persönliche
+
+Eignung (§ 12) besitzt und
+
+c) nach der Feststellung der Gefährlichkeit des Hundes eine praktische Sachkunde-
+
+prüfung gemäß § 3 mit dem Hund bestanden hat, § 3 Abs. 6 findet insoweit keine
+
+Anwendung,
+
+2. die Fähigkeit des Hundes zu sozialverträglichem Verhalten durch einen Wesenstest
+
+(§ 13) nachgewiesen ist und
+
+8
+
+3. der Hund gemäß § 4 gekennzeichnet und für ihn eine Versicherung nach § 5 nach-
+
+gewiesen ist.
+
+  [035/80] chunk_type=tatbestand | level=2 | tokens=48 | confidence=1.0
+       norm_ref:   § 10 Voraussetzungen und Inhalt der Erlaubnis
+       parent_id:  4bf5cbe3...
+       text:       (2) Ist die Hundehalterin oder der Hundehalter eine juristische Person, so sind die
+
+Anforderungen des Absatzes 1 Nr. 1 durch die für die Betreuung des Hundes verantwortliche
+
+Person zu erfüllen.
+
+  [036/80] chunk_type=may | level=2 | tokens=87 | confidence=1.0
+       norm_ref:   § 10 Voraussetzungen und Inhalt der Erlaubnis
+       parent_id:  4bf5cbe3...
+       text:       (3) 1Die Hundehalterin oder der Hundehalter hat der Behörde innerhalb von drei
+
+Monaten nach Antragstellung die Unterlagen vorzulegen, die erforderlich sind, um das
+
+Vorliegen der Erlaubnisvoraussetzungen zu prüfen. 2Die Frist kann auf Antrag einmal um
+
+höchstens drei Monate verlängert werden. 3Nach Ablauf der Frist ist die Erlaubnis zu
+
+versagen.
+
+  [037/80] chunk_type=may | level=2 | tokens=52 | confidence=1.0
+       norm_ref:   § 10 Voraussetzungen und Inhalt der Erlaubnis
+       parent_id:  4bf5cbe3...
+       text:       (4) 1Die Erlaubnis kann befristet und unter Vorbehalt des Widerrufs erteilt sowie mit
+
+Bedingungen und Auflagen verbunden werden. 2Auflagen können auch nachträglich
+
+aufgenommen, geändert oder ergänzt werden.
+
+  [038/80] chunk_type=tatbestand | level=2 | tokens=20 | confidence=1.0
+       norm_ref:   § 10 Voraussetzungen und Inhalt der Erlaubnis
+       parent_id:  4bf5cbe3...
+       text:       (5) Die Klage gegen die Versagung der Erlaubnis hat keine aufschiebende Wirkung.
+
+  [039/80] chunk_type=tatbestand | level=1 | tokens=195 | confidence=1.0
+       norm_ref:   § 11 Zuverlässigkeit
+       cross_refs: ['§ 30 Abs. 5', '§ 11']
+       text:       § 11
+
+Zuverlässigkeit
+
+
+1Die erforderliche Zuverlässigkeit besitzt in der Regel nicht, wer
+
+1. wegen einer vorsätzlich begangenen Straftat zu einer Geldstrafe von mehr als 60 Tages-
+
+sätzen oder zu einer Freiheitsstrafe rechtskräftig verurteilt worden ist, wenn seit dem
+
+Eintritt der Rechtskraft der letzten Verurteilung fünf Jahre noch nicht verstrichen sind,
+
+oder
+
+2. wiederholt oder gröblich gegen Vorschriften dieses Gesetzes verstoßen hat.
+
+2Zur Prüfung der Zuverlässigkeit hat die Hundehalterin oder der Hundehalter ein Führungs-
+
+zeugnis zur Vorlage bei einer Behörde nach § 30 Abs. 5 des Bundeszentralregistergesetzes
+
+zu beantragen. 3Die Fachbehörde kann im Rahmen der Prüfung der Zuverlässigkeit eine
+
+unbeschränkte Auskunft aus dem Bundeszentralregister einholen.
+
+
+
+9
+
+  [040/80] chunk_type=may | level=2 | tokens=194 | confidence=1.0
+       norm_ref:   § 11 Zuverlässigkeit
+       parent_id:  a9a20dde...
+       text:       § 11
+
+Zuverlässigkeit
+
+
+1Die erforderliche Zuverlässigkeit besitzt in der Regel nicht, wer
+
+1. wegen einer vorsätzlich begangenen Straftat zu einer Geldstrafe von mehr als 60 Tages-
+
+sätzen oder zu einer Freiheitsstrafe rechtskräftig verurteilt worden ist, wenn seit dem
+
+Eintritt der Rechtskraft der letzten Verurteilung fünf Jahre noch nicht verstrichen sind,
+
+oder
+
+2. wiederholt oder gröblich gegen Vorschriften dieses Gesetzes verstoßen hat. 2Zur Prüfung der Zuverlässigkeit hat die Hundehalterin oder der Hundehalter ein Führungs-
+
+zeugnis zur Vorlage bei einer Behörde nach § 30 Abs. 5 des Bundeszentralregistergesetzes
+
+zu beantragen. 3Die Fachbehörde kann im Rahmen der Prüfung der Zuverlässigkeit eine
+
+unbeschränkte Auskunft aus dem Bundeszentralregister einholen. 9
+
+  [041/80] chunk_type=tatbestand | level=1 | tokens=150 | confidence=1.0
+       norm_ref:   § 12 Persönliche Eignung
+       cross_refs: ['§ 12', '§ 1896']
+       text:       § 12
+
+Persönliche Eignung
+
+
+
+(1) Die erforderliche persönliche Eignung besitzt in der Regel nicht, wer
+
+1. geschäftsunfähig ist,
+
+2. aufgrund einer psychischen Krankheit oder einer geistigen oder seelischen Behinderung
+
+nach § 1896 des Bürgerlichen Gesetzbuchs betreut wird,
+
+3. von Alkohol oder Betäubungsmitteln abhängig ist oder
+
+4. aufgrund geringer körperlicher Kräfte den Hund nicht sicher führen kann.
+
+
+
+(2) Sind Tatsachen bekannt, die Bedenken gegen die persönliche Eignung begründen,
+
+so kann die Fachbehörde die Beibringung eines fachärztlichen oder fachpsychologischen
+
+Gutachtens anordnen.
+
+  [042/80] chunk_type=tatbestand | level=2 | tokens=6 | confidence=1.0
+       norm_ref:   § 12 Persönliche Eignung
+       parent_id:  ba2acc27...
+       text:       § 12
+
+Persönliche Eignung
+
+  [043/80] chunk_type=may | level=2 | tokens=94 | confidence=1.0
+       norm_ref:   § 12 Persönliche Eignung
+       parent_id:  ba2acc27...
+       text:       (1) Die erforderliche persönliche Eignung besitzt in der Regel nicht, wer
+
+1. geschäftsunfähig ist,
+
+2. aufgrund einer psychischen Krankheit oder einer geistigen oder seelischen Behinderung
+
+nach § 1896 des Bürgerlichen Gesetzbuchs betreut wird,
+
+3. von Alkohol oder Betäubungsmitteln abhängig ist oder
+
+4. aufgrund geringer körperlicher Kräfte den Hund nicht sicher führen kann.
+
+  [044/80] chunk_type=may | level=2 | tokens=47 | confidence=1.0
+       norm_ref:   § 12 Persönliche Eignung
+       parent_id:  ba2acc27...
+       text:       (2) Sind Tatsachen bekannt, die Bedenken gegen die persönliche Eignung begründen,
+
+so kann die Fachbehörde die Beibringung eines fachärztlichen oder fachpsychologischen
+
+Gutachtens anordnen.
+
+  [045/80] chunk_type=tatbestand | level=1 | tokens=388 | confidence=1.0
+       norm_ref:   § 13 Wesenstest
+       cross_refs: ['§ 42', '§ 13', '§ 3']
+       text:       § 13
+
+Wesenstest
+
+
+
+(1) 1Die Fähigkeit des Hundes zu sozialverträglichem Verhalten ist durch einen
+
+Wesenstest nachzuweisen, der gemäß den Vorgaben des Fachministeriums durchgeführt
+
+worden ist. 2Der Wesenstest ist von einer vom Fachministerium zugelassenen Person durch-
+
+zuführen. 3Die Zulassung wird Personen, die nach § 3 der Bundes-Tierärzteordnung die
+
+Berufsbezeichnung „Tierärztin“ oder „Tierarzt“ führen dürfen, auf Antrag erteilt, wenn sie
+
+vertiefte Kenntnisse und Erfahrungen in der Verhaltenstherapie mit Hunden haben.
+
+
+
+(2) Eine Person, die
+
+1. in einem anderen Mitgliedstaat der Europäischen Union,
+
+2. in einem anderen Vertragsstaat des Abkommens über den Europäischen Wirtschafts-
+
+raum oder
+
+3. in einem Staat, demgegenüber die Mitgliedstaaten der Europäischen Union vertrags-
+
+rechtlich zur Gleichbehandlung seiner Staatsangehörigen verpflichtet sind,
+
+oder in einem anderen Bundesland nach gleichwertigen Anforderungen eine entsprechende
+
+Zulassung erhalten hat, gilt in Niedersachsen als zugelassen.
+
+
+
+10
+
+(3) 1Das Zulassungsverfahren kann über eine einheitliche Stelle nach den Vorschriften
+
+des Verwaltungsverfahrensgesetzes abgewickelt werden. 2Hat das Fachministerium nicht
+
+innerhalb einer Frist von drei Monaten über den Antrag auf Zulassung entschieden, so gilt
+
+die Zulassung als erteilt; im Übrigen findet § 42 a des Verwaltungsverfahrensgesetzes
+
+Anwendung. 3Wer eine Zulassung erhalten hat und die Zulassungsvoraussetzungen nicht
+
+mehr erfüllt, hat dies dem Fachministerium oder einer einheitlichen Stelle mitzuteilen.
+
+  [046/80] chunk_type=may | level=2 | tokens=127 | confidence=1.0
+       norm_ref:   § 13 Wesenstest
+       parent_id:  5a755069...
+       text:       (1) 1Die Fähigkeit des Hundes zu sozialverträglichem Verhalten ist durch einen
+
+Wesenstest nachzuweisen, der gemäß den Vorgaben des Fachministeriums durchgeführt
+
+worden ist. 2Der Wesenstest ist von einer vom Fachministerium zugelassenen Person durch-
+
+zuführen. 3Die Zulassung wird Personen, die nach § 3 der Bundes-Tierärzteordnung die
+
+Berufsbezeichnung „Tierärztin“ oder „Tierarzt“ führen dürfen, auf Antrag erteilt, wenn sie
+
+vertiefte Kenntnisse und Erfahrungen in der Verhaltenstherapie mit Hunden haben.
+
+  [047/80] chunk_type=tatbestand | level=2 | tokens=123 | confidence=1.0
+       norm_ref:   § 13 Wesenstest
+       parent_id:  5a755069...
+       text:       (2) Eine Person, die
+
+1. in einem anderen Mitgliedstaat der Europäischen Union,
+
+2. in einem anderen Vertragsstaat des Abkommens über den Europäischen Wirtschafts-
+
+raum oder
+
+3. in einem Staat, demgegenüber die Mitgliedstaaten der Europäischen Union vertrags-
+
+rechtlich zur Gleichbehandlung seiner Staatsangehörigen verpflichtet sind,
+
+oder in einem anderen Bundesland nach gleichwertigen Anforderungen eine entsprechende
+
+Zulassung erhalten hat, gilt in Niedersachsen als zugelassen.
+
+
+
+10
+
+  [048/80] chunk_type=may | level=2 | tokens=130 | confidence=1.0
+       norm_ref:   § 13 Wesenstest
+       parent_id:  5a755069...
+       text:       (3) 1Das Zulassungsverfahren kann über eine einheitliche Stelle nach den Vorschriften
+
+des Verwaltungsverfahrensgesetzes abgewickelt werden. 2Hat das Fachministerium nicht
+
+innerhalb einer Frist von drei Monaten über den Antrag auf Zulassung entschieden, so gilt
+
+die Zulassung als erteilt; im Übrigen findet § 42 a des Verwaltungsverfahrensgesetzes
+
+Anwendung. 3Wer eine Zulassung erhalten hat und die Zulassungsvoraussetzungen nicht
+
+mehr erfüllt, hat dies dem Fachministerium oder einer einheitlichen Stelle mitzuteilen.
+
+  [049/80] chunk_type=tatbestand | level=1 | tokens=261 | confidence=1.0
+       norm_ref:   § 14 Führen eines gefährlichen Hundes
+       cross_refs: ['§ 9 Satz 3', '§ 10 Abs. 1', '§ 8', '§ 14']
+       text:       § 14
+
+Führen eines gefährlichen Hundes
+
+
+
+(1) 1Ein gefährlicher Hund darf nur von der Hundehalterin oder dem Hundehalter
+
+persönlich oder von einer Person geführt werden, die eine Bescheinigung nach Satz 2
+
+besitzt. 2Die Fachbehörde stellt einer anderen Person als der Hundehalterin oder dem
+
+Hundehalter auf Antrag eine Bescheinigung darüber aus, dass sie den gefährlichen Hund
+
+führen darf, wenn die Person die Voraussetzungen des § 10 Abs. 1 Nr. 1 erfüllt.
+
+
+
+(2) Beim Führen des gefährlichen Hundes außerhalb eines ausbruchsicheren Grund-
+
+stücks hat
+
+1. die Hundehalterin oder der Hundehalter die Erlaubnis nach § 8 und
+
+2. die beauftragte Person die Erlaubnis nach § 8 und die Bescheinigung nach Absatz 1
+
+Satz 2
+
+mitzuführen und der Gemeinde auf Verlangen zur Prüfung auszuhändigen.
+
+
+
+(3) 1Außerhalb ausbruchsicherer Grundstücke ist ein gefährlicher Hund anzuleinen. 2Auf
+
+Antrag kann die Fachbehörde den Leinenzwang, insbesondere unter Berücksichtigung des
+
+Wesenstests, ganz oder teilweise aufheben.
+
+
+
+(4) § 9 Satz 3 gilt entsprechend.
+
+  [050/80] chunk_type=may | level=2 | tokens=104 | confidence=1.0
+       norm_ref:   § 14 Führen eines gefährlichen Hundes
+       parent_id:  7b026bc4...
+       text:       (1) 1Ein gefährlicher Hund darf nur von der Hundehalterin oder dem Hundehalter
+
+persönlich oder von einer Person geführt werden, die eine Bescheinigung nach Satz 2
+
+besitzt. 2Die Fachbehörde stellt einer anderen Person als der Hundehalterin oder dem
+
+Hundehalter auf Antrag eine Bescheinigung darüber aus, dass sie den gefährlichen Hund
+
+führen darf, wenn die Person die Voraussetzungen des § 10 Abs. 1 Nr. 1 erfüllt.
+
+  [051/80] chunk_type=tatbestand | level=2 | tokens=81 | confidence=1.0
+       norm_ref:   § 14 Führen eines gefährlichen Hundes
+       parent_id:  7b026bc4...
+       text:       (2) Beim Führen des gefährlichen Hundes außerhalb eines ausbruchsicheren Grund-
+
+stücks hat
+
+1. die Hundehalterin oder der Hundehalter die Erlaubnis nach § 8 und
+
+2. die beauftragte Person die Erlaubnis nach § 8 und die Bescheinigung nach Absatz 1
+
+Satz 2
+
+mitzuführen und der Gemeinde auf Verlangen zur Prüfung auszuhändigen.
+
+  [052/80] chunk_type=may | level=2 | tokens=54 | confidence=1.0
+       norm_ref:   § 14 Führen eines gefährlichen Hundes
+       parent_id:  7b026bc4...
+       text:       (3) 1Außerhalb ausbruchsicherer Grundstücke ist ein gefährlicher Hund anzuleinen. 2Auf
+
+Antrag kann die Fachbehörde den Leinenzwang, insbesondere unter Berücksichtigung des
+
+Wesenstests, ganz oder teilweise aufheben.
+
+  [053/80] chunk_type=tatbestand | level=2 | tokens=8 | confidence=1.0
+       norm_ref:   § 14 Führen eines gefährlichen Hundes
+       parent_id:  7b026bc4...
+       text:       (4) § 9 Satz 3 gilt entsprechend.
+
+  [054/80] chunk_type=tatbestand | level=1 | tokens=256 | confidence=1.0
+       norm_ref:   § 15 Mitwirkungspflichten, Betretensrecht
+       cross_refs: ['§ 383 Abs. 1', '§ 15']
+       text:       § 15
+
+Mitwirkungspflichten, Betretensrecht
+
+
+
+(1) 1Soweit es zur Durchführung dieses Gesetzes erforderlich ist, haben Personen, die
+
+einen Hund halten oder führen, auf Verlangen der Gemeinde oder der Fachbehörde die den
+
+Hund betreffenden Feststellungen zu ermöglichen, Auskünfte zu erteilen und Unterlagen
+
+vorzulegen. 2Die zur Auskunft verpflichtete Person kann die Auskunft auf solche Fragen
+
+11
+
+verweigern, deren Beantwortung sie oder eine der in § 383 Abs. 1 Nrn. 1 bis 3 der
+
+Zivilprozessordnung bezeichneten Personen der Gefahr strafrechtlicher Verfolgung oder
+
+eines Verfahrens nach dem Gesetz über Ordnungswidrigkeiten aussetzen würde.
+
+
+
+(2) 1Beschäftigte und sonstige Beauftragte der Gemeinde und der Fachbehörde dürfen,
+
+soweit es zur Wahrnehmung ihrer Aufgaben erforderlich ist,
+
+1. Grundstücke mit Ausnahme von Wohngebäuden jederzeit und
+
+2. Betriebsräume während der Betriebszeiten
+
+betreten. 2Das Grundrecht der Unverletzlichkeit der Wohnung (Artikel 13 Abs. 1 des
+
+Grundgesetzes) wird insoweit eingeschränkt.
+
+  [055/80] chunk_type=may | level=2 | tokens=149 | confidence=1.0
+       norm_ref:   § 15 Mitwirkungspflichten, Betretensrecht
+       parent_id:  2cad344e...
+       text:       (1) 1Soweit es zur Durchführung dieses Gesetzes erforderlich ist, haben Personen, die
+
+einen Hund halten oder führen, auf Verlangen der Gemeinde oder der Fachbehörde die den
+
+Hund betreffenden Feststellungen zu ermöglichen, Auskünfte zu erteilen und Unterlagen
+
+vorzulegen. 2Die zur Auskunft verpflichtete Person kann die Auskunft auf solche Fragen
+
+11
+
+verweigern, deren Beantwortung sie oder eine der in § 383 Abs. 1 Nrn. 1 bis 3 der
+
+Zivilprozessordnung bezeichneten Personen der Gefahr strafrechtlicher Verfolgung oder
+
+eines Verfahrens nach dem Gesetz über Ordnungswidrigkeiten aussetzen würde.
+
+  [056/80] chunk_type=may | level=2 | tokens=94 | confidence=1.0
+       norm_ref:   § 15 Mitwirkungspflichten, Betretensrecht
+       parent_id:  2cad344e...
+       text:       (2) 1Beschäftigte und sonstige Beauftragte der Gemeinde und der Fachbehörde dürfen,
+
+soweit es zur Wahrnehmung ihrer Aufgaben erforderlich ist,
+
+1. Grundstücke mit Ausnahme von Wohngebäuden jederzeit und
+
+2. Betriebsräume während der Betriebszeiten
+
+betreten. 2Das Grundrecht der Unverletzlichkeit der Wohnung (Artikel 13 Abs. 1 des
+
+Grundgesetzes) wird insoweit eingeschränkt.
+
+  [057/80] chunk_type=tatbestand | level=1 | tokens=277 | confidence=1.0
+       norm_ref:   § 16 Zentrales Register
+       cross_refs: ['§ 6', '§ 16']
+       text:       § 16
+
+Zentrales Register
+
+
+
+(1) 1Das Fachministerium führt ein zentrales Register, in dem die Angaben der
+
+Hundehalterinnen und Hundehalter nach § 6 gespeichert werden. 2Das Register dient der
+
+Identifizierung eines Hundes, der Ermittlung der Hundehalterin oder des Hundehalters und
+
+der Gewinnung von Erkenntnissen über die Gefährlichkeit von Hunden in Abhängigkeit von
+
+Rasse, Geschlecht und Alter.
+
+
+
+(2) 1Das Fachministerium kann das Führen des zentralen Registers einer Landes-
+
+behörde übertragen. 2Es kann auch eine juristische Person des Privatrechts mit deren
+
+Einverständnis durch Verwaltungsakt oder durch öffentlich-rechtlichen Vertrag mit dem
+
+Führen des zentralen Registers beauftragen, wenn die Beauftragte die Gewähr für eine
+
+sachgerechte Erfüllung der Aufgabe bietet. 3Das Fachministerium macht die Übertragung
+
+oder Beauftragung im Niedersächsischen Ministerialblatt bekannt. 4Die Beauftragte unterliegt
+
+der Fachaufsicht des Fachministeriums.
+
+
+
+(3) Die Fachbehörde und die Gemeinde können im Rahmen ihrer Aufgabenerfüllung
+
+nach diesem Gesetz Auskunft aus dem zentralen Register einholen.
+
+  [058/80] chunk_type=tatbestand | level=2 | tokens=6 | confidence=1.0
+       norm_ref:   § 16 Zentrales Register
+       parent_id:  0891fc63...
+       text:       § 16
+
+Zentrales Register
+
+  [059/80] chunk_type=tatbestand | level=2 | tokens=93 | confidence=1.0
+       norm_ref:   § 16 Zentrales Register
+       parent_id:  0891fc63...
+       text:       (1) 1Das Fachministerium führt ein zentrales Register, in dem die Angaben der
+
+Hundehalterinnen und Hundehalter nach § 6 gespeichert werden. 2Das Register dient der
+
+Identifizierung eines Hundes, der Ermittlung der Hundehalterin oder des Hundehalters und
+
+der Gewinnung von Erkenntnissen über die Gefährlichkeit von Hunden in Abhängigkeit von
+
+Rasse, Geschlecht und Alter.
+
+  [060/80] chunk_type=may | level=2 | tokens=139 | confidence=1.0
+       norm_ref:   § 16 Zentrales Register
+       parent_id:  0891fc63...
+       text:       (2) 1Das Fachministerium kann das Führen des zentralen Registers einer Landes-
+
+behörde übertragen. 2Es kann auch eine juristische Person des Privatrechts mit deren
+
+Einverständnis durch Verwaltungsakt oder durch öffentlich-rechtlichen Vertrag mit dem
+
+Führen des zentralen Registers beauftragen, wenn die Beauftragte die Gewähr für eine
+
+sachgerechte Erfüllung der Aufgabe bietet. 3Das Fachministerium macht die Übertragung
+
+oder Beauftragung im Niedersächsischen Ministerialblatt bekannt. 4Die Beauftragte unterliegt
+
+der Fachaufsicht des Fachministeriums.
+
+  [061/80] chunk_type=may | level=2 | tokens=35 | confidence=1.0
+       norm_ref:   § 16 Zentrales Register
+       parent_id:  0891fc63...
+       text:       (3) Die Fachbehörde und die Gemeinde können im Rahmen ihrer Aufgabenerfüllung
+
+nach diesem Gesetz Auskunft aus dem zentralen Register einholen.
+
+  [062/80] chunk_type=tatbestand | level=1 | tokens=489 | confidence=1.0
+       norm_ref:   § 17 Zuständigkeit, sonstige Maßnahmen
+       cross_refs: ['§ 1896', '§ 2', '§ 17', '§ 55']
+       text:       § 17
+
+Zuständigkeit, sonstige Maßnahmen
+
+
+
+(1) 1Die Gemeinde überwacht die Einhaltung der §§ 2 bis 6 und 14. 2Die Fachbehörde
+
+überwacht die Einhaltung der Vorschriften dieses Gesetzes im Übrigen.
+
+12
+
+
+
+(2) 1Die Aufgaben der Fachbehörde nach diesem Gesetz werden von den Landkreisen
+
+und kreisfreien Städten wahrgenommen. 2Die Zuständigkeit der großen selbstständigen
+
+Städte und der selbstständigen Gemeinden wird ausgeschlossen.
+
+
+
+(3) Die Gemeinden und Fachbehörden erfüllen ihre Aufgaben im übertragenen
+
+Wirkungskreis.
+
+
+
+(4) 1Die zuständigen Behörden können die zur Einhaltung der Vorschriften dieses
+
+Gesetzes im Einzelfall erforderlichen Maßnahmen treffen. 2Die Gemeinde kann Hundehalte-
+
+rinnen und Hundehaltern, insbesondere wenn sie
+
+1. a) wegen einer vorsätzlich begangenen Straftat zu einer Geldstrafe von mehr als 60
+
+Tagessätzen oder zu einer Freiheitsstrafe rechtskräftig verurteilt worden sind, wenn
+
+seit dem Eintritt der Rechtskraft der letzten Verurteilung fünf Jahre noch nicht
+
+verstrichen sind,
+
+b) geschäftsunfähig sind,
+
+c) aufgrund einer psychischen Krankheit oder einer geistigen oder seelischen
+
+Behinderung nach § 1896 des Bürgerlichen Gesetzbuchs betreut werden oder
+
+d) von Alkohol oder Betäubungsmitteln abhängig sind,
+
+2. wiederholt oder gröblich gegen Vorschriften dieses Gesetzes verstoßen haben,
+
+3. aufgrund geringer körperlicher Kräfte den Hund nicht sicher führen können,
+
+aufgeben, den Hund außerhalb ausbruchsicherer Grundstücke anzuleinen oder mit einem
+
+Beißkorb zu versehen oder das Halten des Hundes untersagen. 3Zur Prüfung der
+
+Voraussetzungen des Satzes 2 Nr. 1 Buchst. d kann die Gemeinde die Beibringung eines
+
+fachärztlichen oder fachpsychologischen Gutachtens anordnen.
+
+
+
+(5) Die Befugnis der nach § 55 des Niedersächsischen Gesetzes über die öffentliche
+
+Sicherheit und Ordnung zuständigen Behörden, Verordnungen zur Abwehr abstrakter von
+
+Hunden ausgehender Gefahren zu erlassen, bleibt unberührt.
+
+
+
+13
+
+  [063/80] chunk_type=tatbestand | level=2 | tokens=39 | confidence=1.0
+       norm_ref:   § 17 Zuständigkeit, sonstige Maßnahmen
+       parent_id:  536c5c12...
+       text:       (1) 1Die Gemeinde überwacht die Einhaltung der §§ 2 bis 6 und 14. 2Die Fachbehörde
+
+überwacht die Einhaltung der Vorschriften dieses Gesetzes im Übrigen.
+
+12
+
+  [064/80] chunk_type=tatbestand | level=2 | tokens=56 | confidence=1.0
+       norm_ref:   § 17 Zuständigkeit, sonstige Maßnahmen
+       parent_id:  536c5c12...
+       text:       (2) 1Die Aufgaben der Fachbehörde nach diesem Gesetz werden von den Landkreisen
+
+und kreisfreien Städten wahrgenommen. 2Die Zuständigkeit der großen selbstständigen
+
+Städte und der selbstständigen Gemeinden wird ausgeschlossen.
+
+  [065/80] chunk_type=tatbestand | level=2 | tokens=22 | confidence=1.0
+       norm_ref:   § 17 Zuständigkeit, sonstige Maßnahmen
+       parent_id:  536c5c12...
+       text:       (3) Die Gemeinden und Fachbehörden erfüllen ihre Aufgaben im übertragenen
+
+Wirkungskreis.
+
+  [066/80] chunk_type=may | level=3 | tokens=55 | confidence=1.0
+       norm_ref:   § 17 Zuständigkeit, sonstige Maßnahmen
+       parent_id:  536c5c12...
+       text:       (4) 1Die zuständigen Behörden können die zur Einhaltung der Vorschriften dieses
+
+Gesetzes im Einzelfall erforderlichen Maßnahmen treffen. 2Die Gemeinde kann Hundehalte-
+
+rinnen und Hundehaltern, insbesondere wenn sie
+
+1.
+
+  [067/80] chunk_type=may | level=3 | tokens=126 | confidence=1.0
+       norm_ref:   § 17 Zuständigkeit, sonstige Maßnahmen
+       parent_id:  536c5c12...
+       text:       a) wegen einer vorsätzlich begangenen Straftat zu einer Geldstrafe von mehr als 60
+
+Tagessätzen oder zu einer Freiheitsstrafe rechtskräftig verurteilt worden sind, wenn
+
+seit dem Eintritt der Rechtskraft der letzten Verurteilung fünf Jahre noch nicht
+
+verstrichen sind,
+
+b) geschäftsunfähig sind,
+
+c) aufgrund einer psychischen Krankheit oder einer geistigen oder seelischen
+
+Behinderung nach § 1896 des Bürgerlichen Gesetzbuchs betreut werden oder
+
+d) von Alkohol oder Betäubungsmitteln abhängig sind,
+
+2.
+
+  [068/80] chunk_type=may | level=3 | tokens=116 | confidence=1.0
+       norm_ref:   § 17 Zuständigkeit, sonstige Maßnahmen
+       parent_id:  536c5c12...
+       text:       wiederholt oder gröblich gegen Vorschriften dieses Gesetzes verstoßen haben,
+
+3. aufgrund geringer körperlicher Kräfte den Hund nicht sicher führen können,
+
+aufgeben, den Hund außerhalb ausbruchsicherer Grundstücke anzuleinen oder mit einem
+
+Beißkorb zu versehen oder das Halten des Hundes untersagen. 3Zur Prüfung der
+
+Voraussetzungen des Satzes 2 Nr. 1 Buchst. d kann die Gemeinde die Beibringung eines
+
+fachärztlichen oder fachpsychologischen Gutachtens anordnen.
+
+  [069/80] chunk_type=tatbestand | level=2 | tokens=58 | confidence=1.0
+       norm_ref:   § 17 Zuständigkeit, sonstige Maßnahmen
+       parent_id:  536c5c12...
+       text:       (5) Die Befugnis der nach § 55 des Niedersächsischen Gesetzes über die öffentliche
+
+Sicherheit und Ordnung zuständigen Behörden, Verordnungen zur Abwehr abstrakter von
+
+Hunden ausgehender Gefahren zu erlassen, bleibt unberührt.
+
+
+
+13
+
+  [070/80] chunk_type=tatbestand | level=1 | tokens=367 | confidence=1.0
+       norm_ref:   § 18 Ordnungswidrigkeiten
+       cross_refs: ['§ 5 Satz 1', '§ 14 Abs. 1 Satz 2', '§ 14 Abs. 1', '§ 10 Abs. 4', '§ 14 Abs. 2', '§ 4', '§ 14 Abs. 3', '§ 17 Abs. 4', '§ 14 Abs. 4', '§ 9 Satz 4']
+       text:       § 18
+
+Ordnungswidrigkeiten
+
+
+
+(1) Ordnungswidrig handelt, wer vorsätzlich oder fahrlässig
+
+1. entgegen § 3 einen Hund ohne die erforderliche Sachkunde hält,
+
+2. entgegen § 4 einen Hund ohne Kennzeichnung durch einen Transponder hält,
+
+3. entgegen § 5 Satz 1 einen Hund ohne Haftpflichtversicherung hält,
+
+4. entgegen § 6 Angaben nicht, nicht rechtzeitig, nicht richtig oder nicht vollständig macht,
+
+5. entgegen § 7 Abs. 2 Satz 1 das Halten eines Hundes nicht unverzüglich mitteilt,
+
+6. entgegen § 8 einen gefährlichen Hund ohne Erlaubnis hält,
+
+7. die nach § 9 Satz 3 oder § 14 Abs. 4 erforderlichen Angaben nicht macht,
+
+8. entgegen § 9 Satz 4 einen gefährlichen Hund führt, der nicht angeleint ist oder keinen
+
+Beißkorb trägt,
+
+9. einer vollziehbaren Auflage nach § 10 Abs. 4 zuwiderhandelt,
+
+10. entgegen § 14 Abs. 1 eine Person mit dem Führen eines gefährlichen Hundes
+
+beauftragt, die für den Hund keine Bescheinigung nach § 14 Abs. 1 Satz 2 besitzt,
+
+11. entgegen § 14 Abs. 2
+
+a) die Erlaubnis nach § 8 oder
+
+b) die Bescheinigung nach § 14 Abs. 1 Satz 2
+
+nicht mitführt oder nicht aushändigt,
+
+12. entgegen § 14 Abs. 3 einen gefährlichen Hund führt, der nicht angeleint ist,
+
+13. entgegen § 15 Abs. 1 eine Feststellung nicht ermöglicht, eine Auskunft nicht erteilt oder
+
+Unterlagen nicht vorlegt,
+
+14. einer vollziehbaren Anordnung nach § 17 Abs. 4 zuwiderhandelt.
+
+
+
+(2) Die Ordnungswidrigkeit kann mit einer Geldbuße bis zu 10 000 Euro geahndet
+
+werden.
+
+
+
+14
+
+  [071/80] chunk_type=deadline | level=3 | tokens=129 | confidence=1.0
+       norm_ref:   § 18 Ordnungswidrigkeiten
+       parent_id:  76ebeff0...
+       text:       (1) Ordnungswidrig handelt, wer vorsätzlich oder fahrlässig
+
+1. entgegen § 3 einen Hund ohne die erforderliche Sachkunde hält,
+
+2. entgegen § 4 einen Hund ohne Kennzeichnung durch einen Transponder hält,
+
+3. entgegen § 5 Satz 1 einen Hund ohne Haftpflichtversicherung hält,
+
+4. entgegen § 6 Angaben nicht, nicht rechtzeitig, nicht richtig oder nicht vollständig macht,
+
+5. entgegen § 7 Abs. 2 Satz 1 das Halten eines Hundes nicht unverzüglich mitteilt,
+
+6. entgegen § 8 einen gefährlichen Hund ohne Erlaubnis hält,
+
+7.
+
+  [072/80] chunk_type=deadline | level=3 | tokens=125 | confidence=1.0
+       norm_ref:   § 18 Ordnungswidrigkeiten
+       parent_id:  76ebeff0...
+       text:       die nach § 9 Satz 3 oder § 14 Abs. 4 erforderlichen Angaben nicht macht,
+
+8. entgegen § 9 Satz 4 einen gefährlichen Hund führt, der nicht angeleint ist oder keinen
+
+Beißkorb trägt,
+
+9. einer vollziehbaren Auflage nach § 10 Abs. 4 zuwiderhandelt,
+
+10. entgegen § 14 Abs. 1 eine Person mit dem Führen eines gefährlichen Hundes
+
+beauftragt, die für den Hund keine Bescheinigung nach § 14 Abs. 1 Satz 2 besitzt,
+
+11. entgegen § 14 Abs. 2
+
+a) die Erlaubnis nach § 8 oder
+
+b) die Bescheinigung nach § 14 Abs.
+
+  [073/80] chunk_type=deadline | level=3 | tokens=79 | confidence=1.0
+       norm_ref:   § 18 Ordnungswidrigkeiten
+       parent_id:  76ebeff0...
+       text:       1 Satz 2
+
+nicht mitführt oder nicht aushändigt,
+
+12. entgegen § 14 Abs. 3 einen gefährlichen Hund führt, der nicht angeleint ist,
+
+13. entgegen § 15 Abs. 1 eine Feststellung nicht ermöglicht, eine Auskunft nicht erteilt oder
+
+Unterlagen nicht vorlegt,
+
+14. einer vollziehbaren Anordnung nach § 17 Abs. 4 zuwiderhandelt.
+
+  [074/80] chunk_type=may | level=2 | tokens=23 | confidence=1.0
+       norm_ref:   § 18 Ordnungswidrigkeiten
+       parent_id:  76ebeff0...
+       text:       (2) Die Ordnungswidrigkeit kann mit einer Geldbuße bis zu 10 000 Euro geahndet
+
+werden.
+
+
+
+14
+
+  [075/80] chunk_type=tatbestand | level=1 | tokens=282 | confidence=1.0
+       norm_ref:   § 19 Übergangsregelungen
+       cross_refs: ['§ 19', '§ 6 Abs. 1 Satz 1', '§ 4', '§ 9', '§ 8', '§ 13', '§ 3 Abs. 1']
+       text:       § 19
+
+Übergangsregelungen
+
+
+
+(1) 1Ist ein Hund, der vor dem 1. Juli 2011 durch einen Transponder, der nicht den
+
+Anforderungen nach § 4 Sätze 2 und 3 entspricht, mit einer Kennnummer gekennzeichnet
+
+worden, so ist dies ausreichend. 2In diesem Fall hat die Hundehalterin oder der Hundehalter
+
+dafür zu sorgen, dass der Fachbehörde bei Bedarf für den Transponder ein Lesegerät zur
+
+Verfügung steht.
+
+
+
+(2) Erlaubnisse zum Halten eines gefährlichen Hundes nach § 3 Abs. 1 des
+
+Niedersächsischen Gesetzes über das Halten von Hunden vom 12. Dezember 2002 (Nds.
+
+GVBl. 2003 S. 2), geändert durch Gesetz vom 30. Oktober 2003 (Nds. GVBl. S. 367), gelten
+
+als Erlaubnisse nach § 8 fort.
+
+
+
+(3) Wer am 1. Juli 2013 einen Hund hält, der älter als sechs Monate ist, hat die Angaben
+
+nach § 6 Abs. 1 Satz 1 bis zum 1. August 2013 zu machen.
+
+
+
+(4) Zulassungen von Personen und Stellen für die Durchführung eines Wesenstests
+
+nach § 9 des Niedersächsischen Gesetzes über das Halten von Hunden vom 12. Dezember
+
+2002 (Nds. GVBl. 2003 S. 2), geändert durch Gesetz vom 30. Oktober 2003 (Nds. GVBl.
+
+S. 367), gelten als Zulassungen nach § 13 fort.
+
+  [076/80] chunk_type=tatbestand | level=2 | tokens=6 | confidence=1.0
+       norm_ref:   § 19 Übergangsregelungen
+       parent_id:  04059015...
+       text:       § 19
+
+Übergangsregelungen
+
+  [077/80] chunk_type=tatbestand | level=2 | tokens=91 | confidence=1.0
+       norm_ref:   § 19 Übergangsregelungen
+       parent_id:  04059015...
+       text:       (1) 1Ist ein Hund, der vor dem 1. Juli 2011 durch einen Transponder, der nicht den
+
+Anforderungen nach § 4 Sätze 2 und 3 entspricht, mit einer Kennnummer gekennzeichnet
+
+worden, so ist dies ausreichend. 2In diesem Fall hat die Hundehalterin oder der Hundehalter
+
+dafür zu sorgen, dass der Fachbehörde bei Bedarf für den Transponder ein Lesegerät zur
+
+Verfügung steht.
+
+  [078/80] chunk_type=tatbestand | level=2 | tokens=69 | confidence=1.0
+       norm_ref:   § 19 Übergangsregelungen
+       parent_id:  04059015...
+       text:       (2) Erlaubnisse zum Halten eines gefährlichen Hundes nach § 3 Abs. 1 des
+
+Niedersächsischen Gesetzes über das Halten von Hunden vom 12. Dezember 2002 (Nds.
+
+GVBl. 2003 S. 2), geändert durch Gesetz vom 30. Oktober 2003 (Nds. GVBl. S. 367), gelten
+
+als Erlaubnisse nach § 8 fort.
+
+  [079/80] chunk_type=tatbestand | level=2 | tokens=36 | confidence=1.0
+       norm_ref:   § 19 Übergangsregelungen
+       parent_id:  04059015...
+       text:       (3) Wer am 1. Juli 2013 einen Hund hält, der älter als sechs Monate ist, hat die Angaben
+
+nach § 6 Abs. 1 Satz 1 bis zum 1. August 2013 zu machen.
+
+  [080/80] chunk_type=tatbestand | level=2 | tokens=74 | confidence=1.0
+       norm_ref:   § 19 Übergangsregelungen
+       parent_id:  04059015...
+       text:       (4) Zulassungen von Personen und Stellen für die Durchführung eines Wesenstests
+
+nach § 9 des Niedersächsischen Gesetzes über das Halten von Hunden vom 12. Dezember
+
+2002 (Nds. GVBl. 2003 S. 2), geändert durch Gesetz vom 30. Oktober 2003 (Nds. GVBl.
+
+S. 367), gelten als Zulassungen nach § 13 fort.
+
+=================================================================
+  Chunker-Test abgeschlossen
+=================================================================

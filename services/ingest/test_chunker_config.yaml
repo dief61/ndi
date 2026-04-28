@@ -1,0 +1,45 @@
+# NDI Chunker-Test – Konfigurationsdatei
+# services/ingest/test_chunker_config.yaml
+#
+# Alle Parameter des test_chunker.py können hier vorbelegt werden.
+# Kommandozeilenargumente überschreiben diese Werte.
+
+# ── Ausgabe ──────────────────────────────────────────────────────────────────
+output:
+  # Maximale Anzahl Chunks pro Test (0 = alle)
+  limit: 0
+  # Ausgabedatei (null = nur Konsole)
+  file: null
+  # Textlänge pro Chunk in der Ausgabe (Zeichen, 0 = vollständig)
+  text_preview_length: 200
+
+# ── Dokument-Klasse ───────────────────────────────────────────────────────────
+document:
+  # Dokumentklasse erzwingen: A, B, C oder null (automatische Erkennung)
+  force_class: null
+
+# ── Synthetische Testdaten ────────────────────────────────────────────────────
+synthetic_tests:
+  # Klasse-A- und Klasse-C-Tests aktivieren
+  enabled: true
+
+# ── Chunking-Parameter ────────────────────────────────────────────────────────
+chunking:
+  # Klasse A
+  class_a:
+    token_limit_parent: 1024
+    token_limit_child: 256
+    token_limit_satz: 128
+
+  # Klasse B
+  class_b:
+    token_limit_parent: 128
+    token_limit_child: 512
+    overlap_ratio: 0.15
+
+  # Klasse C
+  class_c:
+    token_min: 50
+    token_max: 384
+    overlap_ratio: 0.20
+    score_threshold: 0.72     # Erhöhter Threshold für Qualitätsfilter

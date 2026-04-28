@@ -1,0 +1,59 @@
+# NDI Embedder – Konfigurationsdatei
+# services/ingest/embedder_config.yaml
+#
+# Wechsel des Modells: nur 'active_model' ändern.
+# Alle anderen Parameter werden aus dem jeweiligen Modell-Profil gelesen.
+
+# ── Aktives Modell ────────────────────────────────────────────────────────────
+# Mögliche Werte: "deepset-mxbai" | "multilingual-e5"
+active_model: "deepset-mxbai"
+
+# ── Modell-Profile ────────────────────────────────────────────────────────────
+models:
+
+  deepset-mxbai:
+    # Bestes Modell für deutschsprachige Rechtstexte
+    # Fine-tuned auf 30M+ deutschen Retrieval-Paaren (Basis: multilingual-e5-large)
+    model_id:        "mixedbread-ai/deepset-mxbai-embed-de-large-v1"
+    dimensions:      1024
+    max_seq_length:  512
+    # Prefixes: "query:" für Suchanfragen, "passage:" für Dokument-Chunks
+    prefix_query:    "query: "
+    prefix_passage:  "passage: "
+    normalize:       true
+    license:         "Apache 2.0"
+
+  multilingual-e5:
+    # Fallback: Mehrsprachiges Modell (ursprünglich im Architekturkonzept)
+    # Geeignet wenn Mehrsprachigkeit später benötigt wird
+    model_id:        "intfloat/multilingual-e5-large"
+    dimensions:      1024
+    max_seq_length:  512
+    prefix_query:    "query: "
+    prefix_passage:  "passage: "
+    normalize:       true
+    license:         "Apache 2.0"
+
+# ── Laufzeit-Parameter ────────────────────────────────────────────────────────
+runtime:
+  # Batch-Größe für Embedding-Berechnung
+  # CPU: 8-16 empfohlen | GPU: 32-64 möglich
+  batch_size:        16
+
+  # Gerät: "cpu" | "cuda" | "auto" (auto = cuda wenn verfügbar, sonst cpu)
+  device:            "auto"
+
+  # Embedding-Cache aktivieren (verhindert doppelte Berechnungen)
+  cache_enabled:     true
+
+  # Maximale Cache-Größe (Anzahl Embeddings)
+  cache_max_size:    1000
+
+  # Fortschrittsanzeige beim Embedding
+  show_progress:     true
+  
+# ── Embedding-Models ────────────────────────────────────────────────────────
+models:
+  deepset-mxbai:
+    # Lokaler Pfad statt HuggingFace-ID:
+    model_id: "../../models/deepset-mxbai-embed-de-large-v1"
