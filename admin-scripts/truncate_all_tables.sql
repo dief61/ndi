@@ -17,7 +17,9 @@ TRUNCATE TABLE
     information_models,
     ingest_jobs,
     norm_chunks,
-    norm_documents
+    norm_documents,
+	ingest_pakete,
+	ingest_paket_jobs
 RESTART IDENTITY CASCADE;
 
 -- Bestätigung
