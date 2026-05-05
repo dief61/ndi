@@ -34,7 +34,7 @@ GROUP BY label, source
 ORDER BY label, source;
 
 Alle erkannten Behörden (Flair-Ergebnisse):
-SELECT DISTINCT text, label_orig, confidence
+SELECT DISTINCT text, label, confidence
 FROM ner_entities
 WHERE label = 'BEHÖRDE'
   AND source = 'flair'
@@ -43,10 +43,10 @@ LIMIT 20;
 
 
 Alle erkannten Gesetzes-Referenzen:
-SELECT DISTINCT text, label_orig, source, COUNT(*) AS häufigkeit
+SELECT DISTINCT text, label, source, COUNT(*) AS häufigkeit
 FROM ner_entities
 WHERE label = 'GESETZ'
-GROUP BY text, label_orig, source
+GROUP BY text, label, source
 ORDER BY häufigkeit DESC
 LIMIT 20;
 
