@@ -13,18 +13,19 @@
 -- und berücksichtigt FK-Abhängigkeiten automatisch.
 -- RESTART IDENTITY setzt alle Sequenzen zurück.
 TRUNCATE TABLE
+    svo_extractions,
+    ner_entities,
+    nlp_jobs,
     im_review_log,
     information_models,
+    ingest_paket_jobs,
+    ingest_pakete,
     ingest_jobs,
     norm_chunks,
-    norm_documents,
-	ingest_pakete,
-	ingest_paket_jobs
+    norm_documents
 RESTART IDENTITY CASCADE;
 
--- Bestätigung
-SELECT
-    relname AS tabelle,
-    n_live_tup AS zeilen
+SELECT relname AS tabelle, n_live_tup AS zeilen
 FROM pg_stat_user_tables
 ORDER BY relname;
+

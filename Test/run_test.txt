@@ -1,0 +1,11 @@
+cd /home/mdi/reg-mo/ndi/Test
+source ../services/ingest/.venv/bin/activate
+
+# Vollständiger Testlauf:
+python run_test.py
+
+# Ohne Reset (nur einspielen + prüfen):
+python run_test.py --skip-reset
+
+# Anderes docs-Verzeichnis:
+python run_test.py --docs-dir /anderer/pfad

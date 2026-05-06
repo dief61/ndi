@@ -1,0 +1,14 @@
+[16:45:01]   ─────────────────────────────────────────────────────
+[16:45:01]   Schritt 1: PostgreSQL – alle Tabellen leeren
+[16:45:01]   ✓  norm_documents                      0 Zeilen
+[16:45:03]   ─────────────────────────────────────────────────────
+[16:45:03]   Schritt 5: Dokumente einspielen
+[16:45:04]   ✓  Hundegesetz.pdf         job_id=4329e6c4... status=queued
+[16:45:37]   ✓  Hundegesetz             Klasse=A chunks=80
+[16:45:38]   ─────────────────────────────────────────────────────
+[16:45:38]   Schritt 6: Ergebnis prüfen
+[16:45:38]   ✓  Dokumente in DB                     1
+[16:45:38]   ✓  Chunks gesamt                       80
+[16:45:38]   ✓  Chunks mit Embedding                80/80
+[16:45:38]   ✅  TESTLAUF ERFOLGREICH
+[16:45:38]   Log gespeichert: Test/0505164501.log
