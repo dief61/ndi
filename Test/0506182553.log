@@ -1,0 +1,96 @@
+[18:25:53] NDI Testlauf – 2026-05-06 18:25:53
+[18:25:53] Log-Datei: /home/mdi/reg-mo/ndi/Test/0506182553.log
+[18:25:53] =================================================================
+[18:25:53]   Projekt:     /home/mdi/reg-mo/ndi
+[18:25:53]   Docs-Dir:    /home/mdi/reg-mo/ndi/Test/docs
+[18:25:53]   Skip-Reset:  False
+[18:25:53]   ✓  .env geladen: /home/mdi/reg-mo/ndi/.env
+[18:25:53] 
+[18:25:53] ─────────────────────────────────────────────────────────────────
+[18:25:53]   Schritt 1: PostgreSQL – alle Tabellen leeren
+[18:25:53] ─────────────────────────────────────────────────────────────────
+[18:25:54]   ✓  norm_documents                      0 Zeilen
+[18:25:54]   ✓  norm_chunks                         0 Zeilen
+[18:25:54]   ✓  ingest_jobs                         0 Zeilen
+[18:25:54]   ✓  ingest_pakete                       0 Zeilen
+[18:25:54]   ✓  nlp_jobs                            0 Zeilen
+[18:25:54]   ✓  svo_extractions                     0 Zeilen
+[18:25:54]   ✓  ner_entities                        0 Zeilen
+[18:25:54]   ✓  PostgreSQL vollständig geleert
+[18:25:54] 
+[18:25:54] ─────────────────────────────────────────────────────────────────
+[18:25:54]   Schritt 2: MinIO – alle Buckets leeren
+[18:25:54] ─────────────────────────────────────────────────────────────────
+[18:25:54]   ✓  mnr-artefakte                       0 Objekte gelöscht
+[18:25:54]   ✓  mnr-dokumente                       0 Objekte gelöscht
+[18:25:54]   ✓  mnr-informationsmodelle             0 Objekte gelöscht
+[18:25:54]   ✓  MinIO geleert – 0 Objekte gelöscht
+[18:25:54] 
+[18:25:54] ─────────────────────────────────────────────────────────────────
+[18:25:54]   Schritt 3: Verifizierung – DB + MinIO leer?
+[18:25:54] ─────────────────────────────────────────────────────────────────
+[18:25:54]   ✓  norm_documents leer                 0 Einträge
+[18:25:54]   ✓  mnr-dokumente leer                  0 Objekte
+[18:25:54]   ✓  Verifizierung erfolgreich – System ist leer
+[18:25:54] 
+[18:25:54] ─────────────────────────────────────────────────────────────────
+[18:25:54]   Schritt 4: FastAPI Readiness prüfen
+[18:25:54] ─────────────────────────────────────────────────────────────────
+[18:25:54]   ✓  FastAPI Status                      ready
+[18:25:54]   ✓    └ postgres                        ok
+[18:25:54]   ✓    └ tika                            ok
+[18:25:54]   ✓  FastAPI ist bereit
+[18:25:54] 
+[18:25:54] ─────────────────────────────────────────────────────────────────
+[18:25:54]   Schritt 5: Dokumente einspielen
+[18:25:54] ─────────────────────────────────────────────────────────────────
+[18:25:54]   ✓  4 PDF-Dateien gefunden:
+[18:25:54]        FAQ1-NHundG.pdf
+[18:25:54]        FAQ2-NHundG.pdf
+[18:25:54]        FAQ3-NHundG.pdf
+[18:25:54]        Hundegesetz.pdf
+[18:25:54] 
+       Einspielen: FAQ1-NHundG.pdf → Titel: 'FAQ1-NHundG'
+[18:25:54]   ✓  FAQ1-NHundG.pdf                     job_id=f5ab40ae... status=queued
+[18:25:54] 
+       Einspielen: FAQ2-NHundG.pdf → Titel: 'FAQ2-NHundG'
+[18:25:54]   ✓  FAQ2-NHundG.pdf                     job_id=b825f88d... status=queued
+[18:25:54] 
+       Einspielen: FAQ3-NHundG.pdf → Titel: 'FAQ3-NHundG'
+[18:25:54]   ✓  FAQ3-NHundG.pdf                     job_id=6e3f3b13... status=queued
+[18:25:54] 
+       Einspielen: Hundegesetz.pdf → Titel: 'Hundegesetz'
+[18:25:54]   ✓  Hundegesetz.pdf                     job_id=68ffd9ca... status=queued
+[18:25:54]   ✓  4 Dokumente eingereiht
+[18:25:54] 
+       Warte auf Abschluss von 4 Jobs...
+[18:26:39]        Noch ausstehend: 4 Jobs...
+[18:27:04]        Noch ausstehend: 4 Jobs...
+[18:27:19]        Noch ausstehend: 4 Jobs...
+[18:27:24]        ✓ FAQ1-NHundG.pdf                     status=done klasse=B chunks=15
+[18:27:24]        ✓ FAQ2-NHundG.pdf                     status=done klasse=B chunks=42
+[18:27:24]        ✓ FAQ3-NHundG.pdf                     status=done klasse=B chunks=3
+[18:27:24]        ✓ Hundegesetz.pdf                     status=done klasse=A chunks=81
+[18:27:24] 
+[18:27:24] ─────────────────────────────────────────────────────────────────
+[18:27:24]   Schritt 6: Ergebnis prüfen
+[18:27:24] ─────────────────────────────────────────────────────────────────
+[18:27:24]   ✓  Dokumente in DB                     4
+[18:27:24]   ✓  Chunks gesamt                       141
+[18:27:24]   ✓  Chunks mit Embedding                141/141
+[18:27:24] 
+       Pro Dokument:
+[18:27:24]   ✓    Unbekanntes Dokument              Klasse=B Chunks=3 Emb=3/3
+[18:27:24]   ✓    Unbekanntes Dokument              Klasse=B Chunks=42 Emb=42/42
+[18:27:24]   ✓    Unbekanntes Dokument              Klasse=B Chunks=15 Emb=15/15
+[18:27:24]   ✓    Unbekanntes Dokument              Klasse=A Chunks=81 Emb=81/81
+[18:27:24]   ✓  Dateien in MinIO                    4
+[18:27:24] 
+       Job-Zusammenfassung:
+[18:27:24]   ✓  Jobs erfolgreich                    4
+[18:27:24]   ✓  Jobs fehlerhaft                     0
+[18:27:24] 
+[18:27:24] =================================================================
+[18:27:24]   ✅  TESTLAUF ERFOLGREICH
+[18:27:24]   Log gespeichert: /home/mdi/reg-mo/ndi/Test/0506182553.log
+[18:27:24] =================================================================

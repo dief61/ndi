@@ -254,6 +254,30 @@ class TikaParser:
             flags=re.MULTILINE,
         )
 
+        # ── Maßnahme 4: Fußnotenzeichen bereinigen ───────────────────────
+        # Fall 1: Zahl+Klammer direkt hinter Wort: "Sachkunde1)" → "Sachkunde"
+        # Fußnotenmarker am Wortende entfernen
+        text = re.sub(r'(\w)\d+\)', r'\1', text)
+
+        # Fall 2: Zahl direkt vor Großbuchstabe (Fußnote vor Wort): "1Wer" → "Wer"
+        # Nur am Zeilenanfang oder nach Leerzeichen – verhindert Entfernung
+        # in legitimen Zahlen wie "§ 1Abs" oder Jahreszahlen
+        text = re.sub(r'(?<![\d§])\b\d{1,2}(?=[A-ZÄÖÜ])', '', text)
+
+        # Fall 3: Hochgestellte Zahl in Klammern direkt hinter §-Referenz:
+        # "§ 62)" → "§ 6" – nur wenn Klammer direkt an Ziffer klebt
+        text = re.sub(r'(§\s*\d+\w*)\d\)', r'\1', text)
+
+        # Fall 4: Fußnotenblock am Zeilenende entfernen
+        # Zeilen die NUR aus Zahl + Klammer + Text bestehen (Fußnotentext)
+        # z.B. "1) § 3 Abs. 1 bis 3 tritt erst am..." → entfernen
+        text = re.sub(
+            r'^\s*\d+\)\s*.+$',
+            '',
+            text,
+            flags=re.MULTILINE,
+        )
+
         # Mehrfache Leerzeichen auf eines reduzieren
         text = re.sub(r'[ \t]{2,}', ' ', text)
 
