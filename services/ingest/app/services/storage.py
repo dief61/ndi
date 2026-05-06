@@ -288,6 +288,11 @@ class DocumentStorage:
                         str(round(v, 8)) for v in chunk.embedding
                     ) + "]"
 
+                # Originaltext und abbrev_map aus Chunk lesen
+                content_original = getattr(chunk, "content_original", None)
+                abbrev_map_val   = getattr(chunk, "abbrev_map", None)
+                abbrev_map_json  = json.dumps(abbrev_map_val) if abbrev_map_val else None
+
                 row = await conn.fetchrow(
                     """
                     INSERT INTO norm_chunks (
@@ -297,6 +302,7 @@ class DocumentStorage:
                         chunk_type, hierarchy_level,
                         parent_id, overlap_with_prev,
                         confidence_weight, content,
+                        content_original, abbrev_map,
                         token_count, metadata,
                         embedding, version, valid_from
                     )
@@ -308,7 +314,8 @@ class DocumentStorage:
                         $9::uuid, $10,
                         $11, $12,
                         $13, $14::jsonb,
-                        $15::vector, $16, $17
+                        $15, $16::jsonb,
+                        $17::vector, $18, $19
                     )
                     ON CONFLICT DO NOTHING
                     RETURNING id
@@ -325,6 +332,8 @@ class DocumentStorage:
                     chunk.overlap_with_prev or 0.0,
                     chunk.confidence_weight,
                     chunk.text,
+                    content_original,
+                    abbrev_map_json,
                     chunk.token_count,
                     json.dumps({"chunk_id": chunk.chunk_id}),
                     embedding_val,

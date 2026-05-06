@@ -187,33 +187,8 @@ class NERExtractor:
         else:
             entities = rule_entities
 
-        # ── Ansatz 3: Konfidenz-Filter ────────────────────────────────────
+        # Mindest-Konfidenz filtern und deduplizieren
         entities = [e for e in entities if e.confidence >= min_conf]
-
-        # ── Ansatz 1: Blacklist ───────────────────────────────────────────
-        blacklist = {
-            w.lower()
-            for w in ner_cfg.get("blacklist", [])
-        }
-        if blacklist:
-            entities = self._apply_blacklist(entities, blacklist)
-
-        # ── Ansatz 2: Label-Korrekturen ───────────────────────────────────
-        label_corrections = {
-            k.lower(): v
-            for k, v in ner_cfg.get("label_corrections", {}).items()
-        }
-        if label_corrections:
-            entities = self._apply_label_corrections(entities, label_corrections)
-
-        # ── Ansatz 4: Kontext-Validierung ─────────────────────────────────
-        ctx_cfg = ner_cfg.get("context_validation", {})
-        if ctx_cfg.get("enabled", False):
-            entities = self._apply_context_validation(
-                entities, full_text, ctx_cfg
-            )
-
-        # Deduplizieren
         entities = self._deduplicate(entities)
 
         return entities
@@ -353,82 +328,6 @@ class NERExtractor:
                 merged.append(rule_ent)
 
         return merged
-
-    def _apply_blacklist(
-        self,
-        entities: list[NEREntity],
-        blacklist: set[str],
-    ) -> list[NEREntity]:
-        """
-        Ansatz 1: Entfernt Entitäten deren Text (lowercase) in der Blacklist steht.
-        Groß-/Kleinschreibung wird ignoriert.
-        """
-        result = []
-        for e in entities:
-            if e.text.lower().strip() in blacklist:
-                pass   # verworfen
-            else:
-                result.append(e)
-        return result
-
-    def _apply_label_corrections(
-        self,
-        entities: list[NEREntity],
-        corrections: dict[str, str],
-    ) -> list[NEREntity]:
-        """
-        Ansatz 2: Korrigiert das Label einer Entität wenn ihr Text
-        in label_corrections gefunden wird.
-        """
-        for e in entities:
-            new_label = corrections.get(e.text.lower().strip())
-            if new_label:
-                e.label = new_label
-        return entities
-
-    def _apply_context_validation(
-        self,
-        entities: list[NEREntity],
-        full_text: str,
-        ctx_cfg: dict,
-    ) -> list[NEREntity]:
-        """
-        Ansatz 4: Prüft ob im Kontext (±window Zeichen) mindestens eines
-        der required_context-Wörter vorkommt.
-        Bei Fehlschlag: Label auf fallback_label setzen statt verwerfen.
-        """
-        window     = ctx_cfg.get("context_window", 80)
-        label_cfgs = ctx_cfg
-
-        result = []
-        text_lower = full_text.lower()
-
-        for e in entities:
-            label_rule = label_cfgs.get(e.label, {})
-            required   = label_rule.get("required_context", [])
-            fallback   = label_rule.get("fallback_label", "SONSTIGE")
-
-            # Keine Kontext-Prüfung für dieses Label
-            if not required:
-                result.append(e)
-                continue
-
-            # Kontext-Fenster um die Entität
-            start    = max(0, e.start_char - window)
-            end      = min(len(text_lower), e.end_char + window)
-            context  = text_lower[start:end]
-
-            # Mindestens ein Signalwort im Kontext?
-            found = any(kw.lower() in context for kw in required)
-
-            if found:
-                result.append(e)
-            else:
-                # Nicht verwerfen – auf Fallback-Label herabstufen
-                e.label = fallback
-                result.append(e)
-
-        return result
 
     def _deduplicate(self, entities: list[NEREntity]) -> list[NEREntity]:
         """Entfernt Duplikate – behält höchste Konfidenz je Text+Label."""

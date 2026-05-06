@@ -60,6 +60,10 @@ class Chunk:
     version:            Optional[str] = None
     valid_from:         Optional[str] = None
 
+    # Originaltext und Abkürzungs-Mapping (gesetzt vom AbbrevNormalizer)
+    content_original:   Optional[str] = None
+    abbrev_map:         Optional[list[dict]] = None
+
     # Embedding wird später vom Embedder befüllt
     embedding:          Optional[list[float]] = None
 

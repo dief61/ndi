@@ -1,0 +1,186 @@
+# NDI – Abkürzungswörterbuch
+# Datei: services/ingest/abbrev_dict.yaml
+#
+# Dieses Wörterbuch wird vom AbbrevNormalizer verwendet um
+# Abkürzungen in Dokument-Texten vor dem Chunking aufzulösen.
+#
+# Struktur:
+#   - abbrev:   Die Abkürzung exakt wie im Dokument
+#   - resolved: Vollständige Auflösung
+#   - context:  Optional – nur auflösen wenn dieses Wort im Kontext steht
+#               (±100 Zeichen). Leer = immer auflösen.
+#   - label:    Entitätstyp (für NER-Anreicherung)
+#
+# Reihenfolge: Längere Abkürzungen zuerst (verhindert Teilauflösungen)
+# Beispiel: "NHundG" vor "G" prüfen.
+#
+# NICHT auflösen:
+#   - § X Abs. Y Satz Z  → Normreferenzen bleiben unverändert (Traceability)
+#   - Abs. Nr. Satz       → Strukturmarker bleiben unverändert
+#   - Jahreszahlen, Datumsangaben
+
+abbreviations:
+
+  # ── Bundesgesetze ────────────────────────────────────────────────────────
+  - abbrev: "GG"
+    resolved: "Grundgesetz"
+    context: ["Artikel", "Art.", "gemäß", "nach", "§"]
+    label: "GESETZ"
+
+  - abbrev: "BGB"
+    resolved: "Bürgerliches Gesetzbuch"
+    context: []
+    label: "GESETZ"
+
+  - abbrev: "StGB"
+    resolved: "Strafgesetzbuch"
+    context: []
+    label: "GESETZ"
+
+  - abbrev: "VwVfG"
+    resolved: "Verwaltungsverfahrensgesetz"
+    context: []
+    label: "GESETZ"
+
+  - abbrev: "VwGO"
+    resolved: "Verwaltungsgerichtsordnung"
+    context: []
+    label: "GESETZ"
+
+  - abbrev: "DSGVO"
+    resolved: "Datenschutz-Grundverordnung"
+    context: []
+    label: "GESETZ"
+
+  - abbrev: "BDSG"
+    resolved: "Bundesdatenschutzgesetz"
+    context: []
+    label: "GESETZ"
+
+  - abbrev: "TierSchG"
+    resolved: "Tierschutzgesetz"
+    context: []
+    label: "GESETZ"
+
+  - abbrev: "BImSchG"
+    resolved: "Bundes-Immissionsschutzgesetz"
+    context: []
+    label: "GESETZ"
+
+  - abbrev: "BNatSchG"
+    resolved: "Bundesnaturschutzgesetz"
+    context: []
+    label: "GESETZ"
+
+  # ── Niedersächsische Gesetze ──────────────────────────────────────────────
+  - abbrev: "NHundG"
+    resolved: "Niedersächsisches Gesetz über das Halten von Hunden"
+    context: []
+    label: "GESETZ"
+
+  - abbrev: "NMG"
+    resolved: "Niedersächsisches Meldegesetz"
+    context: []
+    label: "GESETZ"
+
+  - abbrev: "NPOG"
+    resolved: "Niedersächsisches Polizei- und Ordnungsbehördengesetz"
+    context: []
+    label: "GESETZ"
+
+  - abbrev: "NKomVG"
+    resolved: "Niedersächsisches Kommunalverfassungsgesetz"
+    context: []
+    label: "GESETZ"
+
+  # ── Gerichte ─────────────────────────────────────────────────────────────
+  - abbrev: "BVerwG"
+    resolved: "Bundesverwaltungsgericht"
+    context: []
+    label: "BEHÖRDE"
+
+  - abbrev: "BVerfG"
+    resolved: "Bundesverfassungsgericht"
+    context: []
+    label: "BEHÖRDE"
+
+  - abbrev: "BGH"
+    resolved: "Bundesgerichtshof"
+    context: []
+    label: "BEHÖRDE"
+
+  - abbrev: "OVG"
+    resolved: "Oberverwaltungsgericht"
+    context: []
+    label: "BEHÖRDE"
+
+  - abbrev: "VG"
+    resolved: "Verwaltungsgericht"
+    context: ["Urteil", "Beschluss", "Az.", "Aktenzeichen"]
+    label: "BEHÖRDE"
+
+  # ── Kontextabhängige Abkürzungen ──────────────────────────────────────────
+  # AG = Amtsgericht ODER Aktiengesellschaft – Kontext entscheidet
+  - abbrev: "AG"
+    resolved: "Amtsgericht"
+    context: ["Urteil", "Beschluss", "Az.", "Aktenzeichen", "Richter"]
+    label: "BEHÖRDE"
+
+  # ── Bundesbehörden ────────────────────────────────────────────────────────
+  - abbrev: "BKA"
+    resolved: "Bundeskriminalamt"
+    context: []
+    label: "BEHÖRDE"
+
+  - abbrev: "BSI"
+    resolved: "Bundesamt für Sicherheit in der Informationstechnik"
+    context: []
+    label: "BEHÖRDE"
+
+  - abbrev: "BfDI"
+    resolved: "Bundesbeauftragter für den Datenschutz und die Informationsfreiheit"
+    context: []
+    label: "BEHÖRDE"
+
+  # ── Bundesländer ──────────────────────────────────────────────────────────
+  - abbrev: "Nds."
+    resolved: "Niedersachsen"
+    context: []
+    label: "ORT"
+
+  - abbrev: "NRW"
+    resolved: "Nordrhein-Westfalen"
+    context: []
+    label: "ORT"
+
+  - abbrev: "BW"
+    resolved: "Baden-Württemberg"
+    context: ["Gesetz", "Verordnung", "Ministerium", "gemäß"]
+    label: "ORT"
+
+  # ── Publikationsorgane ────────────────────────────────────────────────────
+  - abbrev: "GVBl."
+    resolved: "Gesetz- und Verordnungsblatt"
+    context: []
+    label: "SONSTIGE"
+
+  - abbrev: "BGBl."
+    resolved: "Bundesgesetzblatt"
+    context: []
+    label: "SONSTIGE"
+
+  - abbrev: "BAnz."
+    resolved: "Bundesanzeiger"
+    context: []
+    label: "SONSTIGE"
+
+  # ── Sonstige Verwaltungsabkürzungen ──────────────────────────────────────
+  - abbrev: "OIDC"
+    resolved: "OpenID Connect"
+    context: []
+    label: "SONSTIGE"
+
+  - abbrev: "XÖV"
+    resolved: "XML in der öffentlichen Verwaltung"
+    context: []
+    label: "SONSTIGE"

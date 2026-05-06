@@ -23,6 +23,7 @@ from app.services.parser import TikaParser
 from app.services.chunker import ChunkingRouter
 from app.services.embedder import Embedder
 from app.services.storage import DocumentStorage
+from app.services.abbrev_normalizer import AbbrevNormalizer
 
 logger = structlog.get_logger()
 
@@ -57,10 +58,11 @@ class IngestService:
     """
 
     def __init__(self):
-        self.parser   = TikaParser()
-        self.chunker  = ChunkingRouter()
-        self.embedder = Embedder()
-        self.storage  = DocumentStorage()
+        self.parser     = TikaParser()
+        self.normalizer = AbbrevNormalizer()
+        self.chunker    = ChunkingRouter()
+        self.embedder   = Embedder()
+        self.storage    = DocumentStorage()
         self._pg_pool: Optional[asyncpg.Pool] = None
 
     async def _get_pool(self) -> asyncpg.Pool:
@@ -214,18 +216,37 @@ class IngestService:
                      doc_class=parsed.doc_class_hint,
                      char_count=len(parsed.text))
 
+            # ── Schritt 3b: Abkürzungsauflösung ─────────────────────────────
+            log.info("Schritt 3b: Abkürzungsauflösung")
+            norm_result = self.normalizer.normalize(parsed.text)
+            log.info(
+                "Abkürzungen aufgelöst",
+                count=len(norm_result.replacements),
+                abbrevs=list({r.abbrev for r in norm_result.replacements}),
+            )
+
             await self._update_job(job_id, "chunking",
                                    doc_class=parsed.doc_class_hint)
 
-            # ── Schritt 4: Chunking ──────────────────────────────────────────
+            # ── Schritt 4: Chunking (auf aufgelöstem Text) ───────────────────
             log.info("Schritt 4: Chunking")
             chunks = self.chunker.route_and_chunk(
-                text=parsed.text,
+                text=norm_result.resolved_text,   # aufgelöster Text
                 structure=parsed.structure,
                 doc_id=doc_id,
                 metadata=metadata,
                 doc_class_override=doc_class_override,
             )
+
+            # Originaltext und abbrev_map in jeden Chunk eintragen
+            import json
+            abbrev_map_json = norm_result.abbrev_map
+            for chunk in chunks:
+                # Originaltext-Ausschnitt für diesen Chunk bestimmen
+                chunk.content_original = norm_result.get_original_snippet(
+                    0, len(norm_result.original_text)
+                ) if not abbrev_map_json else None
+                chunk.abbrev_map = abbrev_map_json if abbrev_map_json else None
             log.info("Chunking abgeschlossen", chunk_count=len(chunks))
 
             # Optionaler Chunk-Limit (für Tests)

@@ -192,10 +192,13 @@ class TikaParser:
     def _clean_text(self, text: str) -> str:
         """
         Bereinigt den Rohtext von Tika:
-        - Übermäßige Leerzeilen reduzieren
         - Steuerzeichen entfernen
-        - Bindestriche normalisieren (Trenn- vs. Gedankenstrich)
         - Geschützte Leerzeichen normalisieren
+        - Trennstriche normalisieren
+        - URLs entfernen (Maßnahme 1)
+        - Wiederholte Zeilen entfernen / Navigationsmenüs (Maßnahme 2)
+        - Bildrechte- und Copyright-Texte entfernen (Maßnahme 3)
+        - Übermäßige Leerzeilen reduzieren
         """
         if not text:
             return ""
@@ -208,6 +211,48 @@ class TikaParser:
 
         # Trennstriche am Zeilenende auflösen (z.B. "Verwal-\ntung" → "Verwaltung")
         text = re.sub(r'(\w)-\n(\w)', r'\1\2', text)
+
+        # ── Maßnahme 1: URLs entfernen ────────────────────────────────────
+        # HTTP/HTTPS-URLs vollständig entfernen
+        text = re.sub(r'https?://\S+', '', text)
+        # www.-URLs ohne Protokoll entfernen
+        text = re.sub(r'www\.\S+', '', text)
+
+        # ── Maßnahme 2: Wiederholte Zeilen entfernen ──────────────────────
+        # Entfernt doppelte aufeinanderfolgende Zeilen (Navigationsmenüs,
+        # wiederholte Überschriften aus Web-PDFs).
+        lines = text.splitlines()
+        deduped = []
+        prev = None
+        for line in lines:
+            stripped = line.strip()
+            if stripped != prev:
+                deduped.append(line)
+            prev = stripped
+        text = '\n'.join(deduped)
+
+        # ── Maßnahme 3: Bildrechte und Copyright-Texte entfernen ──────────
+        # "Bildrechte:" / "Bildrechte::" Zeilen
+        text = re.sub(
+            r'Bildrechte\w*\s*::?\s*.*?(?:\n|$)',
+            '',
+            text,
+            flags=re.IGNORECASE,
+        )
+        # "© Autor - stock.adobe.com" und ähnliche Stock-Bildrechte
+        text = re.sub(
+            r'©\s*\S+.*?stock\.adobe\.com\S*',
+            '',
+            text,
+            flags=re.IGNORECASE,
+        )
+        # Allgemeine ©-Zeilen die nur Copyright-Hinweise enthalten
+        text = re.sub(
+            r'^\s*©\s*.{0,80}$',
+            '',
+            text,
+            flags=re.MULTILINE,
+        )
 
         # Mehrfache Leerzeichen auf eines reduzieren
         text = re.sub(r'[ \t]{2,}', ' ', text)

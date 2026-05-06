@@ -1,0 +1,14 @@
+cd ~/reg-mo/ndi/services/ingest
+source .venv/bin/activate
+
+# Alle Dokumente:
+python ingest_report.py
+
+# Nur ein Dokument:
+python ingest_report.py --doc "Hundegesetz"
+
+# Mit CSV-Export:
+python ingest_report.py --export
+
+# Dokument + Export:
+python ingest_report.py --doc "Hundegesetz" --export --out hundegesetz_report.csv
