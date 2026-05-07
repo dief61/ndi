@@ -230,7 +230,7 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 | Datei empfangen | doc_id und job_id generieren |
 | Background-Task starten | sofort HTTP 200 antworten |
 
-       │  **(Background-Task)** 
+**     │  Background-Task** 
        ▼
 
 | **Hauptingest-Pipeline** |
@@ -245,10 +245,8 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 | 7. storage.py DocumentStorage.store_chunks() → norm_chunks + Embeddings in PostgreSQL |
 | 8. Job-Status → done |
 
-	  │
 	  │(manuell gestartet, NACH Ingest)
 	  ▼
-
 
 |  nlp_worker.py  (Option A – Post-Ingest)                |
 |---|
