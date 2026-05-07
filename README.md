@@ -224,11 +224,11 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 POST /api/v1/ingest/document
          │
          ▼
-┌─────────────────────────────────────────────────────────┐
-│  ingest.py (FastAPI-Route)                              │
-│  → Datei empfangen, doc_id + job_id generieren          │
-│  → Background-Task starten → sofort HTTP 200 antworten  │
-└─────────────────────────────────────────────────────────┘
+|---|------|
+| ingest.py (FastAPI-Route) |
+| Datei empfangen + doc_id und job_id generieren |
+| Background-Task starten + sofort HTTP 200 antworten |
+|---|------|
          │  (Background-Task)
          ▼
 ┌─────────────────────────────────────────────────────────┐
