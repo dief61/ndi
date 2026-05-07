@@ -235,33 +235,33 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
        ▼
 |    ingest_service.py  run_pipeline()                      |
 |-|
-                                                         |
-|  Schritt 1:  Job in ingest_jobs anlegen  (queued)       |
-|      │                                                  |
-|  Schritt 2:  Rohdatei → MinIO                           |
-|      │       mnr-dokumente/{doc_id}/{filename}          |
-|      │                                                  |
-|  Schritt 3:  Metadaten → PostgreSQL                     |
-|      │       → norm_documents                           |
-|      │                                                  |
-|  Schritt 4:  parser.py                                  |
-|      │       TikaParser.parse()                         |
-|      │       → Text + Struktur + doc_class_hint (A/B/C) |
-|      │                                                  |
-|  Schritt 5:  chunker.py                                 |
-|      │       ChunkingRouter.route_and_chunk()           |
-|      │       → Chunks mit Metadaten                     |
-|      │                                                  |
-|  Schritt 6:  embedder.py                                |
-|      │       Embedder.embed_chunks()                    |
-|      │       → 1024-dim Vektoren je Chunk               |
-|      │                                                  |
-|  Schritt 7:  storage.py                                 |
-|      │       DocumentStorage.store_chunks()             |
-|      │       → norm_chunks + Embeddings in PostgreSQL   |
-|      │                                                  |
-|  Schritt 8:  Job-Status → done                          |
-|---|
+---------------------------------------------------------
+  Schritt 1:  Job in ingest_jobs anlegen  (queued)       
+      │                                                  
+  Schritt 2:  Rohdatei → MinIO                           
+      │       mnr-dokumente/{doc_id}/{filename}          
+      │                                                  
+  Schritt 3:  Metadaten → PostgreSQL                     
+      │       → norm_documents                           
+      │                                                  
+  Schritt 4:  parser.py                                  
+      │       TikaParser.parse()                         
+      │       → Text + Struktur + doc_class_hint (A/B/C) 
+      │                                                  
+  Schritt 5:  chunker.py                                 
+      │       ChunkingRouter.route_and_chunk()           
+      │       → Chunks mit Metadaten                     
+      │                                                  
+  Schritt 6:  embedder.py                                
+      │       Embedder.embed_chunks()                    
+      │       → 1024-dim Vektoren je Chunk               
+      │                                                  
+  Schritt 7:  storage.py                                 
+      │       DocumentStorage.store_chunks()             
+      │       → norm_chunks + Embeddings in PostgreSQL   
+      │                                                  
+  Schritt 8:  Job-Status → done                          
+----------------------------------------------------------
          │  (manuell gestartet, NACH Ingest)
          ▼
 |---|
