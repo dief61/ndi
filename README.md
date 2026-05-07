@@ -240,22 +240,12 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 │ ingest_service.py run_pipeline() │
 ├─────────────────────────────────────────────────────────┤
 │ 1. Job in ingest_jobs anlegen (queued) │
-│ 2. Rohdatei → MinIO
-mnr-dokumente/{doc_id}/{filename} │
-│ 3. Metadaten → PostgreSQL
-→ norm_documents │
-│ 4. parser.py
-TikaParser.parse()
-→ Text + Struktur + doc_class_hint (A/B/C) │
-│ 5. chunker.py
-ChunkingRouter.route_and_chunk()
-→ Chunks mit Metadaten │
-│ 6. embedder.py
-Embedder.embed_chunks()
-→ 1024-dim Vektoren je Chunk │
-│ 7. storage.py
-DocumentStorage.store_chunks()
-→ norm_chunks + Embeddings in PostgreSQL │
+│ 2. Rohdatei → MinIO mnr-dokumente/{doc_id}/{filename} │
+│ 3. Metadaten → PostgreSQL → norm_documents │
+│ 4. parser.py TikaParser.parse() → Text + Struktur + doc_class_hint (A/B/C) │
+│ 5. chunker.py ChunkingRouter.route_and_chunk() → Chunks mit Metadaten │
+│ 6. embedder.py Embedder.embed_chunks() → 1024-dim Vektoren je Chunk │
+│ 7. storage.py DocumentStorage.store_chunks() → norm_chunks + Embeddings in PostgreSQL │
 │ 8. Job-Status → done │
 └─────────────────────────────────────────────────────────┘
       │  (manuell gestartet, NACH Ingest)
