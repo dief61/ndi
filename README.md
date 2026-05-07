@@ -236,28 +236,22 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 
 ## Hauptingest-Pipeline
 
-┌─────────────────────────────────────────────────────────┐
-│ ingest_service.py run_pipeline() │
-├─────────────────────────────────────────────────────────│
-│ 1. Job in ingest_jobs anlegen (queued) │
-│ 2. Rohdatei → MinIO mnr-dokumente/{doc_id}/{filename} │
-│ 3. Metadaten → PostgreSQL → norm_documents │
-│ 4. parser.py TikaParser.parse() → Text + Struktur + doc_class_hint (A/B/C) │
-│ 5. chunker.py ChunkingRouter.route_and_chunk() → Chunks mit Metadaten │
-│ 6. embedder.py Embedder.embed_chunks() → 1024-dim Vektoren je Chunk │
-│ 7. storage.py DocumentStorage.store_chunks() → norm_chunks + Embeddings in PostgreSQL │
-│ 8. Job-Status → done │
-└─────────────────────────────────────────────────────────┘
-      │  (manuell gestartet, NACH Ingest)
+
+| ingest_service.py run_pipeline() |
+|---|
+| 1. Job in ingest_jobs anlegen (queued) |
+| 2. Rohdatei → MinIO mnr-dokumente/{doc_id}/{filename} |
+| 3. Metadaten → PostgreSQL → norm_documents │
+| 4. parser.py TikaParser.parse() → Text + Struktur + doc_class_hint (A/B/C) |
+| 5. chunker.py ChunkingRouter.route_and_chunk() → Chunks mit Metadaten |
+| 6. embedder.py Embedder.embed_chunks() → 1024-dim Vektoren je Chunk |
+| 7. storage.py DocumentStorage.store_chunks() → norm_chunks + Embeddings in PostgreSQL |
+| 8. Job-Status → done │
+
+
+      │
+	  (manuell gestartet, NACH Ingest)
       ▼
-
-
-┌─────────────────────────────────────┐
-│ 1. Erste wichtige Information │
-│ 2. Zweite wichtige Information │
-│ 3. Dritte wichtige Information │
-└─────────────────────────────────────┘
-
 
 
 
@@ -265,23 +259,19 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 |  nlp_worker.py  (Option A – Post-Ingest)                |
 |                                                         |
 |  Schritt 1:  Chunks aus norm_chunks laden               |
-|      │                                                  |
 |  Schritt 2:  nlp_processor.py                           |
-|      │       NLPProcessor.analyze_batch()               |
-|      │       → spaCy: POS, Dependency Parsing           |
-|      │                                                  |
+|              NLPProcessor.analyze_batch()               |
+|              → spaCy: POS, Dependency Parsing           |
 |  Schritt 3:  svo_extractor.py                           |
-|      │       SVOExtractor.extract()                     |
-|      │       → SVO-Tripel + Normtypen                   |
-|      │       → Stoppwort-Filter                         |
-|      │                                                  |
+|              SVOExtractor.extract()                     |
+|              → SVO-Tripel + Normtypen                   |
+|              → Stoppwort-Filter                         |
 |  Schritt 4:  ner_extractor.py                           |
-|      │       NERExtractor.extract()                     |
-|      │       Stufe 1: Regelbasiert                      |
-|      │       Stufe 2: Flair Legal NER                   |
-|      │       → Blacklist / Label-Korrekturen            |
-|      │       → Kontext-Validierung                      |
-|      │                                                  |
+|              NERExtractor.extract()                     |
+|              Stufe 1: Regelbasiert                      |
+|              Stufe 2: Flair Legal NER                   |
+|              → Blacklist / Label-Korrekturen            |
+|              → Kontext-Validierung                      |
 |  Schritt 5:  Ergebnisse → PostgreSQL                    |
 |              → svo_extractions                          |
 |              → ner_entities                             |
