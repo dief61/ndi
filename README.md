@@ -225,18 +225,17 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
          │
          ▼
 
-| ingest.py + (FastAPI-Route) |
+| ingest.py | (FastAPI-Route) |
 |---|---|
 | Datei empfangen | doc_id und job_id generieren |
 | Background-Task starten | sofort HTTP 200 antworten |
 |---|---|
 
        │  (Background-Task)
-         ▼
-
-|  ingest_service.py  run_pipeline()                      |
-|---|
-|                                                         |
+       ▼
+|    ingest_service.py  run_pipeline()                      |
+|-|
+                                                         |
 |  Schritt 1:  Job in ingest_jobs anlegen  (queued)       |
 |      │                                                  |
 |  Schritt 2:  Rohdatei → MinIO                           |
