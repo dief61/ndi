@@ -252,23 +252,11 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 |---|
 |                                                         |
 |  Schritt 1:  Chunks aus norm_chunks laden               |
-|  Schritt 2:  nlp_processor.py                           |
-|              NLPProcessor.analyze_batch()               |
-|              → spaCy: POS, Dependency Parsing           |
-|  Schritt 3:  svo_extractor.py                           |
-|              SVOExtractor.extract()                     |
-|              → SVO-Tripel + Normtypen                   |
-|              → Stoppwort-Filter                         |
-|  Schritt 4:  ner_extractor.py                           |
-|              NERExtractor.extract()                     |
-|              Stufe 1: Regelbasiert                      |
-|              Stufe 2: Flair Legal NER                   |
-|              → Blacklist / Label-Korrekturen            |
-|              → Kontext-Validierung                      |
-|  Schritt 5:  Ergebnisse → PostgreSQL                    |
-|              → svo_extractions                          |
-|              → ner_entities                             |
-|---|
+|  Schritt 2:  nlp_processor.py	NLPProcessor.analyze_batch() → spaCy: POS, Dependency Parsing |
+|  Schritt 3:  svo_extractor.py	SVOExtractor.extract() → SVO-Tripel + Normtypen → Stoppwort-Filter |
+|  Schritt 4:  ner_extractor.py	NERExtractor.extract()	Stufe 1: Regelbasiert; Stufe 2: Flair Legal NER → Blacklist / Label-Korrekturen→ Kontext-Validierung |
+|  Schritt 5:  Ergebnisse → PostgreSQL → svo_extractions → ner_entities |
+
 
 
 ## Unterstützte Formate
