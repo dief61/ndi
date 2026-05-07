@@ -224,77 +224,79 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 POST /api/v1/ingest/document
          │
          ▼
-|---|------|
-| ingest.py (FastAPI-Route) |
+|---|---|
+| ingest.py + (FastAPI-Route) |
 | Datei empfangen + doc_id und job_id generieren |
 | Background-Task starten + sofort HTTP 200 antworten |
-|---|------|
+|---|---|
          │  (Background-Task)
          ▼
-┌─────────────────────────────────────────────────────────┐
-│  ingest_service.py  run_pipeline()                      │
-│                                                         │
-│  Schritt 1:  Job in ingest_jobs anlegen  (queued)       │
-│      │                                                  │
-│  Schritt 2:  Rohdatei → MinIO                           │
-│      │       mnr-dokumente/{doc_id}/{filename}          │
-│      │                                                  │
-│  Schritt 3:  Metadaten → PostgreSQL                     │
-│      │       → norm_documents                           │
-│      │                                                  │
-│  Schritt 4:  parser.py                                  │
-│      │       TikaParser.parse()                         │
-│      │       → Text + Struktur + doc_class_hint (A/B/C) │
-│      │                                                  │
-│  Schritt 5:  chunker.py                                 │
-│      │       ChunkingRouter.route_and_chunk()           │
-│      │       → Chunks mit Metadaten                     │
-│      │                                                  │
-│  Schritt 6:  embedder.py                                │
-│      │       Embedder.embed_chunks()                    │
-│      │       → 1024-dim Vektoren je Chunk               │
-│      │                                                  │
-│  Schritt 7:  storage.py                                 │
-│      │       DocumentStorage.store_chunks()             │
-│      │       → norm_chunks + Embeddings in PostgreSQL   │
-│      │                                                  │
-│  Schritt 8:  Job-Status → done                          │
-└─────────────────────────────────────────────────────────┘
+|---|
+|  ingest_service.py  run_pipeline()                      |
+|                                                         |
+|  Schritt 1:  Job in ingest_jobs anlegen  (queued)       |
+|      │                                                  |
+|  Schritt 2:  Rohdatei → MinIO                           |
+|      │       mnr-dokumente/{doc_id}/{filename}          |
+|      │                                                  |
+|  Schritt 3:  Metadaten → PostgreSQL                     |
+|      │       → norm_documents                           |
+|      │                                                  |
+|  Schritt 4:  parser.py                                  |
+|      │       TikaParser.parse()                         |
+|      │       → Text + Struktur + doc_class_hint (A/B/C) |
+|      │                                                  |
+|  Schritt 5:  chunker.py                                 |
+|      │       ChunkingRouter.route_and_chunk()           |
+|      │       → Chunks mit Metadaten                     |
+|      │                                                  |
+|  Schritt 6:  embedder.py                                |
+|      │       Embedder.embed_chunks()                    |
+|      │       → 1024-dim Vektoren je Chunk               |
+|      │                                                  |
+|  Schritt 7:  storage.py                                 |
+|      │       DocumentStorage.store_chunks()             |
+|      │       → norm_chunks + Embeddings in PostgreSQL   |
+|      │                                                  |
+|  Schritt 8:  Job-Status → done                          |
+|---|
          │  (manuell gestartet, NACH Ingest)
          ▼
-┌─────────────────────────────────────────────────────────┐
-│  nlp_worker.py  (Option A – Post-Ingest)                │
-│                                                         │
-│  Schritt 1:  Chunks aus norm_chunks laden               │
-│      │                                                  │
-│  Schritt 2:  nlp_processor.py                           │
-│      │       NLPProcessor.analyze_batch()               │
-│      │       → spaCy: POS, Dependency Parsing           │
-│      │                                                  │
-│  Schritt 3:  svo_extractor.py                           │
-│      │       SVOExtractor.extract()                     │
-│      │       → SVO-Tripel + Normtypen                   │
-│      │       → Stoppwort-Filter                         │
-│      │                                                  │
-│  Schritt 4:  ner_extractor.py                           │
-│      │       NERExtractor.extract()                     │
-│      │       Stufe 1: Regelbasiert                      │
-│      │       Stufe 2: Flair Legal NER                   │
-│      │       → Blacklist / Label-Korrekturen            │
-│      │       → Kontext-Validierung                      │
-│      │                                                  │
-│  Schritt 5:  Ergebnisse → PostgreSQL                    │
-│              → svo_extractions                          │
-│              → ner_entities                             │
-└─────────────────────────────────────────────────────────┘
+|---|
+|  nlp_worker.py  (Option A – Post-Ingest)                |
+|                                                         |
+|  Schritt 1:  Chunks aus norm_chunks laden               |
+|      │                                                  |
+|  Schritt 2:  nlp_processor.py                           |
+|      │       NLPProcessor.analyze_batch()               |
+|      │       → spaCy: POS, Dependency Parsing           |
+|      │                                                  |
+|  Schritt 3:  svo_extractor.py                           |
+|      │       SVOExtractor.extract()                     |
+|      │       → SVO-Tripel + Normtypen                   |
+|      │       → Stoppwort-Filter                         |
+|      │                                                  |
+|  Schritt 4:  ner_extractor.py                           |
+|      │       NERExtractor.extract()                     |
+|      │       Stufe 1: Regelbasiert                      |
+|      │       Stufe 2: Flair Legal NER                   |
+|      │       → Blacklist / Label-Korrekturen            |
+|      │       → Kontext-Validierung                      |
+|      │                                                  |
+|  Schritt 5:  Ergebnisse → PostgreSQL                    |
+|              → svo_extractions                          |
+|              → ner_entities                             |
+|---|
 
 
-Unterstützte Dokument-Formate
 Übersicht aller unterstützten Formate
-GruppeFormateKlasse
-Textdokumente	PDF, DOCX, DOC, RTF, TXT, HTMLA	/B/C auto
-LibreOffice	ODT, ODS, ODP	A/B auto, ODP→C
-Microsoft Office	XLSX, XLS, PPTX, PPT	XLSX/XLS auto, PPTX/PPT→C
-Strukturiert/XÖV	XML, JSON, CSV, TSV	A/B/C auto
-E-Books	EPUB	A/B/C autoE-
-MailEML, MSG	C (kein Strukturgerüst)
+
+|Gruppe | Formate | Klasse | 
+|---|---|---|
+|Textdokumente | PDF, DOCX, DOC, RTF, TXT, HTMLA | /B/C auto |
+|LibreOffice | ODT, ODS, ODP | A/B auto, ODP→C | 
+|Microsoft Office | XLSX, XLS, PPTX, PPT | XLSX/XLS auto, PPTX/PPT→C | 
+|Strukturiert/XÖV | XML, JSON, CSV, TSV | A/B/C auto | 
+|E-Books | EPUB | A/B/C auto E- |
+|Mail | EML, MSG | C (kein Strukturgerüst) |
+---|---|---|
