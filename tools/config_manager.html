@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NDI Config Manager</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0e1117;
+    --surface:  #161b27;
+    --surface2: #1e2535;
+    --border:   #2a3348;
+    --accent:   #4f8ef7;
+    --accent2:  #64d9a8;
+    --warn:     #f7c44f;
+    --danger:   #f76f6f;
+    --text:     #e2e8f0;
+    --muted:    #7c8da6;
+    --mono:     'IBM Plex Mono', monospace;
+    --sans:     'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--surface);
+  }
+  .logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    background: rgba(79,142,247,0.1);
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(79,142,247,0.3);
+  }
+  header h1 {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .api-status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+  .dot.online  { background: var(--accent2); box-shadow: 0 0 6px var(--accent2); }
+  .dot.offline { background: var(--danger); }
+
+  /* ── Layout ── */
+  .layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    height: calc(100vh - 57px);
+  }
+
+  /* ── Sidebar ── */
+  aside {
+    width: 220px;
+    min-width: 220px;
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    padding: 16px 0;
+    overflow-y: auto;
+  }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    padding: 0 16px 8px;
+  }
+  .nav-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-item:hover { background: var(--surface2); }
+  .nav-item.active {
+    border-left-color: var(--accent);
+    background: rgba(79,142,247,0.08);
+  }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+  .nav-text { font-size: 13px; font-weight: 400; }
+  .nav-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  /* ── Main ── */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Toolbar ── */
+  .toolbar {
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+  }
+  .toolbar-title {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .toolbar-path {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+  .spacer { flex: 1; }
+  .btn {
+    padding: 6px 14px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--sans);
+    cursor: pointer;
+    border: 1px solid var(--border);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-ghost { background: transparent; color: var(--muted); }
+  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+  .btn-danger:hover { background: rgba(247,111,111,0.1); }
+  .btn-warn { background: transparent; color: var(--warn); border-color: var(--warn); }
+  .btn-warn:hover { background: rgba(247,196,79,0.1); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── View Toggle ── */
+  .view-toggle {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .view-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+    font-family: var(--sans);
+    cursor: pointer;
+    background: transparent;
+    color: var(--muted);
+    border: none;
+    transition: all 0.15s;
+  }
+  .view-btn.active { background: var(--accent); color: #fff; }
+
+  /* ── Content ── */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+
+  /* ── Form View ── */
+  .section {
+    margin-bottom: 28px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .field-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 12px;
+    align-items: start;
+    margin-bottom: 12px;
+  }
+  .field-label {
+    font-size: 13px;
+    font-weight: 500;
+    padding-top: 7px;
+  }
+  .field-help {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  input[type=text], input[type=number], select, textarea {
+    width: 100%;
+    padding: 7px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  textarea { font-family: var(--mono); font-size: 12px; resize: vertical; min-height: 80px; }
+  select option { background: var(--surface2); }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+  }
+  .toggle {
+    position: relative;
+    width: 36px; height: 20px;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .slider::before {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    left: 3px; top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: 0.2s;
+  }
+  input:checked + .slider { background: var(--accent); }
+  input:checked + .slider::before { transform: translateX(16px); }
+
+  /* ── Tag Input ── */
+  .tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    min-height: 40px;
+    cursor: text;
+  }
+  .tag-container:focus-within { border-color: var(--accent); }
+  .tag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    background: rgba(79,142,247,0.15);
+    border: 1px solid rgba(79,142,247,0.3);
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--accent);
+  }
+  .tag-del {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1;
+  }
+  .tag-del:hover { color: var(--danger); }
+  .tag-input {
+    border: none !important;
+    background: transparent !important;
+    padding: 3px 4px !important;
+    font-size: 12px !important;
+    width: 120px;
+    min-width: 80px;
+    color: var(--text);
+    font-family: var(--mono);
+  }
+
+  /* ── Raw YAML Editor ── */
+  .yaml-editor {
+    width: 100%;
+    height: calc(100vh - 160px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 16px;
+    resize: none;
+  }
+  .yaml-editor:focus { outline: none; border-color: var(--accent); }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.25s;
+    pointer-events: none;
+    z-index: 999;
+  }
+  #toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  #toast.ok      { background: var(--accent2); color: #0e1117; }
+  #toast.err     { background: var(--danger);  color: #fff; }
+  #toast.warning { background: var(--warn);    color: #0e1117; }
+
+  /* ── Loading ── */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--muted);
+    font-size: 13px;
+    gap: 10px;
+  }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Abbrev Table ── */
+  .abbrev-table { width: 100%; border-collapse: collapse; }
+  .abbrev-table th {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    color: var(--muted); text-transform: uppercase;
+    padding: 8px 10px; border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+  .abbrev-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+  .abbrev-table tr:hover td { background: var(--surface2); }
+  .abbrev-table input { width: 100%; }
+  .del-row {
+    cursor: pointer; color: var(--muted); font-size: 16px;
+    background: none; border: none; padding: 4px;
+  }
+  .del-row:hover { color: var(--danger); }
+  .add-row-btn {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--accent);
+    background: none;
+    border: 1px dashed rgba(79,142,247,0.4);
+    padding: 6px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: var(--sans);
+  }
+  .add-row-btn:hover { background: rgba(79,142,247,0.08); }
+
+  .badge {
+    display: inline-block;
+    font-size: 10px; font-weight: 600;
+    padding: 2px 7px; border-radius: 3px;
+    font-family: var(--mono);
+  }
+  .badge-law   { background: rgba(100,217,168,0.15); color: var(--accent2); }
+  .badge-inst  { background: rgba(79,142,247,0.15);  color: var(--accent); }
+  .badge-other { background: rgba(124,141,166,0.15); color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">NDI</span>
+  <h1>Config Manager</h1>
+  <div class="api-status">
+    <div class="dot" id="dot"></div>
+    <span id="api-status-text">Verbinde...</span>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="sidebar-label">Konfigurationen</div>
+    <div id="nav"></div>
+  </aside>
+
+  <main>
+    <div class="toolbar" id="toolbar" style="display:none">
+      <div>
+        <div class="toolbar-title" id="toolbar-title"></div>
+        <div class="toolbar-path" id="toolbar-path"></div>
+      </div>
+      <div class="spacer"></div>
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="setView('form')" id="vbtn-form">Formular</button>
+        <button class="view-btn"        onclick="setView('raw')"  id="vbtn-raw">YAML</button>
+      </div>
+      <button class="btn btn-warn"    onclick="restoreBackup()" id="btn-restore">↩ Backup</button>
+      <button class="btn btn-primary" onclick="saveConfig()"    id="btn-save">💾 Speichern</button>
+    </div>
+    <div class="content" id="content">
+      <div class="loading"><div class="spinner"></div> Lade Konfigurationen...</div>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = window.location.origin + '/api/v1/config';
+let configs = {};
+let current = null;
+let viewMode = 'form';
+let rawYaml  = '';
+let unsaved  = false;
+
+// ── API ──────────────────────────────────────────────────────────────────────
+async function apiFetch(url, opts={}) {
+  const r = await fetch(url, {
+    headers: {'Content-Type':'application/json'},
+    ...opts,
+  });
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({detail: r.statusText}));
+    throw new Error(err.detail || r.statusText);
+  }
+  return r.json();
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const list = await apiFetch(API + '/');
+    document.getElementById('dot').className = 'dot online';
+    document.getElementById('api-status-text').textContent = 'Verbunden';
+    buildNav(list);
+    if (list.length > 0) loadConfig(list[0].name);
+  } catch(e) {
+    document.getElementById('dot').className = 'dot offline';
+    document.getElementById('api-status-text').textContent = 'Nicht erreichbar';
+    document.getElementById('content').innerHTML =
+      `<div class="loading" style="color:var(--danger)">
+         API nicht erreichbar – uvicorn gestartet?<br>
+         <small style="color:var(--muted);margin-top:8px">http://localhost:8000</small>
+       </div>`;
+  }
+}
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+function buildNav(list) {
+  const nav = document.getElementById('nav');
+  nav.innerHTML = list.map(c => `
+    <div class="nav-item" id="nav-${c.name}" onclick="loadConfig('${c.name}')">
+      <span class="nav-icon">${c.icon}</span>
+      <div>
+        <div class="nav-text">${c.label}</div>
+        <div class="nav-sub">${c.description.substring(0,30)}...</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Load Config ───────────────────────────────────────────────────────────────
+async function loadConfig(name) {
+  if (unsaved && !confirm('Ungespeicherte Änderungen verwerfen?')) return;
+  unsaved = false;
+  current = name;
+
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-'+name)?.classList.add('active');
+
+  document.getElementById('toolbar').style.display = 'flex';
+  document.getElementById('content').innerHTML =
+    '<div class="loading"><div class="spinner"></div> Lade...</div>';
+
+  try {
+    const cfg = await apiFetch(`${API}/${name}`);
+    configs[name] = cfg;
+    rawYaml = cfg.raw_yaml;
+
+    document.getElementById('toolbar-title').textContent = cfg.icon + '  ' + cfg.label;
+    document.getElementById('toolbar-path').textContent  = cfg.path;
+
+    renderContent();
+  } catch(e) {
+    showToast(e.message, 'err');
+  }
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function setView(mode) {
+  viewMode = mode;
+  document.getElementById('vbtn-form').classList.toggle('active', mode === 'form');
+  document.getElementById('vbtn-raw').classList.toggle('active',  mode === 'raw');
+  renderContent();
+}
+
+function renderContent() {
+  if (!current || !configs[current]) return;
+  const cfg = configs[current];
+  if (viewMode === 'raw') {
+    renderRaw();
+  } else {
+    renderForm(current, cfg.content);
+  }
+}
+
+// ── Raw YAML ──────────────────────────────────────────────────────────────────
+function renderRaw() {
+  document.getElementById('content').innerHTML =
+    `<textarea class="yaml-editor" id="yaml-raw" spellcheck="false">${escHtml(rawYaml)}</textarea>`;
+  document.getElementById('yaml-raw').addEventListener('input', e => {
+    rawYaml = e.target.value;
+    unsaved = true;
+  });
+}
+
+// ── Form Renderers ─────────────────────────────────────────────────────────────
+function renderForm(name, data) {
+  const el = document.getElementById('content');
+  if      (name === 'nlp')          el.innerHTML = renderNlpForm(data);
+  else if (name === 'embedder')     el.innerHTML = renderEmbedderForm(data);
+  else if (name === 'abbrev')       el.innerHTML = renderAbbrevForm(data);
+  else if (name === 'test_chunker') el.innerHTML = renderTestChunkerForm(data);
+  else                              el.innerHTML = renderGenericForm(data);
+  attachFormListeners(name, data);
+}
+
+function field(label, help, input) {
+  return `<div class="field-row">
+    <div><div class="field-label">${label}</div><div class="field-help">${help}</div></div>
+    <div>${input}</div>
+  </div>`;
+}
+
+function toggle(id, label, help, checked) {
+  return `<div class="field-row">
+    <div><div class="field-label">${label}</div><div class="field-help">${help}</div></div>
+    <div class="toggle-row">
+      <label class="toggle">
+        <input type="checkbox" id="${id}" ${checked?'checked':''} onchange="markDirty()">
+        <span class="slider"></span>
+      </label>
+      <span style="font-size:13px;color:var(--muted)" id="${id}-lbl">${checked?'Aktiv':'Inaktiv'}</span>
+    </div>
+  </div>`;
+}
+
+function tagInput(id, values) {
+  const tags = (values||[]).map(v =>
+    `<span class="tag">${escHtml(v)}<span class="tag-del" onclick="removeTag('${id}','${v}')">×</span></span>`
+  ).join('');
+  return `<div class="tag-container" id="${id}-container" onclick="focusTag('${id}')">
+    ${tags}
+    <input class="tag-input" id="${id}-input" placeholder="+ Eingabe + Enter"
+      onkeydown="handleTagKey(event,'${id}')" oninput="markDirty()">
+  </div>`;
+}
+
+// ── NLP Form ──────────────────────────────────────────────────────────────────
+function renderNlpForm(d) {
+  const svo = d.svo || {};
+  const ner = d.ner || {};
+  const qf  = d.question_filter || {};
+  const qi  = qf.ingest || {};
+  const qn  = qf.nlp    || {};
+  const det = qf.detection || {};
+  const spacy = d.spacy || {};
+  const worker = d.worker || {};
+
+  return `
+  <div class="section">
+    <div class="section-title">spaCy-Modell</div>
+    ${field('Modell','de_core_news_sm / md / lg',
+      `<select id="spacy-model" onchange="markDirty()">
+        ${['de_core_news_sm','de_core_news_md','de_core_news_lg'].map(m=>
+          `<option ${(spacy.model||'')==m?'selected':''}>${m}</option>`).join('')}
+       </select>`)}
+    ${field('Batch-Size','Chunks pro Verarbeitungs-Batch',
+      `<input type="number" id="spacy-batch" value="${spacy.batch_size||32}" min="1" max="256" onchange="markDirty()">`)}
+  </div>
+
+  <div class="section">
+    <div class="section-title">SVO-Extraktion</div>
+    ${field('Min. Konfidenz','Tripel unter diesem Wert werden verworfen',
+      `<input type="number" id="svo-minconf" value="${svo.min_confidence||0.5}" step="0.05" min="0" max="1" onchange="markDirty()">`)}
+    ${field('Pronomen-Abzug','Konfidenz-Abzug bei Pronomen als Subjekt',
+      `<input type="number" id="svo-pronpen" value="${svo.pronoun_confidence_penalty||0.3}" step="0.05" min="0" max="1" onchange="markDirty()">`)}
+    ${field('Stop-Subjekte','Diese Wörter nie als Subjekt akzeptieren',
+      tagInput('svo-stopsub', svo.stop_subjects))}
+    ${field('Stop-Objekte','Diese Wörter nie als Objekt akzeptieren',
+      tagInput('svo-stopobj', svo.stop_objects))}
+    ${field('Pronomen','Konfidenz-Abzug bei diesen Subjekten',
+      tagInput('svo-pronouns', svo.pronouns))}
+  </div>
+
+  <div class="section">
+    <div class="section-title">NER</div>
+    ${toggle('ner-rules','Regelbasiert','Suffix- und Regex-Patterns', ner.rules_enabled!==false)}
+    ${toggle('ner-flair','Flair Legal NER','flair/ner-german-legal Modell', ner.flair_enabled===true)}
+    ${field('Flair Min. Konfidenz','Flair-Ergebnisse unter diesem Wert verwerfen',
+      `<input type="number" id="ner-flairconf" value="${ner.flair_min_confidence||0.85}" step="0.05" min="0" max="1" onchange="markDirty()">`)}
+    ${field('Kombinations-Strategie','Wie Regelbasiert + Flair kombiniert werden',
+      `<select id="ner-strategy" onchange="markDirty()">
+        ${['merge','flair_only','rules_only'].map(s=>
+          `<option ${(ner.combination_strategy||'merge')==s?'selected':''}>${s}</option>`).join('')}
+       </select>`)}
+    ${field('Blacklist','Diese Entitäten immer verwerfen',
+      tagInput('ner-blacklist', ner.blacklist))}
+  </div>
+
+  <div class="section">
+    <div class="section-title">Fragen-Filter – Ingest</div>
+    ${toggle('qf-ingest-enabled','Aktiviert','Fragen beim Ingest erkennen und filtern', qi.enabled===true)}
+    ${field('Aktion','Was mit erkannten Fragen passiert',
+      `<select id="qf-ingest-action" onchange="markDirty()">
+        ${['exclude','include','include_as_type'].map(a=>
+          `<option ${(qi.action||'exclude')==a?'selected':''}>${a}</option>`).join('')}
+       </select>`)}
+    ${field('Klassen','Für welche Dokumentklassen aktiv',
+      tagInput('qf-ingest-classes', qi.apply_to_classes))}
+  </div>
+
+  <div class="section">
+    <div class="section-title">Fragen-Filter – NLP</div>
+    ${toggle('qf-nlp-enabled','Aktiviert','Fragen beim NLP überspringen', qn.enabled===true)}
+    ${field('Aktion','Was mit Frage-Chunks beim NLP passiert',
+      `<select id="qf-nlp-action" onchange="markDirty()">
+        ${['skip','process'].map(a=>
+          `<option ${(qn.action||'skip')==a?'selected':''}>${a}</option>`).join('')}
+       </select>`)}
+    ${field('Klassen','Für welche Dokumentklassen aktiv',
+      tagInput('qf-nlp-classes', qn.apply_to_classes))}
+  </div>
+
+  <div class="section">
+    <div class="section-title">Fragen-Erkennung</div>
+    ${field('Min. Länge','Kürzere Texte werden nicht als Frage gewertet',
+      `<input type="number" id="qf-minlen" value="${det.min_length||10}" min="1" onchange="markDirty()">`)}
+    ${field('Max. Länge','Längere Texte werden nicht als Frage gewertet',
+      `<input type="number" id="qf-maxlen" value="${det.max_length||300}" min="1" onchange="markDirty()">`)}
+    ${toggle('qf-reqmark','Fragezeichen Pflicht','Nur Sätze mit ? am Ende', det.require_question_mark!==false)}
+    ${field('Fragewörter','Diese Wörter am Satzanfang erhöhen Konfidenz',
+      tagInput('qf-qwords', det.question_words))}
+  </div>
+
+  <div class="section">
+    <div class="section-title">Worker</div>
+    ${field('Batch-Size','Chunks pro DB-Batch',
+      `<input type="number" id="worker-batch" value="${worker.chunk_batch_size||50}" min="1" onchange="markDirty()">`)}
+    ${toggle('worker-overwrite','Überschreiben','Bestehende NLP-Ergebnisse neu berechnen', worker.overwrite_existing!==false)}
+    ${field('Min. Token','Chunks mit weniger Token überspringen',
+      `<input type="number" id="worker-mintoken" value="${worker.min_token_count||10}" min="1" onchange="markDirty()">`)}
+  </div>`;
+}
+
+// ── Embedder Form ─────────────────────────────────────────────────────────────
+function renderEmbedderForm(d) {
+  const models  = d.models  || {};
+  const runtime = d.runtime || {};
+  const modelNames = Object.keys(models);
+
+  return `
+  <div class="section">
+    <div class="section-title">Aktives Modell</div>
+    ${field('Modell-Profil','Das aktiv verwendete Embedding-Modell',
+      `<select id="em-active" onchange="markDirty()">
+        ${modelNames.map(m=>`<option ${(d.active_model||'')==m?'selected':''}>${m}</option>`).join('')}
+       </select>`)}
+  </div>
+  ${modelNames.map(name => {
+    const m = models[name] || {};
+    return `<div class="section">
+      <div class="section-title">Profil: ${name}</div>
+      ${field('Model ID','HuggingFace-ID oder lokaler Pfad',
+        `<input type="text" id="em-${name}-id" value="${escHtml(m.model_id||'')}" onchange="markDirty()">`)}
+      ${field('Dimensionen','Vektor-Dimensionen',
+        `<input type="number" id="em-${name}-dim" value="${m.dimensions||1024}" onchange="markDirty()">`)}
+      ${field('Prefix Query','Präfix für Suchanfragen',
+        `<input type="text" id="em-${name}-pq" value="${escHtml(m.prefix_query||'query: ')}" onchange="markDirty()">`)}
+      ${field('Prefix Passage','Präfix für Chunk-Texte',
+        `<input type="text" id="em-${name}-pp" value="${escHtml(m.prefix_passage||'passage: ')}" onchange="markDirty()">`)}
+    </div>`;
+  }).join('')}
+  <div class="section">
+    <div class="section-title">Runtime</div>
+    ${field('Batch-Size','Chunks pro Embedding-Batch (CPU: 8-16, GPU: 32-64)',
+      `<input type="number" id="rt-batch" value="${runtime.batch_size||16}" min="1" onchange="markDirty()">`)}
+    ${field('Device','Gerät für Berechnungen',
+      `<select id="rt-device" onchange="markDirty()">
+        ${['auto','cpu','cuda'].map(d=>`<option ${(runtime.device||'auto')==d?'selected':''}>${d}</option>`).join('')}
+       </select>`)}
+    ${toggle('rt-cache','Cache','Bereits berechnete Embeddings wiederverwenden', runtime.cache_enabled!==false)}
+    ${field('Cache Max','Maximale Anzahl gecachter Embeddings',
+      `<input type="number" id="rt-cachemax" value="${runtime.cache_max_size||1000}" min="1" onchange="markDirty()">`)}
+  </div>`;
+}
+
+// ── Abbrev Form ───────────────────────────────────────────────────────────────
+function renderAbbrevForm(d) {
+  const abbrevs = d.abbreviations || [];
+  const badge = l => {
+    if (!l) return '';
+    const cls = l==='GESETZ'?'badge-law':l==='BEHÖRDE'?'badge-inst':'badge-other';
+    return `<span class="badge ${cls}">${l}</span>`;
+  };
+  const rows = abbrevs.map((a,i) => `
+    <tr>
+      <td><input type="text" class="ab-abbrev" data-i="${i}" value="${escHtml(a.abbrev||'')}" onchange="markDirty()"></td>
+      <td><input type="text" class="ab-resolved" data-i="${i}" value="${escHtml(a.resolved||'')}" onchange="markDirty()"></td>
+      <td>
+        <select class="ab-label" data-i="${i}" onchange="markDirty()">
+          ${['GESETZ','BEHÖRDE','ROLLE','ORT','SONSTIGE'].map(l=>
+            `<option ${(a.label||'')==l?'selected':''}>${l}</option>`).join('')}
+        </select>
+      </td>
+      <td style="max-width:180px">
+        <input type="text" class="ab-context" data-i="${i}"
+          value="${escHtml((a.context||[]).join(', '))}" placeholder="leer = immer"
+          onchange="markDirty()">
+      </td>
+      <td><button class="del-row" onclick="deleteAbbrev(${i})">×</button></td>
+    </tr>`).join('');
+
+  return `
+  <div class="section">
+    <div class="section-title">Abkürzungen (${abbrevs.length})</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
+      Kontext: Komma-getrennte Signalwörter. Leer = Abkürzung immer auflösen.
+    </p>
+    <table class="abbrev-table">
+      <thead><tr>
+        <th>Abkürzung</th><th>Auflösung</th><th>Label</th><th>Kontext</th><th></th>
+      </tr></thead>
+      <tbody id="abbrev-tbody">${rows}</tbody>
+    </table>
+    <button class="add-row-btn" onclick="addAbbrev()">+ Neue Abkürzung</button>
+  </div>`;
+}
+
+function addAbbrev() {
+  const d = configs[current].content;
+  d.abbreviations = d.abbreviations || [];
+  d.abbreviations.push({abbrev:'',resolved:'',label:'GESETZ',context:[]});
+  markDirty();
+  renderContent();
+}
+function deleteAbbrev(i) {
+  configs[current].content.abbreviations.splice(i,1);
+  markDirty();
+  renderContent();
+}
+
+// ── Test Chunker Form ─────────────────────────────────────────────────────────
+function renderTestChunkerForm(d) {
+  const out = d.output || {};
+  const doc = d.document || {};
+  const syn = d.synthetic_tests || {};
+  const ch  = d.chunking || {};
+  const ca  = ch.class_a || {};
+  const cb  = ch.class_b || {};
+  const cc  = ch.class_c || {};
+
+  return `
+  <div class="section">
+    <div class="section-title">Ausgabe</div>
+    ${field('Limit','Max. Chunks pro Test (0 = alle)',
+      `<input type="number" id="tc-limit" value="${out.limit||0}" min="0" onchange="markDirty()">`)}
+    ${field('Text-Vorschau','Zeichen je Chunk in der Ausgabe (0 = vollständig)',
+      `<input type="number" id="tc-preview" value="${out.text_preview_length||200}" min="0" onchange="markDirty()">`)}
+  </div>
+  <div class="section">
+    <div class="section-title">Dokument</div>
+    ${field('Klasse erzwingen','null = automatisch erkennen',
+      `<select id="tc-class" onchange="markDirty()">
+        ${['(automatisch)','A','B','C'].map(v=>`<option ${(!doc.force_class&&v==='(automatisch)')||doc.force_class==v?'selected':''}>${v}</option>`).join('')}
+       </select>`)}
+  </div>
+  ${toggle('tc-synthetic','Synthetische Tests','Klasse-A und -C Tests aktivieren', syn.enabled!==false)}
+  <div class="section">
+    <div class="section-title">Klasse A – Token-Limits</div>
+    ${field('Parent (§)',''  ,`<input type="number" id="ca-parent" value="${ca.token_limit_parent||1024}" onchange="markDirty()">`)}
+    ${field('Child (Absatz)','',`<input type="number" id="ca-child"  value="${ca.token_limit_child||256}"  onchange="markDirty()">`)}
+    ${field('Satz','',         `<input type="number" id="ca-satz"   value="${ca.token_limit_satz||128}"   onchange="markDirty()">`)}
+  </div>
+  <div class="section">
+    <div class="section-title">Klasse B – Token-Limits</div>
+    ${field('Parent (Kapitel)','',`<input type="number" id="cb-parent" value="${cb.token_limit_parent||128}" onchange="markDirty()">`)}
+    ${field('Child (Abschnitt)','',`<input type="number" id="cb-child" value="${cb.token_limit_child||512}"  onchange="markDirty()">`)}
+    ${field('Overlap-Ratio','',   `<input type="number" id="cb-overlap" value="${cb.overlap_ratio||0.15}" step="0.05" min="0" max="0.5" onchange="markDirty()">`)}
+  </div>
+  <div class="section">
+    <div class="section-title">Klasse C – Token-Limits</div>
+    ${field('Min. Token','',   `<input type="number" id="cc-min" value="${cc.token_min||50}"  onchange="markDirty()">`)}
+    ${field('Max. Token','',   `<input type="number" id="cc-max" value="${cc.token_max||384}" onchange="markDirty()">`)}
+    ${field('Overlap-Ratio','',`<input type="number" id="cc-overlap" value="${cc.overlap_ratio||0.20}" step="0.05" min="0" max="0.5" onchange="markDirty()">`)}
+  </div>`;
+}
+
+function renderGenericForm(d) {
+  return `<div class="section">
+    <div class="section-title">YAML-Inhalt</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
+      Für diese Konfiguration ist kein Formular verfügbar. Bitte den YAML-Modus verwenden.
+    </p>
+  </div>`;
+}
+
+// ── Tag Helpers ───────────────────────────────────────────────────────────────
+function handleTagKey(e, id) {
+  if (e.key !== 'Enter' && e.key !== ',') return;
+  e.preventDefault();
+  const val = e.target.value.trim().replace(/,$/, '');
+  if (!val) return;
+  addTag(id, val);
+  e.target.value = '';
+  markDirty();
+}
+function addTag(id, val) {
+  const container = document.getElementById(id+'-container');
+  if (!container) return;
+  const span = document.createElement('span');
+  span.className = 'tag';
+  span.dataset.val = val;
+  span.innerHTML = `${escHtml(val)}<span class="tag-del" onclick="removeTag('${id}','${val}')">×</span>`;
+  const input = document.getElementById(id+'-input');
+  container.insertBefore(span, input);
+}
+function removeTag(id, val) {
+  const container = document.getElementById(id+'-container');
+  if (!container) return;
+  container.querySelectorAll('.tag').forEach(t => {
+    if (t.dataset.val === val) t.remove();
+  });
+  markDirty();
+}
+function getTags(id) {
+  const container = document.getElementById(id+'-container');
+  if (!container) return [];
+  return [...container.querySelectorAll('.tag')].map(t => t.dataset.val);
+}
+function focusTag(id) {
+  document.getElementById(id+'-input')?.focus();
+}
+
+// ── Collect Form Data ─────────────────────────────────────────────────────────
+function collectFormData(name) {
+  const g = id => document.getElementById(id);
+  const gv = id => g(id)?.value;
+  const gc = id => g(id)?.checked;
+  const gn = id => parseFloat(gv(id));
+  const gi = id => parseInt(gv(id));
+
+  const orig = configs[name]?.content || {};
+
+  if (name === 'nlp') {
+    const d = JSON.parse(JSON.stringify(orig));
+    d.spacy = d.spacy || {};
+    d.spacy.model      = gv('spacy-model') || d.spacy.model;
+    d.spacy.batch_size = gi('spacy-batch') || d.spacy.batch_size;
+    d.svo = d.svo || {};
+    d.svo.min_confidence           = gn('svo-minconf');
+    d.svo.pronoun_confidence_penalty = gn('svo-pronpen');
+    d.svo.stop_subjects            = getTags('svo-stopsub');
+    d.svo.stop_objects             = getTags('svo-stopobj');
+    d.svo.pronouns                 = getTags('svo-pronouns');
+    d.ner = d.ner || {};
+    d.ner.rules_enabled            = gc('ner-rules');
+    d.ner.flair_enabled            = gc('ner-flair');
+    d.ner.flair_min_confidence     = gn('ner-flairconf');
+    d.ner.combination_strategy     = gv('ner-strategy');
+    d.ner.blacklist                = getTags('ner-blacklist');
+    d.question_filter = d.question_filter || {};
+    d.question_filter.ingest = d.question_filter.ingest || {};
+    d.question_filter.ingest.enabled          = gc('qf-ingest-enabled');
+    d.question_filter.ingest.action           = gv('qf-ingest-action');
+    d.question_filter.ingest.apply_to_classes = getTags('qf-ingest-classes');
+    d.question_filter.nlp = d.question_filter.nlp || {};
+    d.question_filter.nlp.enabled             = gc('qf-nlp-enabled');
+    d.question_filter.nlp.action              = gv('qf-nlp-action');
+    d.question_filter.nlp.apply_to_classes    = getTags('qf-nlp-classes');
+    d.question_filter.detection = d.question_filter.detection || {};
+    d.question_filter.detection.min_length          = gi('qf-minlen');
+    d.question_filter.detection.max_length          = gi('qf-maxlen');
+    d.question_filter.detection.require_question_mark = gc('qf-reqmark');
+    d.question_filter.detection.question_words      = getTags('qf-qwords');
+    d.worker = d.worker || {};
+    d.worker.chunk_batch_size  = gi('worker-batch');
+    d.worker.overwrite_existing = gc('worker-overwrite');
+    d.worker.min_token_count   = gi('worker-mintoken');
+    return d;
+  }
+
+  if (name === 'embedder') {
+    const d = JSON.parse(JSON.stringify(orig));
+    d.active_model = gv('em-active');
+    Object.keys(d.models || {}).forEach(mn => {
+      d.models[mn].model_id        = gv(`em-${mn}-id`)  || d.models[mn].model_id;
+      d.models[mn].dimensions      = gi(`em-${mn}-dim`) || d.models[mn].dimensions;
+      d.models[mn].prefix_query    = gv(`em-${mn}-pq`)  || d.models[mn].prefix_query;
+      d.models[mn].prefix_passage  = gv(`em-${mn}-pp`)  || d.models[mn].prefix_passage;
+    });
+    d.runtime = d.runtime || {};
+    d.runtime.batch_size    = gi('rt-batch');
+    d.runtime.device        = gv('rt-device');
+    d.runtime.cache_enabled = gc('rt-cache');
+    d.runtime.cache_max_size = gi('rt-cachemax');
+    return d;
+  }
+
+  if (name === 'abbrev') {
+    const d = JSON.parse(JSON.stringify(orig));
+    d.abbreviations = [...document.querySelectorAll('#abbrev-tbody tr')].map(tr => ({
+      abbrev:   tr.querySelector('.ab-abbrev')?.value   || '',
+      resolved: tr.querySelector('.ab-resolved')?.value || '',
+      label:    tr.querySelector('.ab-label')?.value    || 'GESETZ',
+      context:  (tr.querySelector('.ab-context')?.value || '')
+                  .split(',').map(s=>s.trim()).filter(Boolean),
+    }));
+    return d;
+  }
+
+  if (name === 'test_chunker') {
+    const d = JSON.parse(JSON.stringify(orig));
+    d.output = d.output || {};
+    d.output.limit               = gi('tc-limit');
+    d.output.text_preview_length = gi('tc-preview');
+    const cls = gv('tc-class');
+    d.document = d.document || {};
+    d.document.force_class = (cls === '(automatisch)') ? null : cls;
+    d.synthetic_tests = { enabled: gc('tc-synthetic') };
+    d.chunking = d.chunking || {};
+    d.chunking.class_a = {
+      token_limit_parent: gi('ca-parent'),
+      token_limit_child:  gi('ca-child'),
+      token_limit_satz:   gi('ca-satz'),
+    };
+    d.chunking.class_b = {
+      token_limit_parent: gi('cb-parent'),
+      token_limit_child:  gi('cb-child'),
+      overlap_ratio:      gn('cb-overlap'),
+    };
+    d.chunking.class_c = {
+      token_min:     gi('cc-min'),
+      token_max:     gi('cc-max'),
+      overlap_ratio: gn('cc-overlap'),
+    };
+    return d;
+  }
+  return orig;
+}
+
+// ── Listeners ─────────────────────────────────────────────────────────────────
+function attachFormListeners(name, data) {
+  document.querySelectorAll('.toggle input[type=checkbox]').forEach(cb => {
+    const lbl = document.getElementById(cb.id+'-lbl');
+    if (lbl) cb.addEventListener('change', () => {
+      lbl.textContent = cb.checked ? 'Aktiv' : 'Inaktiv';
+    });
+  });
+}
+
+// ── Save ──────────────────────────────────────────────────────────────────────
+async function saveConfig() {
+  if (!current) return;
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  btn.textContent = '⏳ Speichern...';
+
+  try {
+    let payload;
+    if (viewMode === 'raw') {
+      payload = { raw_yaml: rawYaml };
+    } else {
+      const data = collectFormData(current);
+      payload = { content: data };
+    }
+    const r = await apiFetch(`${API}/${current}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+    unsaved = false;
+    showToast('✓ ' + r.message, 'ok');
+    await loadConfig(current);
+  } catch(e) {
+    showToast('Fehler: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💾 Speichern';
+  }
+}
+
+async function restoreBackup() {
+  if (!current) return;
+  if (!confirm('Backup wiederherstellen? Aktuelle Änderungen gehen verloren.')) return;
+  try {
+    const r = await apiFetch(`${API}/${current}/restore`, { method: 'POST' });
+    showToast('↩ ' + r.message, 'warning');
+    await loadConfig(current);
+  } catch(e) {
+    showToast('Kein Backup vorhanden.', 'err');
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function markDirty() { unsaved = true; }
+
+function showToast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => t.className = '', 3000);
+}
+
+function escHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+window.addEventListener('beforeunload', e => {
+  if (unsaved) e.returnValue = 'Ungespeicherte Änderungen';
+});
+
+init();
+</script>
+</body>
+</html>
