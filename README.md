@@ -235,7 +235,7 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
        ▼
 |    ingest_service.py  run_pipeline()                      |
 |-|
----------------------------------------------------------
+ 
   Schritt 1:  Job in ingest_jobs anlegen  (queued)       
       │                                                  
   Schritt 2:  Rohdatei → MinIO                           
@@ -261,9 +261,9 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
       │       → norm_chunks + Embeddings in PostgreSQL   
       │                                                  
   Schritt 8:  Job-Status → done                          
-----------------------------------------------------------
-         │  (manuell gestartet, NACH Ingest)
-         ▼
+ 
+      │  (manuell gestartet, NACH Ingest)
+      ▼
 |---|
 |  nlp_worker.py  (Option A – Post-Ingest)                |
 |                                                         |
