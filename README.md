@@ -233,37 +233,39 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 
        │  (Background-Task)
        ▼
-| ingest_service.py  run_pipeline() |
-|-|
- 
-  Schritt 1:  Job in ingest_jobs anlegen  (queued)       
-      │                                                  
-  Schritt 2:  Rohdatei → MinIO                           
-      │       mnr-dokumente/{doc_id}/{filename}          
-      │                                                  
-  Schritt 3:  Metadaten → PostgreSQL                     
-      │       → norm_documents                           
-      │                                                  
-  Schritt 4:  parser.py                                  
-      │       TikaParser.parse()                         
-      │       → Text /+ Struktur /+ doc_class_hint (A/B/C) 
-      │                                                  
-  Schritt 5:  chunker.py                                 
-      │       ChunkingRouter.route_and_chunk()           
-      │       → Chunks mit Metadaten                     
-      │                                                  
-  Schritt 6:  embedder.py                                
-      │       Embedder.embed_chunks()                    
-      │       → 1024-dim Vektoren je Chunk               
-      │                                                  
-  Schritt 7:  storage.py                                 
-      │       DocumentStorage.store_chunks()             
-      │       → norm_chunks /+ Embeddings in PostgreSQL   
-      │                                                  
-  Schritt 8:  Job-Status → done                          
- 
+
+## Hauptingest-Pipeline
+
+┌─────────────────────────────────────────────────────────┐
+│ ingest_service.py run_pipeline() │
+├─────────────────────────────────────────────────────────┤
+│ 1. Job in ingest_jobs anlegen (queued) │
+│ 2. Rohdatei → MinIO
+mnr-dokumente/{doc_id}/{filename} │
+│ 3. Metadaten → PostgreSQL
+→ norm_documents │
+│ 4. parser.py
+TikaParser.parse()
+→ Text + Struktur + doc_class_hint (A/B/C) │
+│ 5. chunker.py
+ChunkingRouter.route_and_chunk()
+→ Chunks mit Metadaten │
+│ 6. embedder.py
+Embedder.embed_chunks()
+→ 1024-dim Vektoren je Chunk │
+│ 7. storage.py
+DocumentStorage.store_chunks()
+→ norm_chunks + Embeddings in PostgreSQL │
+│ 8. Job-Status → done │
+└─────────────────────────────────────────────────────────┘
       │  (manuell gestartet, NACH Ingest)
       ▼
+
+
+
+
+
+
 |---|
 |  nlp_worker.py  (Option A – Post-Ingest)                |
 |                                                         |
@@ -291,14 +293,13 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 |---|
 
 
-## Übersicht aller unterstützten Formate
+## Unterstützte Formate
 
-|Gruppe | Formate | Klasse | 
-|---|---|---|
-|Textdokumente | PDF, DOCX, DOC, RTF, TXT, HTMLA | /B/C auto |
-|LibreOffice | ODT, ODS, ODP | A/B auto, ODP→C | 
-|Microsoft Office | XLSX, XLS, PPTX, PPT | XLSX/XLS auto, PPTX/PPT→C | 
-|Strukturiert/XÖV | XML, JSON, CSV, TSV | A/B/C auto | 
-|E-Books | EPUB | A/B/C auto E- |
-|Mail | EML, MSG | C (kein Strukturgerüst) |
----|---|---|
+| Gruppe | Formate | Klasse |
+|--------|---------|--------|
+| **Textdokumente** | PDF, DOCX, DOC, RTF, TXT, HTML | A/B/C auto |
+| **LibreOffice** | ODT, ODS, ODP | A/B auto, ODP→C |
+| **Microsoft Office** | XLSX, XLS, PPTX, PPT | XLSX/XLS auto, PPTX/PPT→C |
+| **Strukturiert/XÖV** | XML, JSON, CSV, TSV | A/B/C auto |
+| **E-Books** | EPUB | A/B/C auto |
+| **Mail** | EML, MSG | C (kein Strukturgerüst) |
