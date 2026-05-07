@@ -230,8 +230,8 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 | Datei empfangen | doc_id und job_id generieren |
 | Background-Task starten | sofort HTTP 200 antworten |
 
-**     │  Background-Task** 
-       ▼
+     │  Background-Task 
+     ▼
 
 | **Hauptingest-Pipeline** |
 |---|
