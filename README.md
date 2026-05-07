@@ -229,14 +229,13 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 |---|---|
 | Datei empfangen | doc_id und job_id generieren |
 | Background-Task starten | sofort HTTP 200 antworten |
-|---|---|
 
        │  **(Background-Task)** 
        ▼
-     **Hauptingest-Pipeline** 
 
-| **ingest_service.py run_pipeline()** |
+| **Hauptingest-Pipeline** |
 |---|
+| 0. **ingest_service.py run_pipeline()** |
 | 1. Job in ingest_jobs anlegen (queued) |
 | 2. Rohdatei → MinIO mnr-dokumente/{doc_id}/{filename} |
 | 3. Metadaten → PostgreSQL → norm_documents │
@@ -244,17 +243,15 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 | 5. chunker.py ChunkingRouter.route_and_chunk() → Chunks mit Metadaten |
 | 6. embedder.py Embedder.embed_chunks() → 1024-dim Vektoren je Chunk |
 | 7. storage.py DocumentStorage.store_chunks() → norm_chunks + Embeddings in PostgreSQL |
-| 8. Job-Status → done │
-
+| 8. Job-Status → done |
 
 	  │
 	  │(manuell gestartet, NACH Ingest)
 	  ▼
 
 
-
-|---|
 |  nlp_worker.py  (Option A – Post-Ingest)                |
+|---|
 |                                                         |
 |  Schritt 1:  Chunks aus norm_chunks laden               |
 |  Schritt 2:  nlp_processor.py                           |
