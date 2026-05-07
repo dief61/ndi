@@ -233,7 +233,7 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 
        │  (Background-Task)
        ▼
-|    ingest_service.py  run_pipeline()                      |
+| ingest_service.py  run_pipeline() |
 |-|
  
   Schritt 1:  Job in ingest_jobs anlegen  (queued)       
@@ -246,7 +246,7 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
       │                                                  
   Schritt 4:  parser.py                                  
       │       TikaParser.parse()                         
-      │       → Text + Struktur + doc_class_hint (A/B/C) 
+      │       → Text /+ Struktur /+ doc_class_hint (A/B/C) 
       │                                                  
   Schritt 5:  chunker.py                                 
       │       ChunkingRouter.route_and_chunk()           
@@ -258,7 +258,7 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
       │                                                  
   Schritt 7:  storage.py                                 
       │       DocumentStorage.store_chunks()             
-      │       → norm_chunks + Embeddings in PostgreSQL   
+      │       → norm_chunks /+ Embeddings in PostgreSQL   
       │                                                  
   Schritt 8:  Job-Status → done                          
  
