@@ -222,6 +222,7 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 ## Ingest Pipeline
 
 POST /api/v1/ingest/document
+
          │
          ▼
 |---|---|
@@ -229,7 +230,7 @@ POST /api/v1/ingest/document
 | Datei empfangen + doc_id und job_id generieren |
 | Background-Task starten + sofort HTTP 200 antworten |
 |---|---|
-         │  (Background-Task)
+ ##        │  (Background-Task)
          ▼
 |---|
 |  ingest_service.py  run_pipeline()                      |
@@ -289,7 +290,7 @@ POST /api/v1/ingest/document
 |---|
 
 
-Übersicht aller unterstützten Formate
+## Übersicht aller unterstützten Formate
 
 |Gruppe | Formate | Klasse | 
 |---|---|---|
