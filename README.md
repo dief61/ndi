@@ -238,7 +238,7 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 
 ┌─────────────────────────────────────────────────────────┐
 │ ingest_service.py run_pipeline() │
-├─────────────────────────────────────────────────────────┤
+├─────────────────────────────────────────────────────────│
 │ 1. Job in ingest_jobs anlegen (queued) │
 │ 2. Rohdatei → MinIO mnr-dokumente/{doc_id}/{filename} │
 │ 3. Metadaten → PostgreSQL → norm_documents │
@@ -251,6 +251,12 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
       │  (manuell gestartet, NACH Ingest)
       ▼
 
+
+┌─────────────────────────────────────┐
+│ 1. Erste wichtige Information │
+│ 2. Zweite wichtige Information │
+│ 3. Dritte wichtige Information │
+└─────────────────────────────────────┘
 
 
 
