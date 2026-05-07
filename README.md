@@ -249,7 +249,8 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 	  ▼
 
 |  nlp_worker.py  (Option A – Post-Ingest)                |
-|                                                         |
+|---|
+|             |                                           |
 |---|---|
 |  Schritt 1: | Chunks aus norm_chunks laden               |
 |  Schritt 2: | nlp_processor.py	NLPProcessor.analyze_batch() → spaCy: POS, Dependency Parsing |
