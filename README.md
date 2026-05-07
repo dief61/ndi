@@ -231,13 +231,11 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 | Background-Task starten | sofort HTTP 200 antworten |
 |---|---|
 
-       │  (Background-Task)
+       │  **(Background-Task)** 
        ▼
+     **Hauptingest-Pipeline** 
 
-## Hauptingest-Pipeline
-
-
-| ingest_service.py run_pipeline() |
+| **ingest_service.py run_pipeline()** |
 |---|
 | 1. Job in ingest_jobs anlegen (queued) |
 | 2. Rohdatei → MinIO mnr-dokumente/{doc_id}/{filename} |
@@ -249,9 +247,9 @@ curl -X POST http://localhost:8000/api/v1/ingest/paket \
 | 8. Job-Status → done │
 
 
-      │
-	  (manuell gestartet, NACH Ingest)
-      ▼
+	  │
+	  │(manuell gestartet, NACH Ingest)
+	  ▼
 
 
 
