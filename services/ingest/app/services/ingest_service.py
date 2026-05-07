@@ -24,6 +24,7 @@ from app.services.chunker import ChunkingRouter
 from app.services.embedder import Embedder
 from app.services.storage import DocumentStorage
 from app.services.abbrev_normalizer import AbbrevNormalizer
+from app.services.question_filter import QuestionFilter
 
 logger = structlog.get_logger()
 
@@ -61,6 +62,7 @@ class IngestService:
         self.parser     = TikaParser()
         self.normalizer = AbbrevNormalizer()
         self.chunker    = ChunkingRouter()
+        self.qfilter    = QuestionFilter()
         self.embedder   = Embedder()
         self.storage    = DocumentStorage()
         self._pg_pool: Optional[asyncpg.Pool] = None
@@ -88,6 +90,44 @@ class IngestService:
     # ─────────────────────────────────────────────────────────────────────────
     # Job-Status Hilfsmethoden
     # ─────────────────────────────────────────────────────────────────────────
+
+    async def _log_questions(
+        self,
+        questions: list,
+        doc_id:    str,
+        doc_title: str,
+        doc_class: str,
+        job_id:    str,
+    ):
+        """Persistiert erkannte Fragen in filtered_questions."""
+        pool = await self._get_pool()
+        async with pool.acquire() as conn:
+            internal_doc_id = await conn.fetchval(
+                "SELECT id FROM norm_documents WHERE doc_id = $1", doc_id
+            )
+            if not internal_doc_id:
+                return
+            await conn.executemany(
+                """
+                INSERT INTO filtered_questions (
+                    doc_id, doc_title, doc_class, ingest_job_id,
+                    question_text, question_type,
+                    context_before, context_after,
+                    section_path, chunk_position
+                )
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                """,
+                [
+                    (
+                        internal_doc_id, doc_title, doc_class, job_id,
+                        q.question_text, q.question_type,
+                        q.context_before[:500] if q.context_before else None,
+                        q.context_after[:500]  if q.context_after  else None,
+                        q.section_path, q.chunk_position,
+                    )
+                    for q in questions
+                ],
+            )
 
     async def _create_job(self, job_id: str, doc_id: str, filename: str):
         pool = await self._get_pool()
@@ -240,14 +280,42 @@ class IngestService:
 
             # Originaltext und abbrev_map in jeden Chunk eintragen
             import json
-            abbrev_map_json = norm_result.abbrev_map
+            abbrev_map_json  = norm_result.abbrev_map
+            has_replacements = len(norm_result.replacements) > 0
+
             for chunk in chunks:
-                # Originaltext-Ausschnitt für diesen Chunk bestimmen
-                chunk.content_original = norm_result.get_original_snippet(
-                    0, len(norm_result.original_text)
-                ) if not abbrev_map_json else None
+                if has_replacements:
+                    # Abkürzungen im Chunk-Text rückwärts auflösen
+                    # → Originaltext dieses Chunks
+                    chunk.content_original = norm_result.reverse_text(chunk.text)
+                else:
+                    # Keine Abkürzungen aufgelöst → Original = Resolved
+                    chunk.content_original = None  # spart Speicher
                 chunk.abbrev_map = abbrev_map_json if abbrev_map_json else None
             log.info("Chunking abgeschlossen", chunk_count=len(chunks))
+
+            # ── Schritt 4b: Fragen-Filter ────────────────────────────────────
+            filter_result = self.qfilter.filter(
+                chunks=chunks,
+                doc_class=parsed.doc_class_hint,
+                full_text=norm_result.resolved_text,
+            )
+            chunks = filter_result.kept_chunks
+
+            # Erkannte Fragen in DB loggen
+            if filter_result.questions:
+                await self._log_questions(
+                    questions=filter_result.questions,
+                    doc_id=doc_id,
+                    doc_title=getattr(metadata, "title", None) or getattr(metadata, "filename", "Unbekannt"),
+                    doc_class=parsed.doc_class_hint,
+                    job_id=job_id,
+                )
+                log.info(
+                    "Fragen geloggt",
+                    fragen=len(filter_result.questions),
+                    gefiltert=len(filter_result.filtered_chunks),
+                )
 
             # Optionaler Chunk-Limit (für Tests)
             if chunk_limit and chunk_limit > 0:

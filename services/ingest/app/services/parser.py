@@ -136,7 +136,7 @@ class TikaParser:
         structure = self._analyze_structure(clean_text)
 
         # Dokumentklasse vorschlagen
-        doc_class_hint = self._determine_doc_class(structure)
+        doc_class_hint = self._determine_doc_class(structure, content_type)
 
         result = ParseResult(
             text=clean_text,
@@ -318,19 +318,24 @@ class TikaParser:
 
         return structure
 
-    def _determine_doc_class(self, structure: DocumentStructure) -> str:
+    def _determine_doc_class(
+        self,
+        structure: DocumentStructure,
+        content_type: str = "",
+    ) -> str:
         """
         Chunking-Router-Vorschlag basierend auf Strukturmerkmalen.
 
-        Kaskade (wie im Architekturkonzept):
+        Kaskade:
+          0. Bestimmte Formate → immer Klasse C (PPTX, ODP, MSG, EML)
           1. §-Marker strukturgebend (>= 3) UND keine starken B-Signale → Klasse A
           2. Heading-Hierarchie oder Inhaltsverzeichnis vorhanden → Klasse B
           3. Fallback → Klasse C
-
-        Wichtig: Ein Dokument mit Inhaltsverzeichnis und vielen Überschriften
-        ist Klasse B – auch wenn es §-Referenzen im Fließtext enthält.
-        Nur echte Gesetzestexte (§ als Strukturelement) sind Klasse A.
         """
+        # Stufe 0: Formate die immer Klasse C sind
+        if content_type in self.FORCE_CLASS_C_TYPES:
+            return "C"
+
         has_strong_b_signal = structure.has_toc or structure.heading_count >= 5
 
         # Klasse A: §-Paragraphen sind strukturgebend UND kein starkes B-Signal
@@ -347,6 +352,16 @@ class TikaParser:
         else:
             return "C"
 
+    # Formate die immer als Klasse C verarbeitet werden
+    # (kein stabiles Strukturgerüst zu erwarten)
+    FORCE_CLASS_C_TYPES = {
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",  # pptx
+        "application/vnd.ms-powerpoint",                                               # ppt
+        "application/vnd.oasis.opendocument.presentation",                            # odp
+        "message/rfc822",                                                               # eml
+        "application/vnd.ms-outlook",                                                  # msg
+    }
+
     def _guess_content_type(self, filename: str) -> str:
         """
         Content-Type aus Dateiname ableiten.
@@ -355,13 +370,35 @@ class TikaParser:
         """
         ext = filename.lower().rsplit(".", 1)[-1] if "." in filename else ""
         mapping = {
+            # ── Textdokumente ──────────────────────────────────────────────
             "pdf":  "application/pdf",
             "docx": "application/vnd.openxmlformats-officedocument"
                     ".wordprocessingml.document",
             "doc":  "application/msword",
+            "rtf":  "application/rtf",
+            "txt":  "text/plain",
             "html": "text/html",
             "htm":  "text/html",
-            "txt":  "text/plain",
-            "rtf":  "application/rtf",
+            # ── OpenDocument (LibreOffice) ─────────────────────────────────
+            "odt":  "application/vnd.oasis.opendocument.text",
+            "odp":  "application/vnd.oasis.opendocument.presentation",
+            "ods":  "application/vnd.oasis.opendocument.spreadsheet",
+            # ── Microsoft Office ──────────────────────────────────────────
+            "xlsx": "application/vnd.openxmlformats-officedocument"
+                    ".spreadsheetml.sheet",
+            "xls":  "application/vnd.ms-excel",
+            "pptx": "application/vnd.openxmlformats-officedocument"
+                    ".presentationml.presentation",
+            "ppt":  "application/vnd.ms-powerpoint",
+            # ── Strukturierte Daten / XÖV ─────────────────────────────────
+            "xml":  "application/xml",
+            "json": "application/json",
+            "csv":  "text/csv",
+            "tsv":  "text/tab-separated-values",
+            # ── E-Books ───────────────────────────────────────────────────
+            "epub": "application/epub+zip",
+            # ── E-Mail ────────────────────────────────────────────────────
+            "eml":  "message/rfc822",
+            "msg":  "application/vnd.ms-outlook",
         }
         return mapping.get(ext, "application/octet-stream")

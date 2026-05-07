@@ -27,6 +27,7 @@ from app.core.config import settings
 from app.services.nlp.nlp_processor import NLPProcessor, load_nlp_config
 from app.services.nlp.svo_extractor import SVOExtractor
 from app.services.nlp.ner_extractor import NERExtractor
+from app.services.question_filter import QuestionFilter, load_question_config
 
 logger = structlog.get_logger()
 
@@ -48,6 +49,7 @@ class NLPService:
         self.processor   = NLPProcessor(config_path)
         self.svo         = SVOExtractor(config_path)
         self.ner         = NERExtractor(config_path)
+        self.qfilter     = QuestionFilter(config_path)
         self._pool: Optional[asyncpg.Pool] = None
 
     async def _get_pool(self) -> asyncpg.Pool:
@@ -128,16 +130,52 @@ class NLPService:
                         end="", flush=True,
                     )
 
-                # spaCy-Analyse (Batch)
+                # NLP-Filter: Frage-Chunks überspringen wenn nlp.enabled=true
+                nlp_qcfg = load_question_config(self.config_path, scope="nlp")
+                nlp_q_enabled  = nlp_qcfg.get("enabled", False)
+                nlp_q_classes  = nlp_qcfg.get("apply_to_classes", ["B","C"])
+                nlp_q_action   = nlp_qcfg.get("action", "skip")
+
+                filtered_batch = []
+                skipped_batch  = []
+                for c in batch:
+                    if (nlp_q_enabled
+                            and c.get("doc_class") in nlp_q_classes
+                            and nlp_q_action == "skip"):
+                        # Temporären Chunk-Stub bauen für QuestionFilter
+                        from app.services.chunker import Chunk
+                        stub = Chunk(
+                            chunk_id=str(c["id"]),
+                            doc_id=str(c["doc_id"]),
+                            doc_class=c["doc_class"],
+                            text=c["content"],
+                        )
+                        result = self.qfilter.filter(
+                            chunks=[stub],
+                            doc_class=c["doc_class"],
+                            scope="nlp",
+                        )
+                        if result.filtered_chunks:
+                            skipped_batch.append(c)
+                            continue
+                    filtered_batch.append(c)
+
+                if skipped_batch:
+                    logger.debug(
+                        "NLP-Filter: Frage-Chunks übersprungen",
+                        count=len(skipped_batch),
+                    )
+
+                # spaCy-Analyse (Batch) – nur nicht-gefilterte Chunks
                 analyses = self.processor.analyze_batch(
-                    [(str(c["id"]), c["content"]) for c in batch]
+                    [(str(c["id"]), c["content"]) for c in filtered_batch]
                 )
 
                 # SVO + NER für jeden Chunk
                 svo_rows = []
                 ner_rows = []
 
-                for chunk, analysis in zip(batch, analyses):
+                for chunk, analysis in zip(filtered_batch, analyses):
                     chunk_id = str(chunk["id"])
                     doc_uuid = str(chunk["doc_id"])
 

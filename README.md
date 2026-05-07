@@ -287,3 +287,14 @@ POST /api/v1/ingest/document
 │              → svo_extractions                          │
 │              → ner_entities                             │
 └─────────────────────────────────────────────────────────┘
+
+
+Unterstützte Dokument-Formate
+Übersicht aller unterstützten Formate
+GruppeFormateKlasse
+Textdokumente	PDF, DOCX, DOC, RTF, TXT, HTMLA	/B/C auto
+LibreOffice	ODT, ODS, ODP	A/B auto, ODP→C
+Microsoft Office	XLSX, XLS, PPTX, PPT	XLSX/XLS auto, PPTX/PPT→C
+Strukturiert/XÖV	XML, JSON, CSV, TSV	A/B/C auto
+E-Books	EPUB	A/B/C autoE-
+MailEML, MSG	C (kein Strukturgerüst)

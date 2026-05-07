@@ -366,6 +366,102 @@ ner:
         - '\b[A-Z][a-zA-Z]+G\b'
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Fragen-Filter
+# ─────────────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Fragen-Filter
+# Zwei unabhängige Schalter:
+#   question_filter.ingest → wirkt beim Einlesen der Dokumente (Chunking)
+#   question_filter.nlp    → wirkt bei der NLP-Verarbeitung (SVO/NER)
+#
+# Beide können unabhängig voneinander ein- oder ausgeschaltet werden.
+# Änderungen wirken beim nächsten Lauf ohne Neustart.
+# ─────────────────────────────────────────────────────────────────────────────
+question_filter:
+
+  # ── Ingest-Filter ─────────────────────────────────────────────────────────
+  # Wirkt im Chunking-Schritt des Ingest-Service.
+  # Erkannte Fragen werden in filtered_questions geloggt.
+  ingest:
+    # Ingest-Filter aktiv?
+    # true  = Fragen werden beim Ingest erkannt, geloggt und gefiltert
+    # false = Fragen werden beim Ingest ignoriert (normal verarbeitet)
+    enabled: true
+
+    # Dokumentklassen in denen Fragen erkannt werden sollen
+    apply_to_classes:
+      - "B"
+      - "C"
+
+    # Was passiert mit erkannten Fragen beim Ingest?
+    # "exclude"         = Frage wird NICHT als Chunk gespeichert, aber geloggt
+    # "include"         = Frage wird normal verarbeitet UND geloggt
+    # "include_as_type" = Frage wird als chunk_type="frage" gespeichert
+    action: "exclude"
+
+  # ── NLP-Filter ────────────────────────────────────────────────────────────
+  # Wirkt im NLP-Worker (nlp_worker.py) bei der SVO/NER-Verarbeitung.
+  # Chunks mit Fragen werden bei der NLP-Analyse übersprungen oder markiert.
+  nlp:
+    # NLP-Filter aktiv?
+    # true  = Chunks mit Fragen werden beim NLP übersprungen
+    # false = Chunks mit Fragen werden normal durch NLP verarbeitet
+    enabled: true
+
+    # Dokumentklassen in denen Fragen beim NLP erkannt werden sollen
+    apply_to_classes:
+      - "B"
+      - "C"
+
+    # Was passiert mit Frage-Chunks beim NLP?
+    # "skip"   = Chunk wird nicht durch SVO/NER verarbeitet
+    # "process" = Chunk wird normal verarbeitet (nur Logging)
+    action: "skip"
+
+  # ── Gemeinsame Erkennungsparameter ────────────────────────────────────────
+  # Diese Parameter gelten für beide Filter (ingest + nlp).
+  detection:
+    # Mindestlänge einer Frage in Zeichen
+    min_length: 10
+
+    # Maximallänge – längere Texte sind eher Fließtext mit ? am Ende
+    max_length: 300
+
+    # Fragezeichen am Ende ist Pflicht?
+    require_question_mark: true
+
+    # Einleitende Fragewörter (erhöhen Konfidenz der Erkennung)
+    question_words:
+      - "wer"
+      - "was"
+      - "wie"
+      - "wo"
+      - "wann"
+      - "warum"
+      - "weshalb"
+      - "wozu"
+      - "welche"
+      - "welcher"
+      - "welches"
+      - "kann"
+      - "darf"
+      - "muss"
+      - "ist"
+      - "sind"
+      - "haben"
+      - "gibt"
+
+    # Rhetorik-Muster
+    rhetorical_patterns:
+      - "aber warum"
+      - "doch wie"
+      - "oder etwa"
+      - "wirklich"
+
+    # Kontext-Fenster (Zeichen) für context_before / context_after
+    context_window: 150
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Worker-Konfiguration
 # ─────────────────────────────────────────────────────────────────────────────
 worker:

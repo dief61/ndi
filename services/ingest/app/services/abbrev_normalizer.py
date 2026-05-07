@@ -65,6 +65,27 @@ class NormalizationResult:
             for r in self.replacements
         ]
 
+    def reverse_text(self, resolved_chunk_text: str) -> str:
+        """
+        Kehrt die Abkürzungsauflösung für einen Chunk-Text um.
+        Ersetzt aufgelöste Formen zurück durch die Originalabkürzungen.
+
+        Beispiel:
+          resolved:  "Niedersächsisches Gesetz über das Halten von Hunden"
+          original:  "NHundG"
+
+        Wird verwendet um content_original je Chunk zu befüllen.
+        """
+        text = resolved_chunk_text
+        # Ersetzungen rückwärts anwenden (längste zuerst)
+        for r in sorted(
+            self.replacements,
+            key=lambda x: len(x.resolved),
+            reverse=True,
+        ):
+            text = text.replace(r.resolved, r.abbrev)
+        return text
+
     def original_position(self, res_pos: int) -> int:
         """
         Gibt die Position im Originaltext für eine Position

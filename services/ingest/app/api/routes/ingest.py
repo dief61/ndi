@@ -1,6 +1,6 @@
 # services/ingest/app/api/routes/ingest.py
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks, Request
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks, Request
 from pydantic import BaseModel
 from typing import Optional
 from datetime import date
@@ -59,13 +59,13 @@ async def ingest_document(
     request:          Request,
     background_tasks: BackgroundTasks,
     file:             UploadFile = File(...),
-    source_type:      str = "gesetz",
-    title:            str = "Unbekanntes Dokument",
-    jurisdiction:     Optional[str] = None,
-    norm_reference:   Optional[str] = None,
-    version:          Optional[str] = None,
-    language:         str = "de",
-    force_class:      Optional[str] = None,   # A | B | C
+    source_type:      str = Form("gesetz"),
+    title:            str = Form("Unbekanntes Dokument"),
+    jurisdiction:     Optional[str] = Form(None),
+    norm_reference:   Optional[str] = Form(None),
+    version:          Optional[str] = Form(None),
+    language:         str = Form("de"),
+    force_class:      Optional[str] = Form(None),   # A | B | C
 ):
     """
     Dokument hochladen und Ingest-Pipeline starten.

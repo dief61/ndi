@@ -12,3 +12,31 @@ python ingest_report.py --export
 
 # Dokument + Export:
 python ingest_report.py --doc "Hundegesetz" --export --out hundegesetz_report.csv
+
+
+Ingest läuft
+    ↓ question_filter.py erkennt Fragen in Klasse B/C
+    ↓ action=exclude → Frage wird NICHT als Chunk gespeichert
+    ↓ Frage wird in filtered_questions geloggt (mit Kontext)
+    ↓
+question_report.py
+    → zeigt alle offenen Fragen mit Kontext
+    → du entscheidest: behalten | verwerfen | unklar
+    → Entscheidung wird in DB gespeichert
+
+
+# Überblick:
+python question_report.py
+
+# Nur FAQ1:
+python question_report.py --doc "FAQ1"
+
+# CSV-Export für Excel:
+python question_report.py --export
+
+# Entscheidung setzen:
+python question_report.py --decide <ID> behalten
+python question_report.py --decide <ID> verwerfen --note "Reine FAQ-Frage"
+
+# Alle Fragen inkl. reviewed:
+python question_report.py --all
