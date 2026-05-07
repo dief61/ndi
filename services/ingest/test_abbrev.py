@@ -118,6 +118,44 @@ def main():
               f"'Niedersächsisches Gesetz...'")
         print(f"  → Original-Snippet: '{snip}'")
 
+    # ── Test 7: Synonyme ──────────────────────────────────────────────────
+    sep("Test 7: Synonyme normalisieren")
+
+    tests_syn = [
+        ("Die haltende Person muss einen Sachkundenachweis vorlegen.",
+         "Hundehalter", "haltende Person"),
+        ("Hundehalterin oder Halter müssen sich registrieren.",
+         "Hundehalter", "Hundehalterin"),
+        ("Die betroffene Person hat das Recht auf Auskunft.",
+         "Betroffener", "betroffene Person"),
+    ]
+
+    for text, expected_canonical, variant in tests_syn:
+        result = normalizer.normalize(text)
+        syn_found = any(
+            r.entry_type == "synonym" and r.abbrev == variant
+            for r in result.replacements
+        )
+        has_canonical = expected_canonical.lower() in result.resolved_text.lower()
+
+        print(f"\n  Variant:  '{variant}'")
+        print(f"  Original:  {text}")
+        print(f"  Aufgelöst: {result.resolved_text}")
+        print(f"  Synonym erkannt:     {'✅' if syn_found else '❌'}")
+        print(f"  Canonical vorhanden: {'✅' if has_canonical else '❌'}")
+
+    # ── Test 8: abbrev_map mit gemischten Typen ────────────────────────────
+    sep("Test 8: abbrev_map – Abkürzungen und Synonyme gemischt")
+
+    text8 = "Die Hundehalterin muss gemäß NHundG einen Sachkundenachweis vorlegen."
+    result8 = normalizer.normalize(text8)
+
+    print(f"\n  Original:  {text8}")
+    print(f"  Aufgelöst: {result8.resolved_text}")
+    print(f"\n  abbrev_map:")
+    for r in result8.replacements:
+        print(f"    [{r.entry_type:<7}] '{r.abbrev}' → '{r.resolved}'  [{r.label}]")
+
     print(f"\n{'='*65}")
     print("  Test abgeschlossen")
     print(f"{'='*65}\n")

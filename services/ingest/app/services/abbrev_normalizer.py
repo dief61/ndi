@@ -32,14 +32,15 @@ _DEFAULT_DICT = Path(__file__).parents[2] / "abbrev_dict.yaml"
 
 @dataclass
 class AbbrevReplacement:
-    """Eine einzelne Abkürzungsersetzung mit Positionsinformation."""
-    abbrev:     str       # Originalabkürzung: "NHundG"
-    resolved:   str       # Auflösung: "Niedersächsisches Hundegesetz"
+    """Eine einzelne Abkürzungs- oder Synonymersetzung mit Positionsinformation."""
+    abbrev:     str       # Originaltext: "NHundG" | "haltende Person"
+    resolved:   str       # Auflösung / Normalform: "Niedersächsisches Hundegesetz" | "Hundehalter"
     orig_start: int       # Startposition im Originaltext
     orig_end:   int       # Endposition im Originaltext
     res_start:  int       # Startposition im aufgelösten Text
     res_end:    int       # Endposition im aufgelösten Text
-    label:      str = ""  # Entitätstyp: GESETZ, BEHÖRDE, ...
+    label:      str = ""  # Entitätstyp: GESETZ, BEHÖRDE, ROLLE, ...
+    entry_type: str = "abbrev"  # "abbrev" | "synonym"
 
 
 @dataclass
@@ -246,15 +247,30 @@ class AbbrevNormalizer:
 
             result_text = new_text
 
+        # ── Schritt 2: Synonyme normalisieren ────────────────────────────
+        synonym_entries = self._load_synonyms()
+        if synonym_entries:
+            result_text, replacements = self._apply_synonyms(
+                result_text, synonym_entries, replacements, protected
+            )
+
         # Replacements nach orig_start sortieren
         replacements.sort(key=lambda r: r.orig_start)
 
-        count = len(replacements)
-        if count > 0:
+        abbrev_count  = sum(1 for r in replacements if r.entry_type == "abbrev")
+        synonym_count = sum(1 for r in replacements if r.entry_type == "synonym")
+
+        if abbrev_count > 0:
             logger.info(
                 "Abkürzungen aufgelöst",
-                count=count,
-                abbrevs=list({r.abbrev for r in replacements}),
+                count=abbrev_count,
+                abbrevs=list({r.abbrev for r in replacements if r.entry_type == "abbrev"}),
+            )
+        if synonym_count > 0:
+            logger.info(
+                "Synonyme normalisiert",
+                count=synonym_count,
+                synonyms=list({r.abbrev for r in replacements if r.entry_type == "synonym"}),
             )
 
         return NormalizationResult(
@@ -268,16 +284,107 @@ class AbbrevNormalizer:
     # ─────────────────────────────────────────────────────────────────────────
 
     def _load_dict(self) -> list[dict]:
-        """Lädt abbrev_dict.yaml – immer frisch von Disk."""
+        """Lädt abbreviations-Sektion aus abbrev_dict.yaml."""
         if not self.dict_path.exists():
-            logger.warning(
-                "abbrev_dict.yaml nicht gefunden",
-                path=str(self.dict_path),
-            )
+            logger.warning("abbrev_dict.yaml nicht gefunden", path=str(self.dict_path))
             return []
         with open(self.dict_path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
         return data.get("abbreviations", [])
+
+    def _load_synonyms(self) -> list[dict]:
+        """Lädt synonyms-Sektion aus abbrev_dict.yaml."""
+        if not self.dict_path.exists():
+            return []
+        with open(self.dict_path, encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+        return data.get("synonyms", [])
+
+    def _apply_synonyms(
+        self,
+        text:        str,
+        entries:     list[dict],
+        replacements: list,
+        protected:   list[tuple[int, int]],
+    ) -> tuple[str, list]:
+        """
+        Normalisiert Synonyme auf ihre Normalform (canonical).
+
+        Verarbeitet Synonyme nach den Abkürzungen – längste Varianten zuerst
+        um Teilersetzungen zu vermeiden.
+        """
+        # Alle Einträge: (variante, canonical, context, label)
+        all_variants = []
+        for entry in entries:
+            canonical = entry.get("canonical", "")
+            context   = entry.get("context", [])
+            label     = entry.get("label", "")
+            for variant in entry.get("variants", []):
+                if variant and variant != canonical:
+                    all_variants.append((variant, canonical, context, label))
+
+        # Längere Varianten zuerst
+        all_variants.sort(key=lambda x: len(x[0]), reverse=True)
+
+        for variant, canonical, context, label in all_variants:
+            pattern = re.compile(r'\b' + re.escape(variant) + r'\b',
+                                  re.IGNORECASE)
+            for match in reversed(list(pattern.finditer(text))):
+                start = match.start()
+                end   = match.end()
+
+                # Originalposition berechnen
+                orig_start = self._res_to_orig(start, replacements)
+                orig_end   = orig_start + len(variant)
+
+                # Geschützte Bereiche überspringen
+                if self._is_protected(orig_start, orig_end, protected):
+                    continue
+
+                # Kontext-Prüfung
+                if context:
+                    ctx_start = max(0, start - 150)
+                    ctx_end   = min(len(text), end + 150)
+                    ctx_text  = text[ctx_start:ctx_end].lower()
+                    if not any(kw.lower() in ctx_text for kw in context):
+                        continue
+
+                # Ersetzung: Groß-/Kleinschreibung des Originals beibehalten
+                replacement_text = self._match_case(match.group(), canonical)
+
+                # Text ersetzen
+                text = text[:start] + replacement_text + text[end:]
+
+                replacements.append(AbbrevReplacement(
+                    abbrev=match.group(),      # Originalvariante
+                    resolved=replacement_text, # Normalform
+                    orig_start=orig_start,
+                    orig_end=orig_end,
+                    res_start=start,
+                    res_end=start + len(replacement_text),
+                    label=label,
+                    entry_type="synonym",
+                ))
+
+        return text, replacements
+
+    def _match_case(self, original: str, canonical: str) -> str:
+        """
+        Überträgt die Groß-/Kleinschreibung des Originals auf die Normalform.
+
+        Beispiel:
+          original="Hundehalterin" canonical="Hundehalter" → "Hundehalter"
+          original="hundehalterin" canonical="Hundehalter" → "hundehalter"
+          original="HUNDEHALTERIN" canonical="Hundehalter" → "HUNDEHALTER"
+        """
+        if original.isupper():
+            return canonical.upper()
+        if original.islower():
+            return canonical.lower()
+        # Ersten Buchstaben übernehmen
+        if original[0].isupper():
+            return canonical[0].upper() + canonical[1:]
+        return canonical
 
     def _find_protected_ranges(self, text: str) -> list[tuple[int, int]]:
         """Findet alle Bereiche die nicht ersetzt werden sollen."""

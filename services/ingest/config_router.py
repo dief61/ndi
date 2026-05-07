@@ -40,8 +40,8 @@ CONFIG_META = {
         "icon":        "🔢",
     },
     "abbrev": {
-        "label":       "Wörterbücher",
-        "description": "Abkürzungen und Synonyme",
+        "label":       "Abkürzungswörterbuch",
+        "description": "Abkürzungen und ihre Auflösungen",
         "icon":        "📖",
     },
     "test_chunker": {

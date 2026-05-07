@@ -184,3 +184,164 @@ abbreviations:
     resolved: "XML in der öffentlichen Verwaltung"
     context: []
     label: "SONSTIGE"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SYNONYME
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Synonyme normalisieren verschiedene Bezeichnungen auf eine einheitliche
+# Normalform. Das verbessert die Retrieval-Qualität im RAG:
+# "haltende Person" und "Hundehalter" bekommen ähnliche Embedding-Vektoren.
+#
+# Struktur:
+#   canonical: Normalform – diese wird im Chunk gespeichert (content)
+#   variants:  Alle Synonyme die auf canonical abgebildet werden
+#   context:   Optional – nur normalisieren wenn Signalwort im Umfeld (±150 Z.)
+#              Leer = immer normalisieren
+#   label:     Entitätstyp für NER-Anreicherung
+#
+# Verarbeitungsreihenfolge:
+#   1. Abkürzungen werden zuerst aufgelöst
+#   2. Dann Synonyme normalisiert
+#   → Reihenfolge im YAML: längere Varianten zuerst (verhindert Teilersatz)
+#
+# Traceability:
+#   Der Originaltext bleibt in content_original erhalten.
+#   abbrev_map enthält ALLE Ersetzungen (Abkürzungen + Synonyme).
+#
+# NICHT normalisieren:
+#   - Normreferenzen (§ X Abs. Y) – bleiben immer unverändert
+#   - Eigennamen von Personen
+#   - Gesetzesbezeichnungen (werden über abbreviations behandelt)
+
+synonyms:
+
+  # ── Rollen / Akteure ─────────────────────────────────────────────────────
+  - canonical: "Hundehalter"
+    variants:
+      - "Hundehalterin"
+      - "Halterin oder Halter"
+      - "Halter oder Halterin"
+      - "haltende Person"
+      - "Halterin und Halter"
+      - "Halterinnen und Halter"
+    context: ["Hund", "Tier", "Sachkunde", "Register", "halten"]
+    label: "ROLLE"
+
+  - canonical: "Antragsteller"
+    variants:
+      - "Antragstellerin"
+      - "Antragstellerin oder Antragsteller"
+      - "Antragsteller oder Antragstellerin"
+      - "antragstellende Person"
+    context: []
+    label: "ROLLE"
+
+  - canonical: "Betroffener"
+    variants:
+      - "Betroffene"
+      - "betroffene Person"
+      - "betroffene Personen"
+      - "betroffene natürliche Person"
+    context: []
+    label: "ROLLE"
+
+  - canonical: "Eigentümer"
+    variants:
+      - "Eigentümerin"
+      - "Eigentümerin oder Eigentümer"
+      - "Eigentümer oder Eigentümerin"
+    context: []
+    label: "ROLLE"
+
+  # ── Behörden ──────────────────────────────────────────────────────────────
+  - canonical: "zuständige Behörde"
+    variants:
+      - "zuständige Fachbehörde"
+      - "zuständigen Behörde"
+      - "zuständigen Fachbehörde"
+      - "örtlich zuständige Behörde"
+      - "sachlich zuständige Behörde"
+    context: []
+    label: "BEHÖRDE"
+
+  - canonical: "Meldebehörde"
+    variants:
+      - "die Meldebehörden"
+      - "zuständige Meldebehörde"
+      - "zuständigen Meldebehörde"
+    context: []
+    label: "BEHÖRDE"
+
+  # ── Datenobjekte / Nachweise ───────────────────────────────────────────────
+  - canonical: "Sachkundenachweis"
+    variants:
+      - "Nachweis der Sachkunde"
+      - "Sachkundeprüfung"
+      - "Befähigungsnachweis"
+      - "Nachweis über die Sachkunde"
+      - "erforderliche Sachkunde"
+    context: ["Hund", "Tier", "Halter", "Prüfung"]
+    label: "DATENOBJEKT"
+
+  - canonical: "Haftpflichtversicherung"
+    variants:
+      - "Haftpflichtversicherungsschutz"
+      - "Versicherungsschutz"
+      - "Tierhalterhaftpflichtversicherung"
+      - "Hundehaftpflichtversicherung"
+    context: ["Hund", "Tier", "Schaden", "Halter"]
+    label: "DATENOBJEKT"
+
+  - canonical: "Transponder"
+    variants:
+      - "Mikrochip"
+      - "elektronischer Chip"
+      - "Chip"
+      - "Kennzeichnungschip"
+    context: ["Hund", "Tier", "Kennzeichnung", "Identifizierung"]
+    label: "DATENOBJEKT"
+
+  - canonical: "Zentrales Hunderegister"
+    variants:
+      - "Hunderegister"
+      - "zentrales Register"
+      - "das Register"
+      - "Zentralregister"
+    context: ["Hund", "Anmeldung", "Registrierung", "Halter"]
+    label: "DATENOBJEKT"
+
+  # ── Handlungen / Pflichten ─────────────────────────────────────────────────
+  - canonical: "anmelden"
+    variants:
+      - "registrieren"
+      - "zur Anmeldung verpflichtet"
+      - "anzumelden"
+    context: ["Hund", "Register", "Halter"]
+    label: "SONSTIGE"
+
+  - canonical: "Ordnungswidrigkeit"
+    variants:
+      - "Ordnungswidrigkeiten"
+      - "Bußgeldtatbestand"
+      - "Verwaltungsübertretung"
+    context: []
+    label: "SONSTIGE"
+
+  # ── Datenschutz ───────────────────────────────────────────────────────────
+  - canonical: "personenbezogene Daten"
+    variants:
+      - "personenbezogenen Daten"
+      - "persönliche Daten"
+      - "persönlichen Daten"
+      - "Personendaten"
+    context: []
+    label: "DATENOBJEKT"
+
+  - canonical: "Datenverarbeitung"
+    variants:
+      - "Verarbeitung personenbezogener Daten"
+      - "Verarbeitung der Daten"
+      - "Datenverarbeitungsvorgänge"
+    context: []
+    label: "DATENOBJEKT"
