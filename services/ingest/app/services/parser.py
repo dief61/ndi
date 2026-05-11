@@ -16,6 +16,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 import structlog
 
 from app.core.config import settings
+from app.services.table_extractor import TableExtractor
 
 logger = structlog.get_logger()
 
@@ -38,13 +39,14 @@ class DocumentStructure:
 @dataclass
 class ParseResult:
     """Vollständiges Ergebnis des Tika-Parsings."""
-    text: str                            # Bereinigter Volltext
+    text: str                            # Bereinigter Volltext (inkl. Tabellen als Prosa)
     structure: DocumentStructure         # Strukturmerkmale
     metadata: dict                       # Rohe Tika-Metadaten
     content_type: str                    # z.B. application/pdf
     doc_class_hint: str                  # "A", "B" oder "C"
     char_count: int = 0
     word_count: int = 0
+    table_count: int = 0                 # Anzahl extrahierter Tabellen
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -87,8 +89,9 @@ class TikaParser:
     )
 
     def __init__(self):
-        self.tika_url = settings.tika_server_url
-        self.timeout = httpx.Timeout(60.0, connect=10.0)
+        self.tika_url      = settings.tika_server_url
+        self.timeout       = httpx.Timeout(60.0, connect=10.0)
+        self.table_extract = TableExtractor()
 
     @retry(
         stop=stop_after_attempt(3),
@@ -132,6 +135,28 @@ class TikaParser:
         # Text bereinigen
         clean_text = self._clean_text(raw_text)
 
+        # ── Tabellen-Extraktion ──────────────────────────────────────────
+        # Für DOCX, PDF, XLSX/ODS: dedizierter Extraktor ersetzt Tika-Tabellen
+        # durch strukturierte Prosa. Für andere Formate: Tika-Text bleibt.
+        table_count = 0
+        if self.table_extract.has_extractor(filename):
+            try:
+                tables = self.table_extract.extract_tables(content, filename)
+                if tables:
+                    table_text = self.table_extract.tables_to_text(tables)
+                    clean_text = clean_text + "\n\n" + table_text
+                    table_count = len(tables)
+                    log.info(
+                        "Tabellen extrahiert und als Prosa eingefügt",
+                        tables=table_count,
+                        table_chars=len(table_text),
+                    )
+            except Exception as e:
+                log.warning(
+                    "Tabellen-Extraktion fehlgeschlagen – Tika-Text wird verwendet",
+                    error=str(e),
+                )
+
         # Struktur analysieren
         structure = self._analyze_structure(clean_text)
 
@@ -146,6 +171,7 @@ class TikaParser:
             doc_class_hint=doc_class_hint,
             char_count=len(clean_text),
             word_count=len(clean_text.split()),
+            table_count=table_count,
         )
 
         log.info(
@@ -155,6 +181,7 @@ class TikaParser:
             word_count=result.word_count,
             paragraph_count=structure.paragraph_count,
             heading_count=structure.heading_count,
+            tables=table_count,
         )
 
         return result

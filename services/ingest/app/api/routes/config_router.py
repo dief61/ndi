@@ -145,6 +145,27 @@ async def list_configs():
     return result
 
 
+@router.get("/config_md/raw", summary="CONFIG.md lesen (nur Anzeige)")
+async def get_config_md():
+    """Liest CONFIG.md aus dem Projektverzeichnis (schreibgeschützt)."""
+    candidates = [
+        SERVICE_ROOT.parents[1] / "CONFIG.md",   # NDI/CONFIG.md
+        SERVICE_ROOT.parents[0] / "CONFIG.md",   # services/CONFIG.md
+        SERVICE_ROOT / "CONFIG.md",               # services/ingest/CONFIG.md
+    ]
+    for path in candidates:
+        if path.exists():
+            raw = path.read_text(encoding="utf-8")
+            return {
+                "name":     "config_md",
+                "label":    "Config-Übersicht",
+                "path":     str(path),
+                "raw_yaml": raw,   # Feldname raw_yaml für JS-Kompatibilität
+                "readonly": True,
+            }
+    raise HTTPException(404, "CONFIG.md nicht gefunden.")
+
+
 @router.get("/ui", response_class=HTMLResponse,
             summary="Config Manager UI",
             include_in_schema=False)

@@ -24,6 +24,37 @@
     --sans:     'IBM Plex Sans', sans-serif;
   }
 
+  /* Hell-Modus */
+  body.light {
+    --bg:       #f5f7fa;
+    --surface:  #ffffff;
+    --surface2: #eef1f6;
+    --border:   #d0d7e3;
+    --accent:   #2563eb;
+    --accent2:  #059669;
+    --warn:     #d97706;
+    --danger:   #dc2626;
+    --text:     #1e293b;
+    --muted:    #64748b;
+  }
+  body.light .yaml-editor { background: #f8fafc; color: #1e293b; }
+  body.light .md-wrap pre { background: #f1f5f9; }
+  body.light .md-wrap pre code { color: #334155; }
+  body.light .home-logo-inner { background: linear-gradient(135deg,#dbeafe,#f0fdf4); }
+
+  /* Schalter */
+  .theme-toggle {
+    display: flex; align-items: center; gap: 6px;
+    margin-left: 16px; padding: 0 4px;
+    border-left: 1px solid var(--border);
+    cursor: pointer; user-select: none;
+  }
+  .theme-icon { font-size: 15px; transition: transform 0.3s; }
+  body.light .theme-icon { transform: rotate(180deg); }
+  .theme-label {
+    font-size: 11px; color: var(--muted); white-space: nowrap;
+  }
+
   body {
     font-family: var(--sans);
     background: var(--bg);
@@ -419,6 +450,125 @@
     padding: 2px 7px; border-radius: 3px;
     font-family: var(--mono);
   }
+  /* ── Home ── */
+  .home-wrap {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 48px 32px; gap: 32px;
+  }
+  .home-logo-ring {
+    position: relative; width: 120px; height: 120px;
+  }
+  .home-logo-ring svg { position: absolute; top: 0; left: 0; }
+  .home-logo-inner {
+    position: absolute; inset: 16px;
+    background: linear-gradient(135deg, #1e2d50 0%, #0e1117 100%);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 22px; font-weight: 500;
+    color: var(--accent); letter-spacing: 0.05em;
+  }
+  .home-title {
+    text-align: center;
+  }
+  .home-title h2 {
+    font-size: 28px; font-weight: 300; color: var(--text);
+    letter-spacing: 0.04em; margin-bottom: 6px;
+  }
+  .home-title h2 strong { font-weight: 600; color: var(--accent); }
+  .home-title p {
+    font-size: 13px; color: var(--muted); max-width: 480px; line-height: 1.6;
+  }
+  .home-grid {
+    display: grid; grid-template-columns: repeat(2, 240px);
+    gap: 12px;
+  }
+  .home-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 18px; cursor: pointer;
+    transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px;
+  }
+  .home-card:hover {
+    border-color: rgba(79,142,247,0.5);
+    background: rgba(79,142,247,0.05);
+    transform: translateY(-1px);
+  }
+  .home-card-icon { font-size: 22px; line-height: 1; }
+  .home-card-label { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .home-card-sub   { font-size: 11px; color: var(--muted); }
+  .home-version {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 4px 12px; border-radius: 20px;
+  }
+
+  /* ── Markdown ── */
+  .md-wrap {
+    max-width: 820px; padding: 8px 4px;
+    font-size: 14px; line-height: 1.75; color: var(--text);
+  }
+  .md-wrap h1 {
+    font-size: 22px; font-weight: 600; color: var(--text);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px; margin: 28px 0 16px;
+  }
+  .md-wrap h2 {
+    font-size: 17px; font-weight: 600; color: var(--accent);
+    margin: 24px 0 12px;
+  }
+  .md-wrap h3 {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    margin: 18px 0 8px;
+  }
+  .md-wrap h4 { font-size: 13px; font-weight: 600; margin: 14px 0 6px; }
+  .md-wrap p  { margin: 0 0 12px; }
+  .md-wrap ul, .md-wrap ol { margin: 0 0 12px; padding-left: 22px; }
+  .md-wrap li { margin-bottom: 4px; }
+  .md-wrap code {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 1px 5px; border-radius: 3px; color: var(--accent2);
+  }
+  .md-wrap pre {
+    background: #0a0e18; border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px 16px; margin: 10px 0 16px;
+    overflow-x: auto;
+  }
+  .md-wrap pre code {
+    background: none; border: none; padding: 0;
+    font-size: 12px; color: #c9d1d9; line-height: 1.6;
+  }
+  .md-wrap table {
+    width: 100%; border-collapse: collapse; margin: 12px 0 16px;
+    font-size: 13px;
+  }
+  .md-wrap th {
+    padding: 8px 12px; text-align: left; font-weight: 600;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .md-wrap td {
+    padding: 8px 12px; border: 1px solid var(--border);
+  }
+  .md-wrap tr:hover td { background: rgba(255,255,255,0.02); }
+  .md-wrap blockquote {
+    border-left: 3px solid var(--accent); margin: 0 0 12px;
+    padding: 6px 16px; background: rgba(79,142,247,0.05);
+    color: var(--muted); font-style: italic;
+  }
+  .md-wrap hr {
+    border: none; border-top: 1px solid var(--border); margin: 24px 0;
+  }
+  .md-wrap a { color: var(--accent); text-decoration: none; }
+  .md-wrap a:hover { text-decoration: underline; }
+  .md-notice {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px; margin-bottom: 16px;
+    background: rgba(124,141,166,0.1); border: 1px solid var(--border);
+    border-radius: 6px; font-size: 12px; color: var(--muted);
+  }
+
   .badge-law   { background: rgba(100,217,168,0.15); color: var(--accent2); }
   .badge-inst  { background: rgba(79,142,247,0.15);  color: var(--accent); }
   .badge-other { background: rgba(124,141,166,0.15); color: var(--muted); }
@@ -547,11 +697,15 @@
 <body>
 
 <header>
-  <span class="logo">NDI</span>
+  <span class="logo">MNR</span>
   <h1>Config Manager</h1>
   <div class="api-status">
     <div class="dot" id="dot"></div>
     <span id="api-status-text">Verbinde...</span>
+  </div>
+  <div class="theme-toggle" onclick="toggleTheme()" title="Hell/Dunkel umschalten">
+    <span class="theme-icon" id="theme-icon">🌙</span>
+    <span class="theme-label" id="theme-label">Dunkel</span>
   </div>
 </header>
 
@@ -585,6 +739,27 @@
 
 <script>
 const API = window.location.origin + '/api/v1/config';
+
+// ── Theme ─────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const light = document.body.classList.toggle('light');
+  document.getElementById('theme-icon').textContent  = light ? '☀️' : '🌙';
+  document.getElementById('theme-label').textContent = light ? 'Hell' : 'Dunkel';
+  localStorage.setItem('mnr-theme', light ? 'light' : 'dark');
+}
+
+// Theme beim Start wiederherstellen
+(function() {
+  if (localStorage.getItem('mnr-theme') === 'light') {
+    document.body.classList.add('light');
+    document.addEventListener('DOMContentLoaded', () => {
+      const icon  = document.getElementById('theme-icon');
+      const label = document.getElementById('theme-label');
+      if (icon)  icon.textContent  = '☀️';
+      if (label) label.textContent = 'Hell';
+    });
+  }
+})();
 let configs = {};
 let current = null;
 let viewMode = 'form';
@@ -611,7 +786,7 @@ async function init() {
     document.getElementById('dot').className = 'dot online';
     document.getElementById('api-status-text').textContent = 'Verbunden';
     buildNav(list);
-    if (list.length > 0) loadConfig(list[0].name);
+    showHome();
   } catch(e) {
     document.getElementById('dot').className = 'dot offline';
     document.getElementById('api-status-text').textContent = 'Nicht erreichbar';
@@ -626,7 +801,24 @@ async function init() {
 // ── Navigation ───────────────────────────────────────────────────────────────
 function buildNav(list) {
   const nav = document.getElementById('nav');
-  nav.innerHTML = list.map(c => `
+  const staticItems = `
+    <div class="nav-item active" id="nav-__home" onclick="showHome()">
+      <span class="nav-icon">🏠</span>
+      <div>
+        <div class="nav-text">Home</div>
+        <div class="nav-sub">Startseite</div>
+      </div>
+    </div>
+    <div class="nav-item" id="nav-__config_md" onclick="showConfigMd()">
+      <span class="nav-icon">📋</span>
+      <div>
+        <div class="nav-text">Config-Übersicht</div>
+        <div class="nav-sub">CONFIG.md (nur Anzeige)</div>
+      </div>
+    </div>
+    <div style="height:1px;background:var(--border);margin:8px 16px"></div>
+  `;
+  nav.innerHTML = staticItems + list.map(c => `
     <div class="nav-item" id="nav-${c.name}" onclick="loadConfig('${c.name}')">
       <span class="nav-icon">${c.icon}</span>
       <div>
@@ -645,8 +837,12 @@ async function loadConfig(name) {
 
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   document.getElementById('nav-'+name)?.classList.add('active');
-
   document.getElementById('toolbar').style.display = 'flex';
+  document.getElementById('vbtn-form').style.display = '';
+  document.getElementById('vbtn-raw').style.display  = '';
+  document.getElementById('btn-restore').style.display = '';
+  document.getElementById('btn-save').style.display = '';
+
   document.getElementById('content').innerHTML =
     '<div class="loading"><div class="spinner"></div> Lade...</div>';
 
@@ -663,6 +859,181 @@ async function loadConfig(name) {
     showToast(e.message, 'err');
   }
 }
+
+// ── Home ─────────────────────────────────────────────────────────────────────
+function showHome() {
+  if (unsaved && !confirm('Ungespeicherte Änderungen verwerfen?')) return;
+  unsaved = false; current = null;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-__home')?.classList.add('active');
+
+  // Toolbar vereinfachen
+  document.getElementById('toolbar').style.display = 'flex';
+  document.getElementById('toolbar-title').textContent = '🏠  MNR Config Manager';
+  document.getElementById('toolbar-path').textContent  = '';
+  document.getElementById('vbtn-form').style.display   = 'none';
+  document.getElementById('vbtn-raw').style.display    = 'none';
+  document.getElementById('btn-restore').style.display = 'none';
+  document.getElementById('btn-save').style.display    = 'none';
+
+  const cards = [
+    {name:'nlp',          icon:'🧠', label:'NLP-Konfiguration',  sub:'spaCy, SVO, NER, Fragen-Filter'},
+    {name:'embedder',     icon:'🔢', label:'Embedding-Modell',    sub:'Modell, Batch-Size, Device'},
+    {name:'abbrev',       icon:'📖', label:'Wörterbücher',        sub:'Abkürzungen und Synonyme'},
+    {name:'test_chunker', icon:'✂️', label:'Chunker-Test',        sub:'Token-Limits, Klassen'},
+  ];
+
+  document.getElementById('content').innerHTML = `
+    <div class="home-wrap">
+      <div class="home-logo-ring">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#4f8ef7;stop-opacity:1"/>
+              <stop offset="100%" style="stop-color:#64d9a8;stop-opacity:1"/>
+            </linearGradient>
+          </defs>
+          <circle cx="60" cy="60" r="54" fill="none" stroke="url(#g1)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6">
+            <animateTransform attributeName="transform" type="rotate"
+              values="0 60 60;360 60 60" dur="20s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="60" cy="60" r="46" fill="none" stroke="#2a3348" stroke-width="1"/>
+          <circle cx="60" cy="14" r="4" fill="#4f8ef7" opacity="0.8">
+            <animateTransform attributeName="transform" type="rotate"
+              values="0 60 60;360 60 60" dur="20s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="60" cy="106" r="3" fill="#64d9a8" opacity="0.6">
+            <animateTransform attributeName="transform" type="rotate"
+              values="0 60 60;-360 60 60" dur="15s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+        <div class="home-logo-inner">MNR</div>
+      </div>
+
+      <div class="home-title">
+        <h2><strong>Config Manager</strong></h2>
+        <p>Konfigurationsverwaltung für das Meta-Normen-Register.
+           Alle YAML-Dateien werden direkt auf dem Server gelesen und geschrieben.
+           Änderungen wirken beim nächsten Pipeline-Lauf ohne Neustart.</p>
+      </div>
+
+      <div class="home-grid">
+        ${cards.map(c => `
+          <div class="home-card" onclick="loadConfig('${c.name}')">
+            <span class="home-card-icon">${c.icon}</span>
+            <div>
+              <div class="home-card-label">${c.label}</div>
+              <div class="home-card-sub">${c.sub}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+
+      <span class="home-version">MNR  ·  M1 + M2  ·  Mai 2026</span>
+    </div>`;
+}
+
+// ── Config-Übersicht (CONFIG.md) ──────────────────────────────────────────
+async function showConfigMd() {
+  if (unsaved && !confirm('Ungespeicherte Änderungen verwerfen?')) return;
+  unsaved = false; current = null;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-__config_md')?.classList.add('active');
+
+  document.getElementById('toolbar').style.display    = 'flex';
+  document.getElementById('toolbar-title').textContent = '📋  Config-Übersicht';
+  document.getElementById('toolbar-path').textContent  = '~/reg-mo/ndi/CONFIG.md  (nur Anzeige)';
+  document.getElementById('vbtn-form').style.display   = 'none';
+  document.getElementById('vbtn-raw').style.display    = 'none';
+  document.getElementById('btn-restore').style.display = 'none';
+  document.getElementById('btn-save').style.display    = 'none';
+
+  document.getElementById('content').innerHTML =
+    '<div class="loading"><div class="spinner"></div> Lade CONFIG.md...</div>';
+
+  try {
+    const data = await apiFetch(API + '/config_md/raw');
+    const html = mdToHtml(data.raw_yaml || data.content || '');
+    document.getElementById('content').innerHTML = `
+      <div class="md-notice">
+        🔒 Diese Datei ist schreibgeschützt und wird nur zur Anzeige geladen.
+      </div>
+      <div class="md-wrap">${html}</div>`;
+  } catch(e) {
+    document.getElementById('content').innerHTML = `
+      <div class="loading" style="color:var(--danger)">
+        CONFIG.md konnte nicht geladen werden.<br>
+        <small style="color:var(--muted);margin-top:8px">${e.message}</small>
+      </div>`;
+  }
+}
+
+// ── Einfacher Markdown-Renderer ───────────────────────────────────────────
+function mdToHtml(md) {
+  // Code-Blöcke zuerst extrahieren und ersetzen
+  const blocks = [];
+  let h = md.replace(/```[\w\s]*\n?([\s\S]*?)```/g, (_, c) => {
+    blocks.push(c.trim());
+    return `%%BLOCK${blocks.length - 1}%%`;
+  });
+
+  // Inline-Code
+  const inlines = [];
+  h = h.replace(/`([^`\n]+)`/g, (_, c) => {
+    inlines.push(c);
+    return `%%INLINE${inlines.length - 1}%%`;
+  });
+
+  // Überschriften
+  h = h.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+  h = h.replace(/^### (.+)$/gm,  '<h3>$1</h3>');
+  h = h.replace(/^## (.+)$/gm,   '<h2>$1</h2>');
+  h = h.replace(/^# (.+)$/gm,    '<h1>$1</h1>');
+
+  // Trennlinie
+  h = h.replace(/^---+$/gm, '<hr>');
+
+  // Fett + Kursiv
+  h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  h = h.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+  // Tabellen
+  h = h.replace(/^(\|.+\|)\n\|[-| :]+\|\n((?:\|.+\|?\n?)+)/gm, (_, hdr, body) => {
+    const ths = hdr.split('|').filter(c => c.trim())
+      .map(c => `<th>${c.trim()}</th>`).join('');
+    const trs = body.trim().split('\n').filter(r => r.trim()).map(row => {
+      const tds = row.split('|').filter(c => c.trim())
+        .map(c => `<td>${c.trim()}</td>`).join('');
+      return `<tr>${tds}</tr>`;
+    }).join('');
+    return `<table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
+  });
+
+  // Listen
+  h = h.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
+  h = h.replace(/(<li>[\s\S]*?<\/li>\n?)+/g, m => `<ul>${m}</ul>`);
+
+  // Nummerierte Listen
+  h = h.replace(/^\d+\. (.+)$/gm, '<oli>$1</oli>');
+  h = h.replace(/(<oli>[\s\S]*?<\/oli>\n?)+/g, m =>
+    `<ol>${m.replace(/<oli>/g,'<li>').replace(/<\/oli>/g,'</li>')}</ol>`);
+
+  // Blockquote
+  h = h.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+
+  // Absätze (Zeilen ohne HTML-Tag)
+  h = h.replace(/^(?!<[a-zA-Z\/])(.+)$/gm, '<p>$1</p>');
+
+  // Code-Blöcke zurückeinsetzen
+  h = h.replace(/%%BLOCK(\d+)%%/g, (_, i) =>
+    `<pre><code>${escHtml(blocks[parseInt(i)])}</code></pre>`);
+
+  // Inline-Code zurückeinsetzen
+  h = h.replace(/%%INLINE(\d+)%%/g, (_, i) =>
+    `<code>${escHtml(inlines[parseInt(i)])}</code>`);
+
+  return h;
+}
+
 
 // ── Render ────────────────────────────────────────────────────────────────────
 function setView(mode) {

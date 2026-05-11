@@ -40,5 +40,11 @@ tenacity==8.3.0                # Retry-Logik
 # NLP – Flair (M2 Legal NER)
 flair>=0.14.0
 
+# Tabellen-Extraktion (M1 Erweiterung)
+python-docx>=1.1.0             # DOCX-Tabellen (Schritt 1)
+pandas>=2.2.0                  # XLSX/ODS-Tabellen (Schritt 3)
+openpyxl>=3.1.0                # pandas Excel-Backend
+odfpy>=1.4.1                   # pandas ODS-Backend
+
 # Logging & Observability
 structlog==24.2.0
