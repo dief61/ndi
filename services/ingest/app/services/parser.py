@@ -281,6 +281,54 @@ class TikaParser:
             flags=re.MULTILINE,
         )
 
+        # ── Maßnahme 5: Bulletpoints und Sonderzeichen bereinigen ────────
+        # Bulletpoints aus PDFs/Word: ▪ • · ‣ ◦ ► ▸ ‒ – — ―
+        BULLET_CHARS = (
+            '\u25aa'   # ▪ BLACK SMALL SQUARE (häufigster Fall)
+            '\u2022'   # • BULLET
+            '\u00b7'   # · MIDDLE DOT
+            '\u2023'   # ‣ TRIANGULAR BULLET
+            '\u25e6'   # ◦ WHITE BULLET
+            '\u25cf'   # ● BLACK CIRCLE
+            '\u2043'   # ⁃ HYPHEN BULLET
+            '\u25ba'   # ► BLACK RIGHT-POINTING POINTER
+            '\u25b8'   # ▸ BLACK RIGHT-POINTING SMALL TRIANGLE
+        )
+        # Bullet am Zeilenanfang (mit optionalem Leerzeichen) → entfernen
+        text = re.sub(
+            r'^[' + BULLET_CHARS + r']\s*',
+            '',
+            text,
+            flags=re.MULTILINE,
+        )
+        # Bullet mitten in Zeile → durch Leerzeichen ersetzen
+        text = re.sub(
+            r'[' + BULLET_CHARS + r']',
+            ' ',
+            text,
+        )
+
+        # ── Maßnahme 6: Typografische Anführungszeichen normalisieren ─────
+        # „ " (deutsch) → " " (ASCII)
+        text = (text
+            .replace('\u201e', '"')   # „ öffnend deutsch
+            .replace('\u201c', '"')   # " öffnend englisch
+            .replace('\u201d', '"')   # " schließend
+            .replace('\u2018', "'")   # ' öffnend
+            .replace('\u2019', "'")   # ' schließend (Apostroph)
+            .replace('\u00ab', '"')   # « französisch öffnend
+            .replace('\u00bb', '"')   # » französisch schließend
+            .replace('\u2039', "'")   # ‹ einfach öffnend
+            .replace('\u203a', "'")   # › einfach schließend
+        )
+
+        # ── Maßnahme 7: Unbekannte Steuer-/Sonderzeichen entfernen ───────
+        # PUA-Zeichen (Private Use Area: U+E000–U+F8FF) entfernen
+        # Diese stammen aus proprietären Schriftarten (eea482, eeb1ad)
+        text = re.sub(r'[\uE000-\uF8FF]', '', text)
+        # Zero-Width-Zeichen entfernen
+        text = re.sub(r'[\u200b-\u200f\u2028\u2029\ufeff]', '', text)
+
         # ── Maßnahme 4: Fußnotenzeichen bereinigen ───────────────────────
         # Fall 1: Zahl+Klammer direkt hinter Wort: "Sachkunde1)" → "Sachkunde"
         # Fußnotenmarker am Wortende entfernen

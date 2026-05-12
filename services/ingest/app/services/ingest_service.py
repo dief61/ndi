@@ -25,6 +25,7 @@ from app.services.embedder import Embedder
 from app.services.storage import DocumentStorage
 from app.services.abbrev_normalizer import AbbrevNormalizer
 from app.services.question_filter import QuestionFilter
+from app.services.doc_type_classifier import DocTypeClassifier
 
 logger = structlog.get_logger()
 
@@ -65,6 +66,7 @@ class IngestService:
         self.qfilter    = QuestionFilter()
         self.embedder   = Embedder()
         self.storage    = DocumentStorage()
+        self.doc_classifier = DocTypeClassifier()
         self._pg_pool: Optional[asyncpg.Pool] = None
 
     async def _get_pool(self) -> asyncpg.Pool:
@@ -255,6 +257,49 @@ class IngestService:
             log.info("Parsing abgeschlossen",
                      doc_class=parsed.doc_class_hint,
                      char_count=len(parsed.text))
+
+            # ── Schritt 3c: Dokumenttyp bestimmen ───────────────────────────
+            #
+            # Priorität:
+            #   1. CLI/API-Parameter  (_source_type_explicit = True)
+            #   2. docs.yaml Eintrag  (_source_type_from_yaml = True)
+            #   3. Automatische Erkennung via DocTypeClassifier
+            #
+            src_from_cli  = getattr(metadata, "_source_type_explicit",   False)
+            src_from_yaml = getattr(metadata, "_source_type_from_yaml",  False)
+            current_src   = getattr(metadata, "source_type", None) or ""
+
+            if src_from_cli:
+                # Priorität 1: CLI/API – unverändert übernehmen
+                log.info(
+                    "Dokumenttyp: CLI/API-Parameter",
+                    source_type=current_src,
+                )
+
+            elif src_from_yaml:
+                # Priorität 2: docs.yaml – unverändert übernehmen
+                log.info(
+                    "Dokumenttyp: docs.yaml",
+                    source_type=current_src,
+                )
+
+            else:
+                # Priorität 3: Automatische Erkennung
+                log.info("Dokumenttyp: automatische Erkennung läuft")
+                cls_result = self.doc_classifier.classify(
+                    filename=filename,
+                    title=getattr(metadata, "title", filename),
+                    text=parsed.text,
+                    structure=parsed.structure,
+                )
+                if hasattr(metadata, "source_type"):
+                    metadata.source_type = cls_result.source_type
+                log.info(
+                    "Dokumenttyp automatisch erkannt",
+                    source_type=cls_result.source_type,
+                    confidence=cls_result.confidence,
+                    reason=cls_result.reason,
+                )
 
             # ── Schritt 3b: Abkürzungsauflösung ─────────────────────────────
             log.info("Schritt 3b: Abkürzungsauflösung")

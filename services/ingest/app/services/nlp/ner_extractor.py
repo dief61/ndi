@@ -206,6 +206,14 @@ class NERExtractor:
         if label_corrections:
             entities = self._apply_label_corrections(entities, label_corrections)
 
+        # ── Ansatz 5: §-Normreferenzen filtern ──────────────────────────
+        # §-Nummern allein (§ 8) oder mit Abs./Satz (§ 10 Abs. 4) sind
+        # Normreferenzen, keine Gesetzes-Entitäten.
+        # Nur §-Entitäten MIT Gesetzesname behalten (§ 117 ... Versicherungsvertragsgesetz).
+        # Konfigurierbar über ner.filter_norm_references (Standard: true)
+        if ner_cfg.get("filter_norm_references", True):
+            entities = self._filter_norm_references(entities)
+
         # ── Ansatz 4: Kontext-Validierung ─────────────────────────────────
         ctx_cfg = ner_cfg.get("context_validation", {})
         if ctx_cfg.get("enabled", False):
@@ -353,6 +361,39 @@ class NERExtractor:
                 merged.append(rule_ent)
 
         return merged
+
+    # Regex: §-Nummer + optionaler Abs./Satz – aber KEIN Gesetzesname
+    _NORMREF_ONLY = re.compile(
+        r'^§\s*\d+\w*'               # § + Nummer
+        r'(?:\s+Abs\.\s*\d+)?'       # optional: Abs. X
+        r'(?:\s+Satz\s*\d+)?'        # optional: Satz X
+        r'(?:\s+Nr\.\s*\d+)?'        # optional: Nr. X
+        r'\s*$',                      # Ende – kein Gesetzesname dahinter
+        re.IGNORECASE,
+    )
+
+    def _filter_norm_references(
+        self,
+        entities: list[NEREntity],
+    ) -> list[NEREntity]:
+        """
+        Ansatz 5: §-Nummern ohne Gesetzesname aus GESETZ-Entitäten entfernen.
+
+        Behalten:  § 117 Abs. 2 Satz 1 des Versicherungsvertragsgesetzes
+        Verwerfen: § 8
+        Verwerfen: § 10 Abs. 4
+        Verwerfen: § 9 Satz 3
+
+        Nicht-GESETZ-Entitäten werden nicht berührt.
+        """
+        result = []
+        for e in entities:
+            if e.label == "GESETZ" and self._NORMREF_ONLY.match(e.text.strip()):
+                # Nur §-Nummer ohne Gesetzesname → verwerfen
+                logger.debug("Normreferenz gefiltert", text=e.text)
+            else:
+                result.append(e)
+        return result
 
     def _apply_blacklist(
         self,

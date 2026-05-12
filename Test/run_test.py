@@ -55,6 +55,35 @@ def load_env(env_path: Path) -> dict:
     return env
 
 
+def load_doc_metadata(docs_dir: Path) -> dict:
+    """
+    Liest docs.yaml aus services/ingest/ (neben den anderen YAML-Dateien).
+    Fallback: docs.yaml im docs-Verzeichnis (für Rückwärtskompatibilität).
+
+    Enthält:
+      - doc_type_detection: Konfiguration der automatischen Typ-Erkennung
+      - Dokument-Metadaten je Dateiname: source_type, title, jurisdiction, version
+    """
+    import yaml
+
+    # Primär: services/ingest/docs.yaml
+    candidates = [
+        INGEST_DIR / "docs.yaml",
+        docs_dir / "docs.yaml",          # Fallback: Test/docs/docs.yaml
+    ]
+
+    for yaml_path in candidates:
+        if yaml_path.exists():
+            try:
+                with open(yaml_path, encoding="utf-8") as f:
+                    data = yaml.safe_load(f) or {}
+                return data
+            except Exception as e:
+                print(f"  ⚠  {yaml_path.name} konnte nicht gelesen werden: {e}")
+
+    return {}
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Logger
 # ─────────────────────────────────────────────────────────────────────────────
@@ -318,9 +347,44 @@ async def ingest_documents(
     port    = env.get("FASTAPI_PORT", "8000")
     results = []
 
+    # Metadaten aus docs.yaml laden (optional)
+    doc_meta = load_doc_metadata(docs_dir)
+
     for pdf in pdf_files:
-        title = pdf.stem   # Dateiname ohne Suffix
-        log._write(f"\n       Einspielen: {pdf.name} → Titel: '{title}'")
+        # Metadaten aus docs.yaml – Defaults wenn nicht vorhanden
+        meta     = doc_meta.get(pdf.name, {})
+        title    = meta.get("title",       pdf.stem)
+        src_type = meta.get("source_type", "gesetz")
+        jurisd   = meta.get("jurisdiction", "")
+        version  = meta.get("version",      "")
+        force_cl = meta.get("force_class",  "")
+
+        log._write(
+            f"\n       Einspielen: {pdf.name}"
+            f" → Titel: '{title}'"
+            f" | Typ: {src_type}"
+            + (f" | Jurisdiktion: {jurisd}" if jurisd else "")
+            + (f" | Version: {version}"     if version else "")
+            + (f" | Klasse: {force_cl}"     if force_cl else "")
+        )
+
+        # Priorität bestimmen:
+        #   cli_explicit  = True wenn explizit per Kommandozeile übergeben
+        #   yaml_defined  = True wenn in docs.yaml für dieses Dokument definiert
+        yaml_defined  = pdf.name in doc_meta and "source_type" in doc_meta.get(pdf.name, {})
+        cli_explicit  = False   # run_test.py übergibt nie explizit per CLI
+
+        # Form-Daten aufbauen
+        form_data = {
+            "source_type": src_type,
+            "title":       title,
+        }
+        if jurisd:      form_data["jurisdiction"]           = jurisd
+        if version:     form_data["version"]                = version
+        if force_cl:    form_data["force_class"]            = force_cl
+        # Prioritäts-Flags an API übergeben
+        if yaml_defined:form_data["source_type_from_yaml"]  = "true"
+        if cli_explicit:form_data["source_type_explicit"]   = "true"
 
         try:
             async with httpx.AsyncClient(timeout=60.0) as client:
@@ -328,10 +392,7 @@ async def ingest_documents(
                     resp = await client.post(
                         f"http://localhost:{port}/api/v1/ingest/document",
                         files={"file": (pdf.name, f, "application/pdf")},
-                        data={
-                            "source_type": "gesetz",
-                            "title":       title,
-                        },
+                        data=form_data,
                     )
 
             if resp.status_code == 200:

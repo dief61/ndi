@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import structlog
 
-from app.api.routes import ingest, health, paket, nlp, config_router
+from app.api.routes import ingest, health, paket, nlp, config_router, reports_router
 from app.core.config import settings
 from app.services.ingest_service import IngestService
 from app.services.paket_service import PaketService
@@ -76,4 +76,5 @@ app.include_router(health.router, prefix="/health",        tags=["Health"])
 app.include_router(ingest.router, prefix="/api/v1/ingest", tags=["Ingest"])
 app.include_router(paket.router,  prefix="/api/v1/ingest", tags=["Paket"])
 app.include_router(nlp.router,           prefix="/api/v1/nlp",    tags=["NLP"])
-app.include_router(config_router.router, prefix="/api/v1/config", tags=["Config"])
+app.include_router(config_router.router,  prefix="/api/v1/config",  tags=["Config"])
+app.include_router(reports_router.router, prefix="/api/v1/reports", tags=["Reports"])

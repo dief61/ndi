@@ -1,0 +1,132 @@
+# NDI Chunker-Konfiguration
+# services/ingest/chunker_config.yaml
+#
+# Konfiguration für den ChunkingRouter.
+# Alle Parameter können hier vorbelegt werden.
+# Kommandozeilenargumente überschreiben diese Werte.
+
+# ── Ausgabe ──────────────────────────────────────────────────────────────────
+output:
+  # Maximale Anzahl Chunks pro Test (0 = alle)
+  limit: 0
+  # Ausgabedatei (null = nur Konsole)
+  file: null
+  # Textlänge pro Chunk in der Ausgabe (Zeichen, 0 = vollständig)
+  text_preview_length: 200
+
+# ── Dokument-Klasse ───────────────────────────────────────────────────────────
+document:
+  # Dokumentklasse erzwingen: A, B, C oder null (automatische Erkennung)
+  force_class: null
+
+# ── Synthetische Testdaten ────────────────────────────────────────────────────
+synthetic_tests:
+  # Klasse-A- und Klasse-C-Tests aktivieren
+  enabled: true
+
+# ── Chunk-Typ-Erkennung ──────────────────────────────────────────────────────
+# Patterns zur automatischen Klassifikation von Absatz-Chunks (Klasse A).
+# Reihenfolge ist relevant: erstes Pattern das zutrifft gewinnt.
+# Syntax: YAML-String → wird als re.compile(..., re.IGNORECASE) interpretiert.
+# Fallback wenn kein Pattern zutrifft: "tatbestand"
+#
+# Chunk-Typen:
+#   tatbestand    Voraussetzungen einer Norm (Wer/Was muss vorliegen)
+#   rechtsfolge   Konsequenz / Rechtsfolge
+#   definition    Legaldefinition ("im Sinne dieses Gesetzes")
+#   ausnahme      Ausnahmen und Sonderfälle
+#   verweis       Querverweise auf andere Normen
+#   zustaendigkeit Zuständigkeit / Aufsicht
+#   deadline      Fristen und Zeitvorgaben
+
+chunk_typen:
+
+  MUST_NOT:
+    chunk_type: rechtsfolge
+    patterns:
+      - 'darf\s+nicht'
+      - 'dürfen\s+nicht'
+      - 'ist\s+untersagt'
+      - 'sind\s+untersagt'
+      - 'ist\s+verboten'
+      - 'sind\s+verboten'
+
+  COMPETENCE:
+    chunk_type: zustaendigkeit
+    patterns:
+      - 'zuständig\s+ist'
+      - 'ist\s+zuständig'
+      - 'obliegt'
+      - 'wird\s+übertragen'
+      - 'liegt\s+bei'
+
+  DEADLINE:
+    chunk_type: tatbestand
+    patterns:
+      - 'binnen'
+      - 'spätestens'
+      - 'unverzüglich'
+      - 'innerhalb\s+von'
+      - 'bis\s+zum'
+
+  EXCEPT:
+    chunk_type: ausnahme
+    patterns:
+      - 'es\s+sei\s+denn'
+      - 'sofern\s+nicht'
+      - 'ausgenommen'
+      - 'vorbehaltlich'
+      - 'abweichend\s+davon'
+      - 'unbeschadet'
+
+  DEF:
+    chunk_type: definition
+    patterns:
+      - 'im\s+Sinne'
+      - 'gilt\s+als'
+      - 'versteht\s+man'
+      - 'ist\s+definiert\s+als'
+      - 'bedeutet'
+
+  MUST:
+    chunk_type: tatbestand
+    patterns:
+      - 'muss'
+      - 'müssen'
+      - 'ist\s+zu'
+      - 'sind\s+zu'
+      - 'hat\s+zu'
+      - 'haben\s+zu'
+      - 'ist\s+verpflichtet'
+      - 'sind\s+verpflichtet'
+
+  MAY:
+    chunk_type: tatbestand
+    patterns:
+      - 'kann'
+      - 'können'
+      - 'darf'
+      - 'dürfen'
+      - 'ist\s+berechtigt'
+      - 'sind\s+berechtigt'
+
+# ── Chunking-Parameter ────────────────────────────────────────────────────────
+chunking:
+  # Klasse A
+  class_a:
+    token_limit_parent: 1024
+    token_limit_child: 256
+    token_limit_satz: 128
+
+  # Klasse B
+  class_b:
+    token_limit_parent: 128
+    token_limit_child: 512
+    overlap_ratio: 0.15
+
+  # Klasse C
+  class_c:
+    token_min: 50
+    token_max: 384
+    overlap_ratio: 0.20
+    score_threshold: 0.72     # Erhöhter Threshold für Qualitätsfilter

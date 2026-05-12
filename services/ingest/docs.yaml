@@ -1,0 +1,235 @@
+# Test/docs/docs.yaml
+#
+# Optionale Metadaten für die Testdokumente.
+# Dateiname (exakt mit Erweiterung) als Schlüssel.
+#
+# Felder:
+#   source_type:  gesetz | verordnung | standard | fachkonzept |
+#                 leitfaden | lastenheft | auslegung
+#   title:        Anzeigename in der Datenbank (Standard: Dateiname ohne .pdf)
+#   jurisdiction: Bundesland-Kürzel z.B. NDS, BW, BY (optional)
+#   version:      Versionsnummer z.B. "2020" oder "1.2" (optional)
+#   force_class:  A | B | C – Dokumentklasse erzwingen (optional)
+#
+# Nicht aufgeführte Dateien verwenden folgende Defaults:
+#   source_type: gesetz
+#   title:       Dateiname ohne .pdf
+#   jurisdiction: (leer)
+#   version:      (leer)
+#   force_class:  (automatisch erkannt)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Automatische Dokumenttyp-Erkennung
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Wird verwendet wenn source_type weder als CLI-Parameter noch als
+# Dokument-Eintrag definiert ist.
+#
+# min_confidence: Mindest-Konfidenz für automatische Zuweisung (0.0 – 1.0)
+#   Wird die Konfidenz nicht erreicht, wird der Typ "text" zugewiesen.
+#   Typ "text" hat immer Konfidenz > 0 und wird immer zugewiesen.
+#
+# enabled: Automatische Erkennung ein/aus
+#   false = immer "text" als Fallback
+
+doc_type_detection:
+  enabled: true
+
+  # Globale Mindest-Konfidenz (wird je Typ überschrieben)
+  global_min_confidence: 0.70
+
+  typen:
+    gesetz:
+      min_confidence: 0.90
+      beschreibung: "Formelles Gesetz mit §-Paragraphen-Struktur"
+      signale:
+        titel_muster:
+          - '(?i)gesetz'
+          - '(?i)gesetzbuch'
+          - '(?i)[A-Z][a-z]+G$'          # NHundG, BGB, VwVfG
+          - '(?i)^[A-Z]{2,8}G'
+        dateiname_muster:
+          - '(?i)gesetz'
+          - '(?i)[A-Z][a-z]+G\.'
+          - '(?i)^[A-Z]{2,8}G\.'
+        volltext_signale:
+          - 'BGBl\.'                      # Bundesgesetzblatt
+          - 'GVBl\.'                      # Gesetz- und Verordnungsblatt
+          - 'verkündet'
+          - 'in Kraft getreten'
+        struktur_signale:
+          paragraph_min: 3               # Mindestanzahl §-Paragraphen
+          hat_normstruktur: true          # Abs., Satz, Nr. Gliederung
+
+    verordnung:
+      min_confidence: 0.85
+      beschreibung: "Untergesetzliche Rechtsverordnung"
+      signale:
+        titel_muster:
+          - '(?i)verordnung'
+          - '(?i)VO'
+          - '(?i)rechtsverordnung'
+          - '(?i)[A-Z][a-z]+V$'          # z.B. BImSchV
+          - '(?i)[A-Z][a-z]+VO'
+        dateiname_muster:
+          - '(?i)verordnung'
+          - '(?i)[A-Z][a-z]+V\.'
+          - '(?i)[A-Z][a-z]+VO\.'
+        volltext_signale:
+          - 'aufgrund.*§.*wird.*verordnet'
+          - 'ermächtigung'
+          - 'BGBl\.'
+          - 'GVBl\.'
+        struktur_signale:
+          paragraph_min: 2
+          hat_normstruktur: true
+
+    auslegung:
+      min_confidence: 0.80
+      beschreibung: "FAQ, Kommentar, Auslegungshinweis, Handreichung"
+      signale:
+        titel_muster:
+          - '(?i)faq'
+          - '(?i)häufig.*fragen'
+          - '(?i)kommentar'
+          - '(?i)auslegung'
+          - '(?i)hinweis'
+          - '(?i)handreichung'
+          - '(?i)erläuterung'
+        dateiname_muster:
+          - '(?i)faq'
+          - '(?i)kommentar'
+          - '(?i)auslegung'
+          - '(?i)hinweis'
+        volltext_signale:
+          - 'Frage:'
+          - 'Antwort:'
+          - 'Was ist'
+          - 'Wie kann'
+          - 'Warum'
+        struktur_signale:
+          fragen_quote_min: 0.05         # mind. 5% Fragesätze im Text
+
+    fachkonzept:
+      min_confidence: 0.70
+      beschreibung: "Fachliche Konzeption, Architekturkonzept, Spezifikation"
+      signale:
+        titel_muster:
+          - '(?i)konzept'
+          - '(?i)konzeption'
+          - '(?i)architektur'
+          - '(?i)spezifikation'
+          - '(?i)fachkonzept'
+          - '(?i)zielbild'
+        dateiname_muster:
+          - '(?i)konzept'
+          - '(?i)architektur'
+          - '(?i)spezifikation'
+        volltext_signale:
+          - 'Ziel'
+          - 'Anforderung'
+          - 'Architektur'
+          - 'Komponente'
+          - 'Schnittstelle'
+        struktur_signale:
+          hat_inhaltsverzeichnis: true
+          paragraph_max: 2               # Wenige oder keine §§
+
+    leitfaden:
+      min_confidence: 0.75
+      beschreibung: "Leitfaden, Handlungsempfehlung, Anleitung"
+      signale:
+        titel_muster:
+          - '(?i)leitfaden'
+          - '(?i)anleitung'
+          - '(?i)empfehlung'
+          - '(?i)leitlinie'
+          - '(?i)organisat'
+        dateiname_muster:
+          - '(?i)leitfaden'
+          - '(?i)anleitung'
+          - '(?i)empfehlung'
+        volltext_signale:
+          - 'sollte'
+          - 'empfohlen'
+          - 'Schritt'
+          - 'Vorgehen'
+        struktur_signale:
+          paragraph_max: 1
+
+    standard:
+      min_confidence: 0.95
+      beschreibung: "Technischer Standard, Norm (DIN, ISO, EN, BSI)"
+      signale:
+        titel_muster:
+          - '(?i)DIN'
+          - '(?i)ISO'
+          - '(?i)EN\s+\d'
+          - '(?i)IEC'
+          - '(?i)BSI'
+          - '(?i)ITIL'
+          - '(?i)OASIS'
+        dateiname_muster:
+          - '(?i)DIN'
+          - '(?i)ISO'
+          - '(?i)standard'
+          - '(?i)norm'
+        volltext_signale:
+          - 'DIN '
+          - 'ISO '
+          - 'Norm '
+          - 'normiert'
+          - 'zertifiziert'
+        struktur_signale: {}
+
+    lastenheft:
+      min_confidence: 0.85
+      beschreibung: "Lastenheft, Anforderungskatalog, Pflichtenheft"
+      signale:
+        titel_muster:
+          - '(?i)lastenheft'
+          - '(?i)pflichtenheft'
+          - '(?i)anforderungskatalog'
+          - '(?i)anforderungsdokument'
+        dateiname_muster:
+          - '(?i)lastenheft'
+          - '(?i)pflichtenheft'
+          - '(?i)anforderung'
+        volltext_signale:
+          - 'MUSS'
+          - 'SOLL'
+          - 'KANN'
+          - 'Anforderung'
+          - 'A-\d{3}'                    # Anforderungs-IDs
+        struktur_signale:
+          hat_anforderungs_ids: true
+
+    text:
+      min_confidence: 0.0
+      beschreibung: "Allgemeiner Text – Fallback wenn kein anderer Typ erkannt"
+      signale: {}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Dokument-Metadaten
+# ═══════════════════════════════════════════════════════════════════════════════
+
+Hundegesetz.pdf:
+  source_type:  gesetz
+  title:        NHundG – Niedersächsisches Hundegesetz
+  jurisdiction: NDS
+  version:      "2020"
+
+FAQ1-NHundG.pdf:
+  source_type:  auslegung
+  title:        FAQ1 – Sachkundenachweis
+  jurisdiction: NDS
+
+FAQ2-NHundG.pdf:
+  source_type:  auslegung
+  title:        FAQ2 – Hunderegister
+  jurisdiction: NDS
+
+FAQ3-NHundG.pdf:
+  source_type:  auslegung
+  title:        FAQ3 – Gefährliche Hunde
+  jurisdiction: NDS

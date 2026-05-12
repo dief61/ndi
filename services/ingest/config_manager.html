@@ -569,6 +569,70 @@
     border-radius: 6px; font-size: 12px; color: var(--muted);
   }
 
+  /* ── Reports ── */
+  .report-wrap { display: flex; flex-direction: column; height: 100%; }
+  .report-tabs {
+    display: flex; gap: 2px; padding: 0 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface); flex-shrink: 0;
+  }
+  .report-tab {
+    padding: 10px 16px; font-size: 12px; font-weight: 500;
+    font-family: var(--sans); cursor: pointer;
+    background: transparent; color: var(--muted); border: none;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .report-tab:hover { color: var(--text); }
+  .report-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .report-tab .rtab-icon { margin-right: 6px; }
+
+  .report-panel {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 20px 24px; overflow: hidden;
+  }
+  .report-controls {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .report-controls input[type=text] {
+    width: 220px;
+  }
+  .report-output-wrap {
+    flex: 1; overflow-y: auto;
+    background: #0a0e18; border: 1px solid var(--border);
+    border-radius: 6px; padding: 16px;
+    font-family: var(--mono); font-size: 12px;
+    line-height: 1.7; color: #c9d1d9;
+    min-height: 200px;
+  }
+  .report-output-wrap.loading-state {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+  }
+  /* ANSI-Farben im Terminal-Output */
+  .ro-green  { color: #64d9a8; }
+  .ro-blue   { color: #4f8ef7; }
+  .ro-yellow { color: #f7c44f; }
+  .ro-red    { color: #f76f6f; }
+  .ro-muted  { color: #7c8da6; }
+  .ro-bold   { font-weight: 600; color: #e2e8f0; }
+  .ro-sep    { color: #2a3348; }
+
+  .report-meta {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 10px; font-size: 11px; color: var(--muted);
+  }
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--muted); display: inline-block;
+  }
+  .status-dot.ok      { background: var(--accent2); box-shadow: 0 0 5px var(--accent2); }
+  .status-dot.err     { background: var(--danger);  box-shadow: 0 0 5px var(--danger); }
+  .status-dot.running { background: var(--warn);
+    animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
   .badge-law   { background: rgba(100,217,168,0.15); color: var(--accent2); }
   .badge-inst  { background: rgba(79,142,247,0.15);  color: var(--accent); }
   .badge-other { background: rgba(124,141,166,0.15); color: var(--muted); }
@@ -817,6 +881,14 @@ function buildNav(list) {
       </div>
     </div>
     <div style="height:1px;background:var(--border);margin:8px 16px"></div>
+    <div class="nav-item" id="nav-__reports" onclick="showReports()">
+      <span class="nav-icon">📊</span>
+      <div>
+        <div class="nav-text">Report & Monitor</div>
+        <div class="nav-sub">Qualität, Ingest, NLP</div>
+      </div>
+    </div>
+    <div style="height:1px;background:var(--border);margin:8px 16px"></div>
   `;
   nav.innerHTML = staticItems + list.map(c => `
     <div class="nav-item" id="nav-${c.name}" onclick="loadConfig('${c.name}')">
@@ -877,10 +949,11 @@ function showHome() {
   document.getElementById('btn-save').style.display    = 'none';
 
   const cards = [
-    {name:'nlp',          icon:'🧠', label:'NLP-Konfiguration',  sub:'spaCy, SVO, NER, Fragen-Filter'},
-    {name:'embedder',     icon:'🔢', label:'Embedding-Modell',    sub:'Modell, Batch-Size, Device'},
-    {name:'abbrev',       icon:'📖', label:'Wörterbücher',        sub:'Abkürzungen und Synonyme'},
-    {name:'test_chunker', icon:'✂️', label:'Chunker-Test',        sub:'Token-Limits, Klassen'},
+    {name:'nlp',      icon:'🧠', label:'NLP-Konfiguration',   sub:'spaCy, SVO, NER, Fragen-Filter'},
+    {name:'embedder', icon:'🔢', label:'Embedding-Modell',     sub:'Modell, Batch-Size, Device'},
+    {name:'abbrev',   icon:'📖', label:'Wörterbücher',         sub:'Abkürzungen und Synonyme'},
+    {name:'chunker',  icon:'✂️', label:'Chunker-Konfiguration',sub:'Token-Limits, Klassen'},
+    {name:'docs',     icon:'🗂️', label:'Dokument-Metadaten',   sub:'Typen, Titel, Typ-Erkennung'},
   ];
 
   document.getElementById('content').innerHTML = `
@@ -1035,6 +1108,514 @@ function mdToHtml(md) {
 }
 
 
+// ── Report & Monitor ─────────────────────────────────────────────────────────
+
+const REPORTS = [
+  {
+    key:         'question',
+    icon:        '❓',
+    label:       'Fragen-Report',
+    description: 'Gefilterte Fragen aus Klasse B/C Dokumenten',
+    endpoint:    '/api/v1/reports/question',
+    params: [
+      {id:'q-doc', label:'Dokument-Filter', placeholder:'z.B. FAQ1', param:'doc'},
+      {id:'q-all', label:'Auch reviewte',   type:'toggle', param:'all'},
+    ],
+  },
+  {
+    key:         'ingest',
+    icon:        '📥',
+    label:       'Ingest-Report',
+    description: 'Chunks, Embeddings, Abkürzungen pro Dokument',
+    endpoint:    '/api/v1/reports/ingest',
+    params: [
+      {id:'i-doc', label:'Dokument-Filter', placeholder:'z.B. NHundG', param:'doc'},
+    ],
+  },
+  {
+    key:         'nlp_quality',
+    icon:        '🧪',
+    label:       'NLP-Qualität',
+    description: 'Normtypen, SVO-Vollständigkeit, NER-Qualität',
+    endpoint:    '/api/v1/reports/nlp_quality',
+    params: [
+      {id:'n-doc', label:'Dokument-Filter', placeholder:'Leer = alle', param:'doc'},
+    ],
+  },
+  {
+    key:         'nlp_monitor',
+    icon:        '📡',
+    label:       'NLP-Monitor',
+    description: 'Status des letzten NLP-Jobs',
+    endpoint:    '/api/v1/reports/nlp_monitor',
+    params:      [],
+    autoRefresh: true,
+    refreshSecs: 10,
+  },
+];
+
+let activeReport    = 'question';
+let reportRefreshId = null;
+
+function showReports() {
+  if (unsaved && !confirm('Ungespeicherte Änderungen verwerfen?')) return;
+  unsaved = false; current = null;
+
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-__reports')?.classList.add('active');
+  document.getElementById('toolbar').style.display   = 'flex';
+  document.getElementById('toolbar-title').textContent = '📊  Report & Monitor';
+  document.getElementById('toolbar-path').textContent  = '';
+  document.getElementById('vbtn-form').style.display   = 'none';
+  document.getElementById('vbtn-raw').style.display    = 'none';
+  document.getElementById('btn-restore').style.display = 'none';
+  document.getElementById('btn-save').style.display    = 'none';
+
+  renderReportPage();
+}
+
+function renderReportPage() {
+  const tabs = REPORTS.map(r => `
+    <button class="report-tab ${r.key===activeReport?'active':''}"
+      onclick="switchReport('${r.key}')">
+      <span class="rtab-icon">${r.icon}</span>${r.label}
+    </button>`).join('');
+
+  const rep = REPORTS.find(r => r.key === activeReport);
+  const params = (rep.params || []).map(p => {
+    if (p.type === 'toggle') {
+      return `<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer">
+        <label class="toggle" style="width:32px;height:18px">
+          <input type="checkbox" id="${p.id}" style="opacity:0;width:0;height:0">
+          <span class="slider"></span>
+        </label>
+        ${p.label}
+      </label>`;
+    }
+    return `<input type="text" id="${p.id}"
+      placeholder="${p.placeholder||''}"
+      style="width:200px;font-size:12px"
+      onkeydown="if(event.key==='Enter')runReport()">`;
+  }).join('');
+
+  const autoRefreshBtn = rep.autoRefresh
+    ? `<button class="btn btn-ghost" id="btn-autorefresh" onclick="toggleAutoRefresh()" style="font-size:11px">
+         🔄 Auto (${rep.refreshSecs}s)
+       </button>`
+    : '';
+
+  document.getElementById('content').innerHTML = `
+    <div class="report-wrap">
+      <div class="report-tabs">${tabs}</div>
+      <div class="report-panel">
+        <div style="margin-bottom:12px">
+          <div style="font-size:14px;font-weight:500;margin-bottom:4px">
+            ${rep.icon}  ${rep.label}
+          </div>
+          <div style="font-size:12px;color:var(--muted)">${rep.description}</div>
+        </div>
+        <div class="report-controls">
+          ${params}
+          <button class="btn btn-primary" onclick="runReport()" id="btn-run">
+            ▶ Ausführen
+          </button>
+          ${autoRefreshBtn}
+          <button class="btn btn-ghost" onclick="clearOutput()">✕ Leeren</button>
+        </div>
+        <div class="report-output-wrap loading-state" id="report-output">
+          <span style="color:var(--muted);font-size:13px">
+            ${rep.icon} ${rep.label} – auf "Ausführen" klicken
+          </span>
+        </div>
+        <div class="report-meta">
+          <span class="status-dot" id="report-dot"></span>
+          <span id="report-status">Bereit</span>
+          <span id="report-time"></span>
+        </div>
+      </div>
+    </div>`;
+
+  // Auto-Refresh für Monitor
+  stopAutoRefresh();
+}
+
+function switchReport(key) {
+  stopAutoRefresh();
+  activeReport = key;
+  renderReportPage();
+}
+
+async function runReport() {
+  const rep = REPORTS.find(r => r.key === activeReport);
+  const btn = document.getElementById('btn-run');
+  const out = document.getElementById('report-output');
+  const dot = document.getElementById('report-dot');
+  const sta = document.getElementById('report-status');
+  const tim = document.getElementById('report-time');
+  if (!out) return;
+
+  const urlParams = new URLSearchParams();
+  (rep.params || []).forEach(p => {
+    if (p.type === 'toggle') {
+      if (document.getElementById(p.id)?.checked) urlParams.set(p.param,'true');
+    } else {
+      const v = document.getElementById(p.id)?.value?.trim();
+      if (v) urlParams.set(p.param, v);
+    }
+  });
+  const url = rep.endpoint + (urlParams.toString() ? '?' + urlParams : '');
+
+  btn.disabled = true; btn.textContent = '⏳ Läuft...';
+  out.className = 'report-output-wrap';
+  out.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:20px;color:var(--muted)"><div class="spinner"></div> Daten werden geladen...</div>';
+  dot.className = 'status-dot running';
+  sta.textContent = 'Läuft...';
+  const t0 = Date.now();
+
+  try {
+    const data = await apiFetch(url);
+    const elapsed = ((Date.now()-t0)/1000).toFixed(1);
+    out.innerHTML = renderReportData(rep.key, data);
+    dot.className   = 'status-dot ok';
+    sta.textContent = 'Erfolgreich';
+    tim.textContent = `${elapsed}s · ${new Date().toLocaleTimeString('de-DE')}`;
+  } catch(e) {
+    out.innerHTML   = `<div style="padding:20px;color:var(--danger)">Fehler: ${escHtml(e.message)}</div>`;
+    dot.className   = 'status-dot err';
+    sta.textContent = 'Fehler';
+  } finally {
+    btn.disabled = false; btn.textContent = '▶ Ausführen';
+  }
+}
+
+// ── Tabellenrenderer ──────────────────────────────────────────────────────────
+function tbl(cols, rows, opts={}) {
+  const ths = cols.map(c=>`<th>${c}</th>`).join('');
+  const trs = rows.map(r=>`<tr>${r.map((c,i)=>`<td>${c??''}</td>`).join('')}</tr>`).join('');
+  return `<table class="abbrev-table" style="margin-bottom:20px">`+
+    `<thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table>`;
+}
+
+function kpiRow(label, value, target, unit='', ok) {
+  const icon = ok===undefined?'': ok?'<span style="color:var(--accent2)">✅</span>':'<span style="color:var(--warn)">⚠️</span>';
+  const tgt = target!==undefined?`<span style="color:var(--muted);font-size:11px"> (Ziel: ${target}${unit})</span>`:'';
+  return `<tr><td>${label}</td><td><strong>${value}${unit}</strong>${tgt}</td><td>${icon}</td></tr>`;
+}
+
+function sec(title, content) {
+  return `<div class="section"><div class="section-title">${title}</div>${content}</div>`;
+}
+
+function pct_bar(pct) {
+  const p = Math.min(100, Math.max(0, parseFloat(pct)||0));
+  const color = p>=70?'var(--accent2)':p>=40?'var(--warn)':'var(--danger)';
+  return `<div style="display:flex;align-items:center;gap:8px">
+    <div style="flex:1;height:6px;background:var(--border);border-radius:3px">
+      <div style="width:${p}%;height:100%;background:${color};border-radius:3px"></div>
+    </div>
+    <span style="font-size:11px;color:var(--muted);width:36px">${p}%</span>
+  </div>`;
+}
+
+function statusBadge(s) {
+  const map = {done:'var(--accent2)',error:'var(--danger)',running:'var(--warn)',queued:'var(--muted)'};
+  const c = map[s]||'var(--muted)';
+  return `<span style="background:${c}22;color:${c};border:1px solid ${c}44;padding:2px 8px;border-radius:4px;font-size:11px;font-family:var(--mono)">${s}</span>`;
+}
+
+function decisionBadge(d) {
+  if (!d) return '<span style="color:var(--muted);font-size:11px">—</span>';
+  const map = {behalten:'var(--accent2)',verwerfen:'var(--danger)',unklar:'var(--warn)'};
+  const c = map[d]||'var(--muted)';
+  return `<span style="color:${c};font-size:11px">${d}</span>`;
+}
+
+// ── Haupt-Renderer ────────────────────────────────────────────────────────────
+function renderReportData(key, data) {
+  if (key === 'question')   return renderQuestionReport(data);
+  if (key === 'ingest')     return renderIngestReport(data);
+  if (key === 'nlp_quality')return renderNlpQualityReport(data);
+  if (key === 'nlp_monitor')return renderNlpMonitor(data);
+  return '<div style="padding:20px;color:var(--muted)">Kein Renderer verfügbar.</div>';
+}
+
+// ── Fragen-Report ─────────────────────────────────────────────────────────────
+function renderQuestionReport(d) {
+  const s = d.stats || {};
+  const statsHtml = `<table class="abbrev-table" style="width:auto;margin-bottom:20px">
+    <thead><tr><th>Kennzahl</th><th>Anzahl</th></tr></thead>
+    <tbody>
+      ${kpiRow('Gesamt',  s.gesamt,  undefined)}
+      ${kpiRow('Offen',   s.offen,   0, '', s.offen===0)}
+      ${kpiRow('Behalten',s.behalten,undefined)}
+      ${kpiRow('Verworfen',s.verworfen,undefined)}
+      ${kpiRow('Unklar',  s.unklar,  undefined)}
+    </tbody></table>`;
+
+  const typenHtml = tbl(['Typ','Anzahl'],
+    (d.typen||[]).map(r=>[r.typ, r.anzahl]));
+
+  const fragenHtml = tbl(
+    ['ID','Dokument','Kl.','Typ','Frage','Kontext vorher','Kontext nachher','Abschnitt','Entscheidung'],
+    (d.fragen||[]).map(r=>[
+      `<span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.id.substring(0,8)}</span>`,
+      escHtml(r.dokument),
+      r.klasse,
+      `<span style="color:var(--accent);font-size:11px">${r.typ}</span>`,
+      `<span style="color:var(--text)">${escHtml(r.frage)}</span>`,
+      r.kontext_vor ? `<span style="color:var(--muted);font-size:11px">...${escHtml(r.kontext_vor)}</span>` : '',
+      r.kontext_nach ? `<span style="color:var(--muted);font-size:11px">${escHtml(r.kontext_nach)}...</span>` : '',
+      `<span style="font-size:11px;color:var(--muted)">${escHtml(r.abschnitt)}</span>`,
+      decisionBadge(r.entscheidung),
+    ])
+  );
+
+  return sec('Statistik', statsHtml + sec('Typen', typenHtml)) +
+         sec(`Fragen (${(d.fragen||[]).length})`, fragenHtml);
+}
+
+// ── Ingest-Report ─────────────────────────────────────────────────────────────
+function renderIngestReport(d) {
+  const jobsHtml = tbl(
+    ['Datei','Status','Klasse','Chunks','Dauer'],
+    (d.jobs||[]).map(r=>[
+      escHtml(r.filename),
+      statusBadge(r.status),
+      r.doc_class||'–',
+      r.chunk_count||0,
+      r.dauer ? r.dauer+'s' : '–',
+    ])
+  );
+
+  const docsHtml = tbl(
+    ['Dokument','Typ','Klasse','Chunks','Embeddings','Abkürzungen','Tokens'],
+    (d.dokumente||[]).map(r=>[
+      escHtml(r.title),
+      r.source_type,
+      r.klasse||'–',
+      r.chunks||0,
+      `${r.mit_emb||0}/${r.chunks||0} `+pct_bar(r.chunks?(r.mit_emb||0)/(r.chunks)*100:0),
+      r.abbrev_anzahl||0,
+      (r.tokens||0).toLocaleString('de'),
+    ])
+  );
+
+  const typenHtml = tbl(
+    ['Klasse','Chunk-Typ','Anzahl','Ø Token'],
+    (d.chunk_typen||[]).map(r=>[r.doc_class, r.chunk_type, r.anzahl, r.avg_tokens])
+  );
+
+  const abbrevHtml = (d.abkuerzungen||[]).length > 0
+    ? tbl(['Abkürzung','Label','In Chunks'],
+        (d.abkuerzungen||[]).map(r=>[
+          `<strong style="color:var(--accent2)">${escHtml(r.abkuerzung)}</strong>`,
+          `<span style="font-size:11px;color:var(--muted)">${r.label}</span>`,
+          r.in_chunks,
+        ]))
+    : '<p style="color:var(--muted);font-size:13px">Keine Abkürzungen aufgelöst.</p>';
+
+  return sec('Jobs', jobsHtml) +
+         sec('Dokumente', docsHtml) +
+         sec('Chunk-Typen', typenHtml) +
+         sec('Aufgelöste Abkürzungen', abbrevHtml);
+}
+
+// ── NLP-Qualitätsbericht ──────────────────────────────────────────────────────
+function renderNlpQualityReport(d) {
+  const svo = d.svo || {};
+  const unknownPct = (d.normtypen||[]).find(r=>r.norm_type==='UNKNOWN')?.prozent||0;
+
+  const kpiHtml = `<table class="abbrev-table" style="width:auto;margin-bottom:20px">
+    <thead><tr><th>Kennzahl</th><th>Wert</th><th>Bewertung</th></tr></thead>
+    <tbody>
+      ${kpiRow('SVOs gesamt', svo.gesamt||0)}
+      ${kpiRow('UNKNOWN-Rate', unknownPct+'%', '< 20%', '', parseFloat(unknownPct)<20)}
+      ${kpiRow('Mit Subjekt', svo.subj_pct+'%', '> 80%', '', svo.subj_pct>80)}
+      ${kpiRow('Mit Objekt',  svo.obj_pct+'%',  '> 60%', '', svo.obj_pct>60)}
+      ${kpiRow('Vollständig (S+V+O)', svo.full_pct+'%', '> 50%', '', svo.full_pct>50)}
+      ${kpiRow('Ø SVO-Konfidenz', svo.avg_conf, '> 0.65', '', svo.avg_conf>0.65)}
+    </tbody></table>`;
+
+  const normtypenHtml = tbl(
+    ['Normtyp','Anzahl','Anteil','Ø Konfidenz'],
+    (d.normtypen||[]).map(r=>[
+      `<strong style="color:${r.norm_type==='UNKNOWN'?'var(--warn)':'var(--accent)'}">${r.norm_type}</strong>`,
+      r.anzahl,
+      pct_bar(r.prozent),
+      r.avg_conf,
+    ])
+  );
+
+  const subjHtml = tbl(
+    ['Subjekt','Typ','Häufigkeit'],
+    (d.top_subjekte||[]).map(r=>[
+      escHtml(r.subject),
+      `<span style="font-size:11px;color:var(--muted)">${r.subject_type}</span>`,
+      r.cnt,
+    ])
+  );
+
+  const objHtml = tbl(
+    ['Objekt','Typ','Häufigkeit'],
+    (d.top_objekte||[]).map(r=>[
+      escHtml(r.object),
+      `<span style="font-size:11px;color:var(--muted)">${r.object_type}</span>`,
+      r.cnt,
+    ])
+  );
+
+  const nerHtml = tbl(
+    ['Label','Quelle','Anzahl','Ø Konfidenz'],
+    (d.ner_stats||[]).map(r=>[
+      r.label,
+      `<span style="font-size:11px">${r.source==='flair'?'🤖 Flair':'📏 Regel'}</span>`,
+      r.anzahl,
+      r.avg_conf,
+    ])
+  );
+
+  const topNerHtml = tbl(
+    ['Entität','Label','Quelle','Häufigkeit','Ø Konf.'],
+    (d.top_ner||[]).map(r=>[
+      escHtml(r.text),
+      r.label,
+      r.source==='flair'?'🤖':'📏',
+      r.cnt,
+      r.avg_conf,
+    ])
+  );
+
+  return sec('KPI-Übersicht', kpiHtml) +
+         sec('Normtyp-Verteilung', normtypenHtml) +
+         sec('Top Subjekte', subjHtml) +
+         sec('Top Objekte', objHtml) +
+         sec('NER nach Label & Quelle', nerHtml) +
+         sec('Top NER-Entitäten', topNerHtml);
+}
+
+// ── NLP-Monitor ───────────────────────────────────────────────────────────────
+function renderNlpMonitor(d) {
+  const j = d.letzter_job;
+
+  const letzterHtml = j ? `
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:8px 16px;margin-bottom:16px">
+      <span style="color:var(--muted);font-size:12px">Status</span>
+      <span>${statusBadge(j.status)}</span>
+      <span style="color:var(--muted);font-size:12px">Job-ID</span>
+      <span style="font-family:var(--mono);font-size:11px">${j.job_id}</span>
+      <span style="color:var(--muted);font-size:12px">Fortschritt</span>
+      <span>${pct_bar(j.chunks_total?(j.chunks_done||0)/j.chunks_total*100:0)}
+        <span style="font-size:11px;color:var(--muted)">
+          ${j.chunks_done||0}/${j.chunks_total||0} Chunks
+        </span></span>
+      <span style="color:var(--muted);font-size:12px">SVO-Tripel</span>
+      <span><strong>${(j.svo_count||0).toLocaleString('de')}</strong></span>
+      <span style="color:var(--muted);font-size:12px">NER-Entitäten</span>
+      <span><strong>${(j.ner_count||0).toLocaleString('de')}</strong></span>
+      <span style="color:var(--muted);font-size:12px">Laufzeit</span>
+      <span>${j.laufzeit_sek||0}s</span>
+      ${j.error_message?`<span style="color:var(--danger);font-size:12px">Fehler</span>
+        <span style="color:var(--danger);font-size:12px">${escHtml(j.error_message)}</span>`:''}
+    </div>` : '<p style="color:var(--muted)">Noch keine NLP-Jobs.</p>';
+
+  const jobsHtml = tbl(
+    ['Job-ID','Status','Fortschritt','SVO','NER','Laufzeit','Gestartet'],
+    (d.alle_jobs||[]).map(r=>[
+      `<span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.job_id}</span>`,
+      statusBadge(r.status),
+      r.chunks,
+      r.svo.toLocaleString('de'),
+      r.ner.toLocaleString('de'),
+      r.laufzeit,
+      r.gestartet,
+    ])
+  );
+
+  return sec('Letzter Job', letzterHtml) +
+         sec('Job-Historie', jobsHtml);
+}
+
+function clearOutput() {
+  const out = document.getElementById('report-output');
+  if (out) {
+    out.className = 'report-output-wrap loading-state';
+    out.innerHTML = '<span style="color:var(--muted)">Ausgabe geleert.</span>';
+  }
+  stopAutoRefresh();
+  const btn = document.getElementById('btn-autorefresh');
+  if (btn) btn.classList.remove('btn-primary');
+}
+
+// ── Auto-Refresh ─────────────────────────────────────────────────────────────
+let autoRefreshActive = false;
+
+function toggleAutoRefresh() {
+  autoRefreshActive = !autoRefreshActive;
+  const btn = document.getElementById('btn-autorefresh');
+  const rep = REPORTS.find(r => r.key === activeReport);
+
+  if (autoRefreshActive) {
+    btn?.classList.add('btn-primary');
+    btn?.classList.remove('btn-ghost');
+    runReport();
+    reportRefreshId = setInterval(runReport, (rep.refreshSecs || 10) * 1000);
+  } else {
+    stopAutoRefresh();
+    btn?.classList.remove('btn-primary');
+    btn?.classList.add('btn-ghost');
+  }
+}
+
+function stopAutoRefresh() {
+  if (reportRefreshId) {
+    clearInterval(reportRefreshId);
+    reportRefreshId = null;
+  }
+  autoRefreshActive = false;
+}
+
+// ── Terminal-Output formatieren ───────────────────────────────────────────────
+function formatOutput(text) {
+  if (!text) return '<span class="ro-muted">Keine Ausgabe</span>';
+
+  return text
+    .split('\n')
+    .map(line => {
+      const e = escHtml(line);
+
+      // Trennlinien
+      if (/^[=─]+$/.test(line.trim()))
+        return `<span class="ro-sep">${e}</span>`;
+
+      // Erfolgs-Icons
+      if (line.includes('✅') || line.includes('✓'))
+        return `<span class="ro-green">${e}</span>`;
+
+      // Warn-Icons
+      if (line.includes('⚠️') || line.includes('⚠'))
+        return `<span class="ro-yellow">${e}</span>`;
+
+      // Fehler-Icons
+      if (line.includes('❌') || line.includes('✗'))
+        return `<span class="ro-red">${e}</span>`;
+
+      // Sektion-Überschriften (eingerückt + Großbuchstaben)
+      if (/^\s+\d+\./.test(line) || /^\s{2}[A-ZÄÖÜ]/.test(line))
+        return `<span class="ro-bold">${e}</span>`;
+
+      // Info-Zeilen mit Prozent
+      if (line.includes('%') && line.includes('Ziel'))
+        return `<span class="ro-blue">${e}</span>`;
+
+      // Zahlen-Zeilen (KPI-Werte)
+      if (/^\s+──/.test(line))
+        return `<span class="ro-muted">${e}</span>`;
+
+      return e;
+    })
+    .join('\n');
+}
+
 // ── Render ────────────────────────────────────────────────────────────────────
 function setView(mode) {
   viewMode = mode;
@@ -1069,7 +1650,8 @@ function renderForm(name, data) {
   if      (name === 'nlp')          el.innerHTML = renderNlpForm(data);
   else if (name === 'embedder')     el.innerHTML = renderEmbedderForm(data);
   else if (name === 'abbrev')       el.innerHTML = renderAbbrevForm(data);
-  else if (name === 'test_chunker') el.innerHTML = renderTestChunkerForm(data);
+  else if (name === 'chunker') el.innerHTML = renderTestChunkerForm(data);
+  else if (name === 'docs')         el.innerHTML = renderDocsForm(data);
   else                              el.innerHTML = renderGenericForm(data);
   attachFormListeners(name, data);
 }
@@ -1487,7 +2069,180 @@ function renderTestChunkerForm(d) {
     ${field('Min. Token','',   `<input type="number" id="cc-min" value="${cc.token_min||50}"  onchange="markDirty()">`)}
     ${field('Max. Token','',   `<input type="number" id="cc-max" value="${cc.token_max||384}" onchange="markDirty()">`)}
     ${field('Overlap-Ratio','',`<input type="number" id="cc-overlap" value="${cc.overlap_ratio||0.20}" step="0.05" min="0" max="0.5" onchange="markDirty()">`)}
+  </div>` + renderChunkTypenSection(d);
+}
+
+function renderChunkTypenSection(d) {
+  const chunk_typen = d.chunk_typen || {};
+  const OPTS = 'tatbestand,rechtsfolge,definition,ausnahme,verweis,zustaendigkeit,deadline,anforderung,tabelle,text'.split(',');
+  let rows = '';
+  Object.entries(chunk_typen).forEach(([name, entry], i) => {
+    const ct  = entry.chunk_type || 'tatbestand';
+    const pat = (entry.patterns || []).join('\n');
+    const opts = OPTS.map(t => '<option'+(ct===t?' selected':'')+'>'+t+'</option>').join('');
+    rows += '<tr>'
+      + '<td><input type="text" class="ct-name" data-i="'+i+'"'
+      + ' value="'+escHtml(name)+'" style="font-family:var(--mono);font-size:11px"'
+      + ' onchange="markDirty()"></td>'
+      + '<td><select class="ct-chunk-type" data-i="'+i+'" onchange="markDirty()">'
+      + opts + '</select></td>'
+      + '<td><textarea class="ct-patterns" data-i="'+i+'" rows="3"'
+      + ' style="width:100%;font-size:11px;min-height:60px"'
+      + ' onchange="markDirty()">'+escHtml(pat)+'</textarea></td>'
+      + '<td><button class="del-row" onclick="deleteChunkTyp('+i+')">×</button></td>'
+      + '</tr>';
+  });
+  return '<div class="section">'
+    + '<div class="section-title">Chunk-Typ-Erkennung (Klasse A)</div>'
+    + '<p style="font-size:12px;color:var(--muted);margin-bottom:12px">'
+    + 'Patterns in Reihenfolge geprüft – erstes Match gewinnt. '
+    + 'Fallback: <code>tatbestand</code>. Ein Pattern pro Zeile.</p>'
+    + '<table class="abbrev-table">'
+    + '<thead><tr><th>Name</th><th>Chunk-Typ</th>'
+    + '<th>Patterns (ein Pattern pro Zeile)</th><th></th></tr></thead>'
+    + '<tbody id="chunk-typen-tbody">' + rows + '</tbody></table>'
+    + '<button class="add-row-btn" onclick="addChunkTyp()">+ Neuer Typ</button>'
+    + '</div>';
+}
+
+function addChunkTyp() {
+  const d = configs[current].content;
+  d.chunk_typen = d.chunk_typen || {};
+  d.chunk_typen['NEUER_TYP'] = {chunk_type:'tatbestand', patterns:[]};
+  markDirty(); renderContent();
+}
+function deleteChunkTyp(i) {
+  const d = configs[current].content;
+  const keys = Object.keys(d.chunk_typen || {});
+  if (keys[i]) delete d.chunk_typen[keys[i]];
+  markDirty(); renderContent();
+}
+
+// ── Dokument-Metadaten Formular ──────────────────────────────────────────────
+function renderDocsForm(d) {
+  const det     = d.doc_type_detection || {};
+  const enabled = det.enabled !== false;
+  const gconf   = det.global_min_confidence || 0.70;
+  const typen   = det.typen || {};
+
+  // Alle Nicht-detection Keys = Dokument-Einträge
+  const docs = Object.entries(d)
+    .filter(([k]) => k !== 'doc_type_detection')
+    .map(([fname, meta]) => ({fname, ...(meta||{})}));
+
+  const SOURCE_TYPES = ['gesetz','verordnung','standard','fachkonzept',
+                        'leitfaden','lastenheft','auslegung','text'];
+
+  const docRows = docs.map((doc, i) => `
+    <tr class="doc-entry">
+      <td><input type="text" class="doc-filename" value="${escHtml(doc.fname)}"
+            onchange="markDirty()" style="font-family:var(--mono);font-size:11px"></td>
+      <td>
+        <select class="doc-source-type" onchange="markDirty()">
+          ${SOURCE_TYPES.map(s =>
+            `<option ${(doc.source_type||'')==s?'selected':''}>${s}</option>`
+          ).join('')}
+        </select>
+      </td>
+      <td><input type="text" class="doc-title" value="${escHtml(doc.title||'')}"
+            onchange="markDirty()"></td>
+      <td><input type="text" class="doc-jurisdiction"
+            value="${escHtml(doc.jurisdiction||'')}" style="width:60px"
+            placeholder="z.B. NDS" onchange="markDirty()"></td>
+      <td><input type="text" class="doc-version"
+            value="${escHtml(doc.version||'')}" style="width:60px"
+            onchange="markDirty()"></td>
+      <td>
+        <select class="doc-force-class" onchange="markDirty()" style="width:70px">
+          ${['(auto)','A','B','C'].map(c =>
+            `<option ${(doc.force_class||'(auto)')==c?'selected':''}>${c}</option>`
+          ).join('')}
+        </select>
+      </td>
+      <td><button class="del-row" onclick="deleteDocEntry(${i})">×</button></td>
+    </tr>`).join('');
+
+  // Typen-Übersicht (nur Anzeige, Schwellenwerte editierbar)
+  const typenRows = Object.entries(typen).map(([typ, cfg]) => `
+    <tr>
+      <td><strong style="font-family:var(--mono);color:var(--accent)">${typ}</strong></td>
+      <td style="font-size:11px;color:var(--muted)">${cfg.beschreibung||''}</td>
+      <td>
+        <input type="number" step="0.05" min="0" max="1"
+          id="dt-conf-${typ}" value="${cfg.min_confidence??0.70}"
+          style="width:70px" onchange="markDirty()">
+      </td>
+    </tr>`).join('');
+
+  return `
+  <div class="section">
+    <div class="section-title">Automatische Typ-Erkennung</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
+      Wird verwendet wenn source_type weder per CLI/API noch als Dokument-Eintrag definiert ist.
+    </p>
+    <div class="field-row">
+      <div><div class="field-label">Erkennung aktiv</div>
+           <div class="field-help">false = immer "text" als Fallback</div></div>
+      <div class="toggle-row">
+        <label class="toggle">
+          <input type="checkbox" id="dt-enabled" ${enabled?'checked':''}
+            onchange="markDirty()">
+          <span class="slider"></span>
+        </label>
+        <span style="font-size:13px;color:var(--muted)" id="dt-enabled-lbl">
+          ${enabled?'Aktiv':'Inaktiv'}
+        </span>
+      </div>
+    </div>
+    <div class="field-row">
+      <div><div class="field-label">Globale Min-Konfidenz</div>
+           <div class="field-help">Standard-Schwellenwert für alle Typen</div></div>
+      <input type="number" id="dt-global-conf" step="0.05" min="0" max="1"
+        value="${gconf}" style="width:100px" onchange="markDirty()">
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Min-Konfidenz je Dokumenttyp</div>
+    <table class="abbrev-table">
+      <thead><tr>
+        <th>Typ</th><th>Beschreibung</th><th>Min-Konfidenz</th>
+      </tr></thead>
+      <tbody>${typenRows}</tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Dokument-Einträge (${docs.length})</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
+      Explizite Metadaten je Dateiname. Überschreiben die automatische Erkennung (Priorität 2).
+    </p>
+    <table class="abbrev-table">
+      <thead><tr>
+        <th>Dateiname</th><th>Source-Type</th><th>Titel</th>
+        <th>Jurisdiktion</th><th>Version</th><th>Klasse</th><th></th>
+      </tr></thead>
+      <tbody id="doc-entries-tbody">${docRows}</tbody>
+    </table>
+    <button class="add-row-btn" onclick="addDocEntry()">+ Neues Dokument</button>
   </div>`;
+}
+
+function addDocEntry() {
+  const d = configs[current].content;
+  // Leeren Eintrag hinzufügen
+  const key = 'neues_dokument.pdf';
+  d[key] = {source_type:'gesetz', title:'', jurisdiction:'', version:''};
+  markDirty();
+  renderContent();
+}
+
+function deleteDocEntry(i) {
+  const d = configs[current].content;
+  const keys = Object.keys(d).filter(k => k !== 'doc_type_detection');
+  if (keys[i]) delete d[keys[i]];
+  markDirty();
+  renderContent();
 }
 
 function renderGenericForm(d) {
@@ -1546,7 +2301,41 @@ function collectFormData(name) {
 
   const orig = configs[name]?.content || {};
 
-  if (name === 'nlp') {
+  if (name === 'docs') {
+    const d = JSON.parse(JSON.stringify(orig));
+    const docEntries = {};
+    document.querySelectorAll('.doc-entry').forEach(row => {
+      const fname = row.querySelector('.doc-filename')?.value?.trim();
+      if (!fname) return;
+      const entry = {};
+      const st = row.querySelector('.doc-source-type')?.value?.trim();
+      const ti = row.querySelector('.doc-title')?.value?.trim();
+      const ju = row.querySelector('.doc-jurisdiction')?.value?.trim();
+      const ve = row.querySelector('.doc-version')?.value?.trim();
+      const fc = row.querySelector('.doc-force-class')?.value?.trim();
+      if (st) entry.source_type  = st;
+      if (ti) entry.title        = ti;
+      if (ju) entry.jurisdiction = ju;
+      if (ve) entry.version      = ve;
+      if (fc && fc !== '(auto)') entry.force_class = fc;
+      docEntries[fname] = entry;
+    });
+    Object.keys(d).forEach(k => { if (k !== 'doc_type_detection') delete d[k]; });
+    Object.assign(d, docEntries);
+    const det = d.doc_type_detection || {};
+    det.enabled = document.getElementById('dt-enabled')?.checked ?? true;
+    det.global_min_confidence = parseFloat(
+      document.getElementById('dt-global-conf')?.value || '0.70');
+    // Typ-spezifische Konfidenzen
+    Object.keys(det.typen || {}).forEach(typ => {
+      const el = document.getElementById('dt-conf-'+typ);
+      if (el && det.typen[typ]) det.typen[typ].min_confidence = parseFloat(el.value);
+    });
+    d.doc_type_detection = det;
+    return d;
+  }
+
+    if (name === 'nlp') {
     const d = JSON.parse(JSON.stringify(orig));
     d.spacy = d.spacy || {};
     d.spacy.model      = gv('spacy-model') || d.spacy.model;
@@ -1620,7 +2409,7 @@ function collectFormData(name) {
     return d;
   }
 
-  if (name === 'test_chunker') {
+  if (name === 'chunker') {
     const d = JSON.parse(JSON.stringify(orig));
     d.output = d.output || {};
     d.output.limit               = gi('tc-limit');
@@ -1645,6 +2434,15 @@ function collectFormData(name) {
       token_max:     gi('cc-max'),
       overlap_ratio: gn('cc-overlap'),
     };
+    // Chunk-Typen sammeln
+    d.chunk_typen = {};
+    document.querySelectorAll('#chunk-typen-tbody tr').forEach((tr, i) => {
+      const name     = tr.querySelector('.ct-name')?.value?.trim();
+      const ct       = tr.querySelector('.ct-chunk-type')?.value;
+      const patterns = (tr.querySelector('.ct-patterns')?.value || '')
+        .split('\n').map(s => s.trim()).filter(Boolean);
+      if (name) d.chunk_typen[name] = {chunk_type: ct, patterns};
+    });
     return d;
   }
   return orig;

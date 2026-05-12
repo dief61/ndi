@@ -14,8 +14,10 @@ from __future__ import annotations
 import re
 import uuid
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
 import structlog
+import yaml
 
 from app.services.parser import DocumentStructure
 
@@ -71,6 +73,30 @@ class Chunk:
 # ─────────────────────────────────────────────────────────────────────────────
 # Hilfsfunktion: Token-Schätzung
 # ─────────────────────────────────────────────────────────────────────────────
+
+_DEFAULT_CHUNKER_CFG = Path(__file__).parents[2] / "chunker_config.yaml"
+
+
+def _load_chunk_type_patterns(cfg_path=None):
+    """Laedt Chunk-Typ-Patterns aus chunker_config.yaml."""
+    path = cfg_path or _DEFAULT_CHUNKER_CFG
+    if not path.exists():
+        return []
+    try:
+        with open(path, encoding="utf-8") as f:
+            cfg = yaml.safe_load(f) or {}
+        result = []
+        for name, entry in cfg.get("chunk_typen", {}).items():
+            chunk_type = entry.get("chunk_type", "tatbestand")
+            for p in entry.get("patterns", []):
+                try:
+                    result.append((chunk_type, re.compile(p, re.IGNORECASE)))
+                except re.error:
+                    pass
+        return result
+    except Exception:
+        return []
+
 
 def estimate_tokens(text: str) -> int:
     """
@@ -129,6 +155,21 @@ class ClassAChunker:
     TOKEN_LIMIT_CHILD  = 256
     TOKEN_LIMIT_SATZ   = 128
 
+    def __init__(self, cfg_path=None):
+        loaded = _load_chunk_type_patterns(cfg_path)
+        if loaded:
+            self._chunk_type_patterns = loaded
+        else:
+            self._chunk_type_patterns = [
+                ("rechtsfolge",    self.NORMTYP_PATTERNS["MUST_NOT"]),
+                ("zustaendigkeit", self.NORMTYP_PATTERNS["COMPETENCE"]),
+                ("tatbestand",     self.NORMTYP_PATTERNS["DEADLINE"]),
+                ("ausnahme",       self.NORMTYP_PATTERNS["EXCEPT"]),
+                ("definition",     self.NORMTYP_PATTERNS["DEF"]),
+                ("tatbestand",     self.NORMTYP_PATTERNS["MUST"]),
+                ("tatbestand",     self.NORMTYP_PATTERNS["MAY"]),
+            ]
+
     def chunk(
         self,
         text: str,
@@ -142,6 +183,15 @@ class ClassAChunker:
         paragraphs = [p.strip() for p in paragraphs if p.strip()]
 
         for para_text in paragraphs:
+            # Zeilenumbruch zwischen §-Nummer und Titel entfernen:
+            # "§ 7\n\nGefährliche Hunde" → "§ 7 Gefährliche Hunde"
+            # Pattern: §-Zeichen + Nummer + Leerzeilen + Text
+            para_text = re.sub(
+                r'(§\s*\d+\w*)\s*\n+\s*',
+                r'\1 ',
+                para_text.strip(),
+            )
+
             # Normreferenz aus erstem Satz extrahieren
             norm_ref = self._extract_norm_reference(para_text)
             if not norm_ref:
@@ -278,10 +328,10 @@ class ClassAChunker:
         return list({r for r in refs if r.strip() != own_ref})[:10]
 
     def _classify_normtyp(self, text: str) -> str:
-        """Einfache Normtyp-Klassifikation (wird in M2 durch spaCy ersetzt)."""
-        for normtyp, pattern in self.NORMTYP_PATTERNS.items():
+        """Chunk-Typ aus chunker_config.yaml – erstes Pattern gewinnt."""
+        for chunk_type, pattern in self._chunk_type_patterns:
             if pattern.search(text):
-                return normtyp.lower()
+                return chunk_type
         return "tatbestand"
 
     def _split_by_sentences(self, text: str, max_tokens: int) -> list[str]:
@@ -613,8 +663,9 @@ class ChunkingRouter:
     den doc_class_hint des Parsers) und delegiert an die passende Strategie.
     """
 
-    def __init__(self):
-        self.chunker_a = ClassAChunker()
+    def __init__(self, cfg_path=None):
+        path = cfg_path or _DEFAULT_CHUNKER_CFG
+        self.chunker_a = ClassAChunker(path)
         self.chunker_b = ClassBChunker()
         self.chunker_c = ClassCChunker()
 

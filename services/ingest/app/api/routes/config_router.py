@@ -22,10 +22,11 @@ router = APIRouter()
 SERVICE_ROOT = Path(__file__).parents[3]  # services/ingest/
 
 CONFIG_FILES = {
-    "nlp":           SERVICE_ROOT / "nlp_config.yaml",
-    "embedder":      SERVICE_ROOT / "embedder_config.yaml",
-    "abbrev":        SERVICE_ROOT / "abbrev_dict.yaml",
-    "test_chunker":  SERVICE_ROOT / "test_chunker_config.yaml",
+    "nlp":     SERVICE_ROOT / "nlp_config.yaml",
+    "embedder":SERVICE_ROOT / "embedder_config.yaml",
+    "abbrev":  SERVICE_ROOT / "abbrev_dict.yaml",
+    "chunker": SERVICE_ROOT / "chunker_config.yaml",
+    "docs":    SERVICE_ROOT / "docs.yaml",
 }
 
 CONFIG_META = {
@@ -44,10 +45,15 @@ CONFIG_META = {
         "description": "Abkürzungen und Synonyme",
         "icon":        "📖",
     },
-    "test_chunker": {
-        "label":       "Chunker-Test",
-        "description": "Parameter für test_chunker.py",
+    "chunker": {
+        "label":       "Chunker-Konfiguration",
+        "description": "Chunking-Parameter: Token-Limits, Klassen",
         "icon":        "✂️",
+    },
+    "docs": {
+        "label":       "Dokument-Metadaten",
+        "description": "Dokumenttypen, Titel, Jurisdiktionen, Typ-Erkennung",
+        "icon":        "🗂️",
     },
 }
 

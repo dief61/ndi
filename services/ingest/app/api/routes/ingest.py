@@ -41,12 +41,33 @@ class IngestResponse(BaseModel):
 # ─────────────────────────────────────────────────────────────────────────────
 
 ALLOWED_CONTENT_TYPES = {
+    # ── Textdokumente ──────────────────────────────────────────────────────
     "application/pdf",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/msword",
-    "text/html",
-    "text/plain",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # docx
+    "application/msword",                                                         # doc
     "application/rtf",
+    "text/plain",
+    "text/html",
+    # ── OpenDocument (LibreOffice) ─────────────────────────────────────────
+    "application/vnd.oasis.opendocument.text",           # odt
+    "application/vnd.oasis.opendocument.presentation",   # odp
+    "application/vnd.oasis.opendocument.spreadsheet",    # ods
+    # ── Microsoft Office ──────────────────────────────────────────────────
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",       # xlsx
+    "application/vnd.ms-excel",                                                  # xls
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation", # pptx → Klasse C
+    "application/vnd.ms-powerpoint",                                              # ppt  → Klasse C
+    # ── Strukturierte Daten / XÖV ──────────────────────────────────────────
+    "application/xml",
+    "text/xml",
+    "application/json",
+    "text/csv",
+    "text/tab-separated-values",                         # tsv
+    # ── E-Books ────────────────────────────────────────────────────────────
+    "application/epub+zip",
+    # ── E-Mail ─────────────────────────────────────────────────────────────
+    "message/rfc822",                                    # eml
+    "application/vnd.ms-outlook",                        # msg → Klasse C
 }
 
 
@@ -65,7 +86,9 @@ async def ingest_document(
     norm_reference:   Optional[str] = Form(None),
     version:          Optional[str] = Form(None),
     language:         str = Form("de"),
-    force_class:      Optional[str] = Form(None),   # A | B | C
+    force_class:           Optional[str] = Form(None),     # A | B | C
+    source_type_explicit:  str           = Form("false"),   # Prio 1: CLI/API
+    source_type_from_yaml: str           = Form("false"),   # Prio 2: docs.yaml
 ):
     """
     Dokument hochladen und Ingest-Pipeline starten.
@@ -77,8 +100,12 @@ async def ingest_document(
     if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(
             status_code=415,
-            detail=f"Dateiformat '{file.content_type}' nicht unterstützt. "
-                   f"Erlaubt: PDF, DOCX, DOC, HTML, TXT, RTF"
+            detail=(
+                f"Dateiformat '{file.content_type}' nicht unterstützt. "
+                f"Erlaubt: PDF, DOCX, DOC, RTF, TXT, HTML, "
+                f"ODT, ODS, ODP, XLSX, XLS, PPTX, PPT, "
+                f"XML, JSON, CSV, TSV, EPUB, EML, MSG"
+            )
         )
 
     if force_class and force_class not in ("A", "B", "C"):
@@ -98,6 +125,14 @@ async def ingest_document(
         version=version,
         language=language,
     )
+    # Prioritäts-Flags setzen
+    # Prio 1: explizit per CLI/API übergeben
+    metadata._source_type_explicit  = (
+        source_type_explicit.lower() == "true"
+        or source_type not in ("gesetz", "text", "")
+    )
+    # Prio 2: aus docs.yaml
+    metadata._source_type_from_yaml = source_type_from_yaml.lower() == "true"
 
     # Dateiinhalt vor dem Background-Task lesen
     file_content = await file.read()

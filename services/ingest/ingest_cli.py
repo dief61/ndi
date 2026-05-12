@@ -132,6 +132,11 @@ class CliMetadata:
         self.version        = args.version
         self.language       = "de"
         self.register_scope = None
+        # Priorität 1: source_type explizit per CLI übergeben?
+        # True wenn der Nutzer --source-type angegeben hat
+        # (nicht den Default "gesetz")
+        self._source_type_explicit  = args.source_type != "gesetz"
+        self._source_type_from_yaml = False
 
 
 # ─────────────────────────────────────────────────────────────────────────────

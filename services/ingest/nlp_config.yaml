@@ -228,6 +228,11 @@ ner:
   min_confidence: 0.6
   flair_min_confidence: 0.85   # Ansatz 3: erhöhter Threshold reduziert False Positives
 
+  # Ansatz 5: §-Normreferenzen aus GESETZ-Entitäten filtern
+  # true  = §-Nummern ohne Gesetzesname werden verworfen (§ 8, § 10 Abs. 4)
+  # false = alle §-Entitäten behalten (auch reine Normreferenzen)
+  filter_norm_references: true
+
   # ── Ansatz 1: Blacklist ──────────────────────────────────────────────────
   # Entitäten die NIE gespeichert werden – unabhängig von Quelle und Konfidenz.
   # Groß-/Kleinschreibung wird ignoriert.

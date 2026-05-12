@@ -10,7 +10,7 @@
 #   python test_chunker.py ../../docu/Konzepte/Hundegesetz.pdf --class A
 #   python test_chunker.py ../../docu/Konzepte/Hundegesetz.pdf --limit 10 --output chunks.txt
 #   python test_chunker.py ../../docu/Konzepte/Hundegesetz.pdf --no-synthetic
-#   python test_chunker.py ../../docu/Konzepte/Hundegesetz.pdf --config test_chunker_config.yaml
+#   python test_chunker.py ../../docu/Konzepte/Hundegesetz.pdf --config chunker_config.yaml
 
 import argparse
 import asyncio
@@ -90,8 +90,8 @@ def load_config(config_path: str | None) -> dict:
     }
 
     if not config_path:
-        # Automatisch test_chunker_config.yaml im gleichen Verzeichnis suchen
-        auto_path = Path(__file__).parent / "test_chunker_config.yaml"
+        # Automatisch chunker_config.yaml im gleichen Verzeichnis suchen
+        auto_path = Path(__file__).parent / "chunker_config.yaml"
         if auto_path.exists():
             config_path = str(auto_path)
 
@@ -165,7 +165,7 @@ def parse_args():
         type=str,
         default=None,
         metavar="YAML",
-        help="Pfad zur YAML-Konfigurationsdatei (Standard: test_chunker_config.yaml)",
+        help="Pfad zur YAML-Konfigurationsdatei (Standard: chunker_config.yaml)",
     )
     return parser.parse_args()
 
