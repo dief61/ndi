@@ -1,0 +1,39 @@
+# infra/fuseki/mnr.ttl
+#
+# Apache Jena Fuseki – Dataset-Konfiguration für das MNR
+#
+# Dataset: mnr
+# Endpoint: http://localhost:3030/mnr/sparql  (Query)
+#           http://localhost:3030/mnr/update  (Update)
+#           http://localhost:3030/mnr/data    (Graph Store)
+#
+# Named Graphs:
+#   https://mnr.nds.de/graph/svo        SVO-Tripel aus NLP
+#   https://mnr.nds.de/graph/ner        NER-Entitäten
+#   https://mnr.nds.de/graph/norms      Norm-Metadaten
+#   https://mnr.nds.de/graph/ontology   MNR-Ontologie
+
+@prefix fuseki:  <http://jena.apache.org/fuseki#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tdb2:    <http://jena.apache.org/2016/tdb#> .
+@prefix ja:      <http://jena.hpl.hp.com/2005/11/Assembler#> .
+
+# ── Fuseki Service ────────────────────────────────────────────────────────────
+<#service_mnr> rdf:type fuseki:Service ;
+    fuseki:name                       "mnr" ;
+    fuseki:serviceQuery               "sparql" ;
+    fuseki:serviceQuery               "query" ;
+    fuseki:serviceUpdate              "update" ;
+    fuseki:serviceUpload              "upload" ;
+    fuseki:serviceReadGraphStore      "get" ;
+    fuseki:serviceReadWriteGraphStore "data" ;
+    fuseki:dataset                    <#dataset_mnr> .
+
+# ── TDB2 Dataset (persistent, transaktional) ─────────────────────────────────
+<#dataset_mnr> rdf:type tdb2:DatasetTDB2 ;
+    tdb2:location "/fuseki/databases/mnr" ;
+    ja:context [
+        ja:cxtName  "arq:queryTimeout" ;
+        ja:cxtValue "30000"            # 30 Sekunden Query-Timeout
+    ] .

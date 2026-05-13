@@ -50,6 +50,15 @@ class Settings(BaseSettings):
     tika_port: int = 9998
     tika_host: str = "localhost"
 
+    # Apache Jena Fuseki
+    fuseki_port:           int = 3030
+    fuseki_host:           str = "localhost"
+    fuseki_admin_password: str = "mnr_fuseki_password"
+
+    @property
+    def fuseki_url(self) -> str:
+        return f"http://{self.fuseki_host}:{self.fuseki_port}"
+
     @property
     def tika_server_url(self) -> str:
         return f"http://{self.tika_host}:{self.tika_port}"
