@@ -1133,16 +1133,6 @@ const REPORTS = [
     ],
   },
   {
-    key:         'nlp_quality',
-    icon:        '🧪',
-    label:       'NLP-Qualität',
-    description: 'Normtypen, SVO-Vollständigkeit, NER-Qualität',
-    endpoint:    '/api/v1/reports/nlp_quality',
-    params: [
-      {id:'n-doc', label:'Dokument-Filter', placeholder:'Leer = alle', param:'doc'},
-    ],
-  },
-  {
     key:         'nlp_monitor',
     icon:        '📡',
     label:       'NLP-Monitor',
@@ -1151,6 +1141,16 @@ const REPORTS = [
     params:      [],
     autoRefresh: true,
     refreshSecs: 10,
+  },
+  {
+    key:         'nlp_quality',
+    icon:        '🧪',
+    label:       'NLP-Qualität',
+    description: 'Normtypen, SVO-Vollständigkeit, NER-Qualität',
+    endpoint:    '/api/v1/reports/nlp_quality',
+    params: [
+      {id:'nq-doc', label:'Dokument-Filter', placeholder:'Leer = alle', param:'doc'},
+    ],
   },
 ];
 
@@ -1289,6 +1289,19 @@ async function runReport() {
 }
 
 // ── Tabellenrenderer ──────────────────────────────────────────────────────────
+// Konvertiert ISO-UTC-String in lokale Zeitdarstellung
+function utcToLocal(isoStr, withDate=true) {
+  if (!isoStr) return '–';
+  try {
+    const d = new Date(isoStr);
+    if (withDate)
+      return d.toLocaleDateString('de-DE') + ' ' +
+             d.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+    return d.toLocaleDateString('de-DE') + ' ' +
+           d.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+  } catch { return isoStr; }
+}
+
 function tbl(cols, rows, opts={}) {
   const ths = cols.map(c=>`<th>${c}</th>`).join('');
   const trs = rows.map(r=>`<tr>${r.map((c,i)=>`<td>${c??''}</td>`).join('')}</tr>`).join('');
@@ -1377,13 +1390,14 @@ function renderQuestionReport(d) {
 // ── Ingest-Report ─────────────────────────────────────────────────────────────
 function renderIngestReport(d) {
   const jobsHtml = tbl(
-    ['Datei','Status','Klasse','Chunks','Dauer'],
+    ['Datei','Status','Klasse','Chunks','Dauer','Gestartet'],
     (d.jobs||[]).map(r=>[
       escHtml(r.filename),
       statusBadge(r.status),
       r.doc_class||'–',
       r.chunk_count||0,
       r.dauer ? r.dauer+'s' : '–',
+      utcToLocal(r.started_at),
     ])
   );
 
@@ -1423,61 +1437,96 @@ function renderIngestReport(d) {
 // ── NLP-Qualitätsbericht ──────────────────────────────────────────────────────
 function renderNlpQualityReport(d) {
   const svo = d.svo || {};
-  const unknownPct = (d.normtypen||[]).find(r=>r.norm_type==='UNKNOWN')?.prozent||0;
+  const normtypen = d.normtypen || [];
+  const unknownPct = normtypen.find(r=>r.norm_type==='UNKNOWN')?.prozent||0;
 
-  const kpiHtml = `<table class="abbrev-table" style="width:auto;margin-bottom:20px">
-    <thead><tr><th>Kennzahl</th><th>Wert</th><th>Bewertung</th></tr></thead>
+  // ── 1. Überblick ────────────────────────────────────────────────────────────
+  const ueberblickHtml = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px">
+      ${[
+        ['SVOs gesamt',    svo.gesamt||0,    ''],
+        ['NER-Entitäten',  d.ner_gesamt||0,  ''],
+        ['NLP-Abdeckung',  (d.abdeckung_svo||0)+'%', ''],
+      ].map(([l,v,u])=>`
+        <div style="background:var(--surface2);border:1px solid var(--border);
+          border-radius:6px;padding:12px;text-align:center">
+          <div style="font-size:22px;font-weight:600;color:var(--accent)">${v}${u}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">${l}</div>
+        </div>`).join('')}
+    </div>`;
+
+  // ── 2. KPI-Tabelle ──────────────────────────────────────────────────────────
+  const kpiHtml = `<table class="abbrev-table" style="width:auto;margin-bottom:8px">
+    <thead><tr><th>Kennzahl</th><th>Wert</th><th>Ziel</th><th>Status</th></tr></thead>
     <tbody>
-      ${kpiRow('SVOs gesamt', svo.gesamt||0)}
-      ${kpiRow('UNKNOWN-Rate', unknownPct+'%', '< 20%', '', parseFloat(unknownPct)<20)}
-      ${kpiRow('Mit Subjekt', svo.subj_pct+'%', '> 80%', '', svo.subj_pct>80)}
-      ${kpiRow('Mit Objekt',  svo.obj_pct+'%',  '> 60%', '', svo.obj_pct>60)}
-      ${kpiRow('Vollständig (S+V+O)', svo.full_pct+'%', '> 50%', '', svo.full_pct>50)}
-      ${kpiRow('Ø SVO-Konfidenz', svo.avg_conf, '> 0.65', '', svo.avg_conf>0.65)}
+      ${kpiRow('UNKNOWN-Rate',        unknownPct+'%',        '< 20%',  '', parseFloat(unknownPct)<20)}
+      ${kpiRow('Mit Subjekt',         svo.subj_pct+'%',      '> 80%',  '', (svo.subj_pct||0)>80)}
+      ${kpiRow('Mit Objekt',          svo.obj_pct+'%',       '> 60%',  '', (svo.obj_pct||0)>60)}
+      ${kpiRow('Vollständig (S+V+O)', svo.full_pct+'%',      '> 50%',  '', (svo.full_pct||0)>50)}
+      ${kpiRow('Pronomen als Subjekt',svo.pronomen_pct+'%',  '< 15%',  '', (svo.pronomen_pct||0)<15)}
+      ${kpiRow('Ø SVO-Konfidenz',     svo.avg_conf,          '> 0.65', '', (svo.avg_conf||0)>0.65)}
+      ${kpiRow('Ø Normtyp-Konfidenz', svo.avg_norm_conf,     '> 0.75', '', (svo.avg_norm_conf||0)>0.75)}
+      ${kpiRow('Flair-Anteil NER',    (d.flair_pct||0)+'%',  '> 40%',  '', (d.flair_pct||0)>40)}
     </tbody></table>`;
 
+  // ── 3. Normtypen ────────────────────────────────────────────────────────────
   const normtypenHtml = tbl(
     ['Normtyp','Anzahl','Anteil','Ø Konfidenz'],
-    (d.normtypen||[]).map(r=>[
-      `<strong style="color:${r.norm_type==='UNKNOWN'?'var(--warn)':'var(--accent)'}">${r.norm_type}</strong>`,
+    normtypen.map(r=>[
+      `<strong style="color:${r.norm_type==='UNKNOWN'?'var(--warn)':'var(--accent)'}">
+        ${r.norm_type}</strong>`,
       r.anzahl,
       pct_bar(r.prozent),
       r.avg_conf,
     ])
   );
 
+  // ── 4. SVO-Vollständigkeit ──────────────────────────────────────────────────
   const subjHtml = tbl(
     ['Subjekt','Typ','Häufigkeit'],
     (d.top_subjekte||[]).map(r=>[
       escHtml(r.subject),
-      `<span style="font-size:11px;color:var(--muted)">${r.subject_type}</span>`,
+      `<span style="font-size:11px;color:var(--muted)">${r.subject_type||'–'}</span>`,
       r.cnt,
     ])
   );
-
   const objHtml = tbl(
     ['Objekt','Typ','Häufigkeit'],
     (d.top_objekte||[]).map(r=>[
       escHtml(r.object),
-      `<span style="font-size:11px;color:var(--muted)">${r.object_type}</span>`,
+      `<span style="font-size:11px;color:var(--muted)">${r.object_type||'–'}</span>`,
       r.cnt,
     ])
   );
 
-  const nerHtml = tbl(
+  // ── 5. NER ──────────────────────────────────────────────────────────────────
+  const flair_cnt = (d.ner_stats||[]).filter(r=>r.source==='flair')
+                      .reduce((s,r)=>s+r.anzahl,0);
+  const rule_cnt  = (d.ner_stats||[]).filter(r=>r.source==='rule')
+                      .reduce((s,r)=>s+r.anzahl,0);
+  const total_ner = flair_cnt + rule_cnt || 1;
+
+  const nerUeberblick = `
+    <div style="display:flex;gap:20px;margin-bottom:12px;font-size:12px">
+      <span>🤖 Flair: <strong>${flair_cnt}</strong>
+        (${(flair_cnt/total_ner*100).toFixed(1)}%)</span>
+      <span>📏 Regelbasiert: <strong>${rule_cnt}</strong>
+        (${(rule_cnt/total_ner*100).toFixed(1)}%)</span>
+    </div>`;
+
+  const nerHtml = nerUeberblick + tbl(
     ['Label','Quelle','Anzahl','Ø Konfidenz'],
     (d.ner_stats||[]).map(r=>[
-      r.label,
+      `<strong>${r.label}</strong>`,
       `<span style="font-size:11px">${r.source==='flair'?'🤖 Flair':'📏 Regel'}</span>`,
       r.anzahl,
       r.avg_conf,
     ])
   );
-
   const topNerHtml = tbl(
     ['Entität','Label','Quelle','Häufigkeit','Ø Konf.'],
     (d.top_ner||[]).map(r=>[
-      escHtml(r.text),
+      `<strong>${escHtml(r.text)}</strong>`,
       r.label,
       r.source==='flair'?'🤖':'📏',
       r.cnt,
@@ -1485,12 +1534,43 @@ function renderNlpQualityReport(d) {
     ])
   );
 
-  return sec('KPI-Übersicht', kpiHtml) +
-         sec('Normtyp-Verteilung', normtypenHtml) +
-         sec('Top Subjekte', subjHtml) +
-         sec('Top Objekte', objHtml) +
-         sec('NER nach Label & Quelle', nerHtml) +
-         sec('Top NER-Entitäten', topNerHtml);
+  // ── 6. Handlungsempfehlungen ────────────────────────────────────────────────
+  const empfehlungen = [];
+  if (parseFloat(unknownPct) > 20)
+    empfehlungen.push({icon:'⚠️', titel:'UNKNOWN-Rate hoch',
+      problem: unknownPct+'% der SVOs haben keinen Normtyp',
+      massnahme:'nlp_config.yaml → normtypen: Patterns ergänzen'});
+  if ((svo.obj_pct||0) < 60)
+    empfehlungen.push({icon:'⚠️', titel:'Viele SVOs ohne Objekt',
+      problem: (100-(svo.obj_pct||0)).toFixed(1)+'% der SVOs haben kein Objekt',
+      massnahme:'nlp_config.yaml → svo.object_deps prüfen'});
+  if ((svo.subj_pct||0) < 80)
+    empfehlungen.push({icon:'⚠️', titel:'Viele SVOs ohne Subjekt',
+      problem: (100-(svo.subj_pct||0)).toFixed(1)+'% der SVOs haben kein Subjekt',
+      massnahme:'nlp_config.yaml → svo.stop_subjects prüfen'});
+  if ((d.flair_pct||0) < 40)
+    empfehlungen.push({icon:'⚠️', titel:'Flair-Anteil niedrig',
+      problem: 'Nur '+(d.flair_pct||0).toFixed(1)+'% der NER-Entitäten von Flair',
+      massnahme:'nlp_config.yaml → ner.flair_min_confidence senken'});
+
+  const empfHtml = empfehlungen.length === 0
+    ? '<div style="color:var(--accent2);padding:8px">✅ Alle Zielwerte erreicht.</div>'
+    : empfehlungen.map(e=>`
+        <div style="border:1px solid var(--warn);border-radius:6px;
+          padding:12px;margin-bottom:8px;background:rgba(247,196,79,0.05)">
+          <div style="font-weight:500;margin-bottom:4px">${e.icon} ${e.titel}</div>
+          <div style="font-size:12px;color:var(--muted)">Problem: ${e.problem}</div>
+          <div style="font-size:12px;color:var(--accent);margin-top:2px">
+            → ${e.massnahme}</div>
+        </div>`).join('');
+
+  return sec('1. Überblick', ueberblickHtml + kpiHtml) +
+         sec('2. Normtyp-Verteilung', normtypenHtml) +
+         sec('3. Top Subjekte', subjHtml) +
+         sec('4. Top Objekte', objHtml) +
+         sec('5. NER – Qualität', nerHtml) +
+         sec('6. Top NER-Entitäten', topNerHtml) +
+         sec('7. Handlungsempfehlungen', empfHtml);
 }
 
 // ── NLP-Monitor ───────────────────────────────────────────────────────────────
@@ -1501,6 +1581,10 @@ function renderNlpMonitor(d) {
     <div style="display:grid;grid-template-columns:200px 1fr;gap:8px 16px;margin-bottom:16px">
       <span style="color:var(--muted);font-size:12px">Status</span>
       <span>${statusBadge(j.status)}</span>
+      <span style="color:var(--muted);font-size:12px">Gestartet</span>
+      <span>${utcToLocal(j.started_at)}</span>
+      <span style="color:var(--muted);font-size:12px">Abgeschlossen</span>
+      <span>${j.finished_at ? utcToLocal(j.finished_at) : '–'}</span>
       <span style="color:var(--muted);font-size:12px">Job-ID</span>
       <span style="font-family:var(--mono);font-size:11px">${j.job_id}</span>
       <span style="color:var(--muted);font-size:12px">Fortschritt</span>
@@ -1880,7 +1964,9 @@ function renderAbbrevTable(abbrevs) {
       </td>
       <td style="max-width:180px">
         <input type="text" class="ab-context" data-i="${i}"
-          value="${escHtml((a.context||[]).join(', '))}" placeholder="leer = immer"
+          value="${escHtml((a.context||[]).join(', '))}"
+          placeholder="leer = immer auflösen"
+          title="Kommagetrennte Signalwörter. Leer = immer auflösen."
           onchange="markDirty()">
       </td>
       <td><button class="del-row" onclick="deleteAbbrev(${i})">×</button></td>
@@ -1896,7 +1982,13 @@ function renderAbbrevTable(abbrevs) {
     </p>
     <table class="abbrev-table">
       <thead><tr>
-        <th>Abkürzung</th><th>Auflösung</th><th>Label</th><th>Kontext</th><th></th>
+        <th>Abkürzung</th>
+        <th>Auflösung</th>
+        <th>Label</th>
+        <th title="Signalwörter (kommagetrennt). Leer = immer auflösen.">
+          Kontext <span style="font-weight:400;font-size:10px">(leer = immer)</span>
+        </th>
+        <th></th>
       </tr></thead>
       <tbody id="abbrev-tbody">${rows}</tbody>
     </table>
@@ -1949,7 +2041,8 @@ function renderSynonymCards(synonyms) {
           <div>
             <div class="syn-field-label">Label</div>
             <select class="syn-label" data-i="${i}"
-              style="width:100%" onchange="markDirty()">
+              style="width:100%"
+              onchange="markDirty();updateSynBadge(${i},this.value)">
               ${LABELS.map(l=>`<option ${lbl===l?'selected':''}>${l}</option>`).join('')}
             </select>
             <div style="margin-top:6px">
@@ -1985,12 +2078,15 @@ function renderSynonymCards(synonyms) {
 
   return `
   ${renderAbbrevSubTabs('synonyms')}
-  <div style="margin-bottom:12px">
-    <p style="font-size:12px;color:var(--muted)">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+    <p style="font-size:12px;color:var(--muted);flex:1;margin:0">
       Synonyme normalisieren verschiedene Bezeichnungen auf eine Normalform.
-      Das verbessert die Retrieval-Qualität im RAG da gleiche Konzepte
-      ähnliche Embedding-Vektoren bekommen.
+      Verbessert die Retrieval-Qualität im RAG.
     </p>
+    <input type="text" id="syn-search"
+      placeholder="🔍 Synonyme filtern..."
+      style="width:200px;font-size:12px"
+      oninput="filterSynCards()">
   </div>
   <div class="syn-cards" id="syn-cards">
     ${cards}${empty}
@@ -2000,13 +2096,34 @@ function renderSynonymCards(synonyms) {
   </button>`;
 }
 
+function updateSynBadge(i, label) {
+  const badge = document.getElementById('syn-lbl-badge-'+i);
+  if (!badge) return;
+  badge.textContent = label;
+  badge.className = 'label-badge label-' + label;
+}
+
+function filterSynCards() {
+  const q = (document.getElementById('syn-search')?.value || '').toLowerCase();
+  document.querySelectorAll('.syn-card').forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = (!q || text.includes(q)) ? '' : 'none';
+  });
+}
+
 function addSynonym() {
   const d = configs[current].content;
   d.synonyms = d.synonyms || [];
   d.synonyms.push({canonical:'',variants:[],label:'ROLLE',context:[]});
   markDirty();
   renderContent();
+  // Zu neuer Karte scrollen
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.syn-card');
+    if (cards.length) cards[cards.length-1].scrollIntoView({behavior:'smooth'});
+  }, 100);
 }
+
 function deleteSynonym(i) {
   configs[current].content.synonyms.splice(i,1);
   markDirty();

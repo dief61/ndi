@@ -22,6 +22,16 @@ async def _conn():
 
 # ── Fragen-Report ─────────────────────────────────────────────────────────────
 
+def _local_str(dt, fmt: str = "%d.%m.%Y %H:%M") -> str:
+    """Konvertiert DB-Timestamp (UTC) in lokale Zeit als String."""
+    if dt is None:
+        return ""
+    from datetime import timezone
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone().strftime(fmt)
+
+
 @router.get("/question")
 async def report_question(
     doc:       Optional[str] = Query(None),
@@ -242,23 +252,44 @@ async def report_nlp_quality(doc: Optional[str] = Query(None)):
         """, *params)
 
         g = svo_stats["gesamt"] or 1
+
+        # Flair-Anteil berechnen
+        flair_cnt = sum(r["anzahl"] for r in ner_stats if r["source"] == "flair")
+        total_ner = sum(r["anzahl"] for r in ner_stats) or 1
+
+        # NLP-Abdeckung (Chunks mit SVO)
+        chunks_total = await conn.fetchval(
+            "SELECT COUNT(*) FROM norm_chunks nc "
+            "JOIN norm_documents nd ON nc.doc_id = nd.id "
+            + (where if where else ""), *params)
+        chunks_mit_svo = await conn.fetchval(
+            "SELECT COUNT(DISTINCT s.chunk_id) FROM svo_extractions s "
+            "JOIN norm_chunks nc ON s.chunk_id = nc.id "
+            "JOIN norm_documents nd ON nc.doc_id = nd.id "
+            + (where if where else ""), *params)
+
         return {
-            "normtypen":  [dict(r) for r in normtypen],
+            "normtypen":    [dict(r) for r in normtypen],
             "svo": {
-                "gesamt":       svo_stats["gesamt"]       or 0,
-                "mit_subj":     svo_stats["mit_subj"]     or 0,
-                "mit_obj":      svo_stats["mit_obj"]      or 0,
-                "vollstaendig": svo_stats["vollstaendig"] or 0,
-                "pronomen":     svo_stats["pronomen"]     or 0,
-                "avg_conf":     float(svo_stats["avg_conf"] or 0),
-                "subj_pct":     round((svo_stats["mit_subj"] or 0)/g*100,1),
-                "obj_pct":      round((svo_stats["mit_obj"]  or 0)/g*100,1),
-                "full_pct":     round((svo_stats["vollstaendig"] or 0)/g*100,1),
+                "gesamt":        svo_stats["gesamt"]       or 0,
+                "mit_subj":      svo_stats["mit_subj"]     or 0,
+                "mit_obj":       svo_stats["mit_obj"]      or 0,
+                "vollstaendig":  svo_stats["vollstaendig"] or 0,
+                "pronomen":      svo_stats["pronomen"]     or 0,
+                "avg_conf":      float(svo_stats["avg_conf"] or 0),
+                "avg_norm_conf": float(svo_stats["avg_conf"] or 0),
+                "subj_pct":      round((svo_stats["mit_subj"]      or 0)/g*100,1),
+                "obj_pct":       round((svo_stats["mit_obj"]       or 0)/g*100,1),
+                "full_pct":      round((svo_stats["vollstaendig"]  or 0)/g*100,1),
+                "pronomen_pct":  round((svo_stats["pronomen"]      or 0)/g*100,1),
             },
-            "top_subjekte": [dict(r) for r in top_subj],
-            "top_objekte":  [dict(r) for r in top_obj],
-            "ner_stats":    [dict(r) for r in ner_stats],
-            "top_ner":      [dict(r) for r in top_ner],
+            "ner_gesamt":    total_ner,
+            "flair_pct":     round(flair_cnt / total_ner * 100, 1),
+            "abdeckung_svo": round((chunks_mit_svo or 0) / (chunks_total or 1) * 100, 1),
+            "top_subjekte":  [dict(r) for r in top_subj],
+            "top_objekte":   [dict(r) for r in top_obj],
+            "ner_stats":     [dict(r) for r in ner_stats],
+            "top_ner":       [dict(r) for r in top_ner],
         }
     finally:
         await conn.close()
@@ -285,7 +316,11 @@ async def report_nlp_monitor():
         if letzter:
             for k in ["started_at","updated_at","finished_at"]:
                 if letzter[k]:
-                    letzter[k] = letzter[k].isoformat()
+                    from datetime import timezone as _tz
+                    dt = letzter[k]
+                    if dt.tzinfo is None:
+                        dt = dt.replace(tzinfo=_tz.utc)
+                    letzter[k] = dt.astimezone().isoformat()
 
         return {
             "letzter_job": letzter,
@@ -297,7 +332,7 @@ async def report_nlp_monitor():
                     "svo":         r["svo_count"] or 0,
                     "ner":         r["ner_count"] or 0,
                     "laufzeit":    f"{r['laufzeit_sek'] or 0}s",
-                    "gestartet":   r["started_at"].strftime("%d.%m %H:%M") if r["started_at"] else "",
+                    "gestartet":   _local_str(r["started_at"], "%d.%m %H:%M"),
                 }
                 for r in jobs
             ],

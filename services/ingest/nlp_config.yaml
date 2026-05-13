@@ -37,8 +37,9 @@ svo:
   max_object_length: 200
 
   # ── Stoppwort-Filter ────────────────────────────────────────────────────
-  # Schicht 1: Diese Wörter als Subjekt komplett verwerfen (nur Artikel/Pronomen)
+  # Schicht 1: Diese Wörter als Subjekt komplett verwerfen
   stop_subjects:
+    # Artikel und Pronomen
     - "er"
     - "sie"
     - "es"
@@ -53,9 +54,24 @@ svo:
     - "dem"
     - "den"
     - "wer"
+    # Abkürzungen und Fragmente
+    - "s. 3"
+    - "s. 2"
+    - "s. 1"
+    - "s. 4"
+    - "abs. 1"
+    - "abs. 2"
+    - "abs. 3"
+    - "nr. 1"
+    - "nr. 2"
+    # Allgemeine Wörter die kein sinnvolles Subjekt sind
+    - "folgendes"
+    - "nachfolgendes"
+    - "vorstehende"
 
   # Schicht 1: Diese Wörter als Objekt komplett verwerfen
   stop_objects:
+    # Artikel und Pronomen
     - "der"
     - "die"
     - "das"
@@ -64,6 +80,47 @@ svo:
     - "dies"
     - "diese"
     - "es"
+    # Adjektive die fälschlich als Objekt erkannt werden
+    - "erforderlich"
+    - "zulässig"
+    - "gebührenpflichtig"
+    - "anmeldepflichtig"
+    - "gefährlich"
+    - "bekannt"
+    - "unberührt"
+    - "entsprechend"
+    - "zuständig"
+    - "zuständige"
+    - "so erlaubt"
+    - "einschlägig"
+    - "für Halten"
+    - "für Führen"
+    - "für Haltung"
+    # Dokumentkopf-Artefakte
+    - "Aktuell Tiergesundheit"
+    - "Aktuell"
+    - "Microsoft Word"
+    # Sehr kurze Präpositionsfragmente
+    - "für das"
+    - "für die"
+    - "für den"
+    # Adverbiale Phrasen-Fragmente
+    - "im übrigen"
+    - "im wesentlichen"
+    - "in regel"
+    - "in der regel"
+    - "im einzelfall"
+    - "auf antrag"
+    - "auf anfrage"
+    - "nach maßgabe"
+    - "durch gesetz"
+    - "durch verordnung"
+    - "nach bedarf"
+    - "im rahmen"
+    - "nach lage"
+    - "nach art"
+    - "nach absatz"
+    - "nach satz"
 
   # Minimale Zeichenlänge für Subjekt/Objekt (filtert Einzelzeichen)
   min_subject_length: 3
@@ -96,6 +153,43 @@ svo:
     - "pd"     # Prädikativum (deutsch) – für DEF: "ist [natürliche Person]"
     - "obj"    # Objekt (universal)
     - "obl"    # obliques Nominal (universal)
+    - "da"     # Dativobjekt (deutsch) – "dient der Umsetzung"
+    - "mo"     # Modifikator (deutsch) – ergänzende Phrasen
+    - "nk"     # Nominalphrase-Kern (deutsch)
+    - "attr"   # Attribut
+
+  # Prädikate die als Substantive fälschlich als Verben erkannt werden
+  # Werden in Schicht 3 des SVO-Filters verworfen
+  stop_predicates:
+    # Interpunktion und Abkürzungen als Prädikat
+    - "§"
+    - "S."
+    - "Nr."
+    - "Abs."
+    - "Art."
+    # Substantive als Prädikat (False Positives)
+    - "Hundegesetz"
+    - "Hundeführerschein"
+    - "Preisfeststellung"
+    - "Preisfeststellungen"
+    - "Landesamt"
+    - "TIERSCHUTZ"
+    - "Ausnahme"
+    - "Voraussetzung"
+    - "Grundlage"
+    - "Maßgabe"
+    - "Aktuell"
+    - "Presse"
+    - "Veranstaltungen"
+    # Neue Artefakte aus UNKNOWN-Analyse
+    - "Stelle"
+    - "Satz"
+    - "Hunderegister"
+    - "VOR"
+    - "BHV-Hundeführerscheinprüfung"
+    - "DHVE-Hundeführerscheinprüfung"
+    - "Bedarfsgegenstände"
+    - "Bedarfsgegenstand"
 
   subject_type_patterns:
     suffixes:
@@ -138,26 +232,66 @@ normtypen:
 
   MUST:
     patterns:
+      # ── Modalverben (Einzel-Wort – trifft auch auf Prädikat-Text) ────────
       - '\bmuss\b'
       - '\bmüssen\b'
-      - '\bist\s+zu\b'
-      - '\bsind\s+zu\b'
+      - '\bsoll\b'
+      - '\bsollen\b'
+      # ── hat/haben + zu ───────────────────────────────────────────────────
       - '\bhat\s+zu\b'
       - '\bhaben\s+zu\b'
+      - '\bhat\s+sicherzustellen\b'
+      # ── ist/sind + zu (kurze Form – trifft auf Prädikat) ─────────────────
+      - '\bist\s+zu\b'
+      - '\bsind\s+zu\b'
+      # ── Verpflichtungs-Adjektive ─────────────────────────────────────────
       - '\bist\s+verpflichtet\b'
       - '\bsind\s+verpflichtet\b'
-      - '\bhat\s+sicherzustellen\b'
+      - '\bpflichtig\b'            # anmeldepflichtig, gebührenpflichtig
+      - '\berforderlich\b'
+      # ── Passiv-Infinitive (einzelne Verben) ──────────────────────────────
+      - '\bdurchzuführen\b'
+      - '\bnachzuweisen\b'
+      - '\banzumelden\b'
+      - '\bmitzuführen\b'
+      - '\beinzuhalten\b'
+      - '\bsicherzustellen\b'
+      - '\banzugeben\b'
+      - '\banzuzeigen\b'
+      - '\bvorzulegen\b'
+      - '\bbeizubringen\b'
+      - '\bzu\s+machen\b'
+      # ── bedarf / unterliegt (Einzel-Wort) ────────────────────────────────
+      - '\bbedarf\b'
+      - '\bbedürfen\b'
+      - '\bunterl(ie|a)gt\b'
+      - '\bunterliegen\b'
+      # ── Verbpräfix-Pflichten ──────────────────────────────────────────────
+      - '\bmitführen\b'
+      - '\banmelden\b'
+      - '\bnachweisen\b'
     confidence_boost: 0.0
 
   MAY:
     patterns:
+      # ── Modalverben ──────────────────────────────────────────────────────
       - '\bkann\b'
       - '\bkönnen\b'
       - '\bdarf\b'
       - '\bdürfen\b'
-      - '\bist\s+berechtigt\b'
-      - '\bsind\s+berechtigt\b'
-      - '\bist\s+befugt\b'
+      # ── Berechtigung ─────────────────────────────────────────────────────
+      - '\bberechtigt\b'
+      - '\bbefugt\b'
+      - '\bgestattet\b'
+      - '\bzulässig\b'
+      # ── Passiv-Erlaubnis (einzelne Verben) ───────────────────────────────
+      - '\berteilt\b'
+      - '\bzugelassen\b'
+      - '\banerkannt\b'
+      - '\babgewickelt\b'
+      - '\bbezogen\b'              # können bezogen werden
+      # ── gilt als ─────────────────────────────────────────────────────────
+      - '\bgilt\s+als\b'
     confidence_boost: 0.0
 
   MUST_NOT:
@@ -185,6 +319,11 @@ normtypen:
       - '\bausgenommen\b'
       - '\bausnahmsweise\b'
       - '\bunbeschadet\b'
+      # ── Konjunktiv II (Bedingung/Ausnahme) ──────────────────────────────
+      - '\bwürde\b'
+      - '\bwürden\b'
+      - '\bwäre\b'
+      - '\bwären\b'
     confidence_boost: 0.0
 
   DEADLINE:
@@ -203,6 +342,87 @@ normtypen:
       - '\bobliegt\b'
       - '\bist\s+zuständig\b'
       - '\bwird\s+wahrgenommen\s+von\b'
+      # ── Neu: aus UNKNOWN-Analyse ─────────────────────────────────────────
+      - '\büberwacht\b'            # überwacht die Einhaltung
+      - '\bführt\b'               # führt das Register
+      - '\bwird\s+geführt\b'     # wird geführt durch
+      - '\bnimmt\s+ab\b'         # nimmt die Prüfung ab
+      - '\babnimmt\b'
+      - '\berteilt\b'             # erteilt die Erlaubnis (aktiv)
+      - '\bwacht\s+.*\s+über\b' # wacht über die Einhaltung
+    confidence_boost: 0.0
+
+  # ── Neuer Normtyp: SCOPE (Geltungsbereich) ─────────────────────────────────
+  SCOPE:
+    patterns:
+      - '\bgilt\s+für\b'
+      - '\bfindet\s+.*\s+Anwendung\b'
+      - '\bfindet\s+Anwendung\b'
+      - '\bAnwendung\s+findet\b'
+      - '\bgilt\s+entsprechend\b'
+      - '\bgilt\s+auch\b'
+      - '\bdient\s+der\s+Umsetzung\b'
+      - '\bdient\s+der\b'
+      - '\bdient\s+dem\b'
+      - '\bdient\b'              # dient generell
+      - '\bfindet\s+statt\b'
+      - '\bfindet\s+Verwendung\b'
+      - '\bfindet\b'             # findet generell (findet Anwendung etc.)
+      - '\bgilt\b'               # gilt generell
+      - '\bgelten\b'
+    confidence_boost: 0.0
+
+  # ── Neuer Normtyp: CHANGE (Rechtsänderung) ──────────────────────────────────
+  CHANGE:
+    patterns:
+      - '\bgeändert\b'
+      - '\bgeändert\s+worden\b'
+      - '\bwird\s+geändert\b'
+      - '\bersetzen\b'
+      - '\bersetzt\b'
+      - '\bgefasst\b'
+      - '\bneu\s+gefasst\b'
+      - '\baufgehoben\b'
+      - '\baufheben\b'
+    confidence_boost: 0.0
+
+  # ── Neuer Normtyp: STATUS (Zustandsbeschreibung) ────────────────────────────
+  # "ist" + Adjektiv/Substantiv wenn kein anderes Pattern passt
+  STATUS:
+    patterns:
+      # ist/sind + Zustandsadjektiv
+      - '\bist\s+zugelassen\b'
+      - '\bist\s+anerkannt\b'
+      - '\bist\s+registriert\b'
+      - '\bist\s+eingetragen\b'
+      - '\bist\s+bekannt\b'
+      - '\bsind\s+bekannt\b'
+      - '\bist\s+in\s+Kraft\b'
+      # hat/haben + Objekt (Besitz/Zustand)
+      - '\bhat\s+die\s+Zulassung\b'
+      - '\bhat\s+eine\s+Erlaubnis\b'
+      - '\bhat\s+den\s+Nachweis\b'
+      - '\bhat\s+.*\s+Kenntnisse\b'
+      - '\bhat\s+.*\s+Erfahrung\b'
+      # besitzt
+      - '\bbesitzt\b'
+      # stellt
+      - '\bstellt\s+sicher\b'
+      - '\bstellt\s+fest\b'
+      - '\bstellt\b'             # stellt generell
+      # macht
+      - '\bmacht\s+.*\s+geltend\b'
+      - '\bmacht\b'              # macht generell
+      # wird + Passiv-Zustand
+      - '\bwird\s+bekannt\s+gemacht\b'
+      - '\bwird\s+.*\s+mitgeteilt\b'
+      - '\bwird\b'               # wird generell (Passiv-Hilfszeitwort)
+      - '\bwerden\b'
+      # hat generell (Zustandsbeschreibung)
+      - '\bhat\b'
+      # ist/sind generell als Fallback für Zustandsbeschreibungen
+      - '\bist\b'
+      - '\bsind\b'
     confidence_boost: 0.0
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -226,7 +446,7 @@ ner:
 
   # Mindest-Konfidenz
   min_confidence: 0.6
-  flair_min_confidence: 0.85   # Ansatz 3: erhöhter Threshold reduziert False Positives
+  flair_min_confidence: 0.75   # Angepasst: 0.75 liefert mehr Flair-Ergebnisse bei akzeptabler Qualität
 
   # Ansatz 5: §-Normreferenzen aus GESETZ-Entitäten filtern
   # true  = §-Nummern ohne Gesetzesname werden verworfen (§ 8, § 10 Abs. 4)
@@ -264,11 +484,18 @@ ner:
   # Groß-/Kleinschreibung wird ignoriert.
   label_corrections:
     # Privatunternehmen die als Behörde erkannt werden
-    "Telekom":       "SONSTIGE"
-    "Deutsche Post": "SONSTIGE"
-    "Bundespost":    "BEHÖRDE"    # historisch korrekt – bleibt BEHÖRDE
-    "TÜV":           "SONSTIGE"
-    "DEKRA":         "SONSTIGE"
+    "Telekom":        "SONSTIGE"
+    "Deutsche Post":  "SONSTIGE"
+    "Bundespost":     "BEHÖRDE"
+    "TÜV":            "SONSTIGE"
+    "DEKRA":          "SONSTIGE"
+    # NER False Positives aus Qualitätsbericht
+    "Feststellung":   "SONSTIGE"   # wird fälschlich als GESETZ erkannt
+    "Feststellungen": "SONSTIGE"
+    "Hundehaltung":   "DATENOBJEKT" # eher Datenobjekt als SONSTIGE
+    "Hundehaltungen": "DATENOBJEKT"
+    "Antragsteller":  "ROLLE"       # ist eine Rolle, nicht SONSTIGE
+    "Antragstellerin": "ROLLE"
 
   # ── Ansatz 4: Kontext-Validierung ────────────────────────────────────────
   # Ein Label wird nur akzeptiert wenn mindestens eines der Signalwörter

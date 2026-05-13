@@ -17,6 +17,16 @@ from datetime import datetime
 from pathlib import Path
 
 import asyncpg
+import time as _time
+from datetime import timezone as _tz, timedelta as _td
+
+def _local(dt):
+    """Konvertiert UTC-Timestamp aus DB in lokale Zeit."""
+    if dt is None: return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=_tz.utc)
+    offset = -_time.timezone if _time.daylight == 0 else -_time.altzone
+    return dt + _td(seconds=offset)
 
 sys.path.insert(0, str(Path(__file__).parent))
 from app.core.config import settings
@@ -132,7 +142,13 @@ async def report_overview(conn, doc_filter):
     print(f"  NER-Entitäten:        {ner:>8,}")
     print(f"  NLP-Jobs (done):      {nlp_jobs['jobs']:>8,}")
     if nlp_jobs['last_run']:
-        print(f"  Letzter NLP-Lauf:     {nlp_jobs['last_run'].strftime('%d.%m.%Y %H:%M')}")
+        from datetime import timezone as _tz
+        last_run = nlp_jobs['last_run']
+        if last_run.tzinfo is None:
+            last_run = last_run.replace(tzinfo=_tz.utc)
+        # astimezone() nutzt die Systemzeitzone inkl. aktuellem DST-Status
+        local_time = last_run.astimezone()
+        print(f"  Letzter NLP-Lauf:     {local_time.strftime('%d.%m.%Y %H:%M')} (Ortszeit)")
 
     if chunks > 0:
         svo_rate = svo / chunks * 100

@@ -111,7 +111,11 @@ class SVOExtractor:
         pronouns      = set(
             w.lower() for w in svo_cfg.get("pronouns", [])
         )
-        pron_penalty  = svo_cfg.get("pronoun_confidence_penalty", 0.3)
+        pron_penalty      = svo_cfg.get("pronoun_confidence_penalty", 0.3)
+        # Stop-Prädikate: Substantive die fälschlich als Verb erkannt werden
+        stop_predicates   = set(
+            w.lower() for w in svo_cfg.get("stop_predicates", [])
+        )
 
         tripel = []
         for sent in analysis.doc.sents:
@@ -133,6 +137,14 @@ class SVOExtractor:
                     elif len(s_lower) < min_subj_len:
                         t.subject = None
                         t.subject_type = "UNBEKANNT"
+                    # Satz-/Absatz-Abkürzungen verwerfen: "S. 3", "Abs. 2"
+                    elif re.match(r'^(s\.|abs\.|nr\.)\s*\d', s_lower):
+                        t.subject = None
+                        t.subject_type = "UNBEKANNT"
+                    # Reine Zahlen verwerfen
+                    elif re.match(r'^\d+\.?$', t.subject.strip()):
+                        t.subject = None
+                        t.subject_type = "UNBEKANNT"
 
                 # Objekt verwerfen wenn reines Stoppwort oder zu kurz
                 if t.object:
@@ -143,12 +155,32 @@ class SVOExtractor:
                     elif len(o_lower) < min_obj_len:
                         t.object = None
                         t.object_type = "UNBEKANNT"
+                    # Jahreszahlen und reine Zahlen verwerfen
+                    elif re.match(r'^\d{1,4}$', t.object.strip()):
+                        t.object = None
+                        t.object_type = "UNBEKANNT"
+                    # Eindeutige Adverbial-Fragmente und Ortsangaben verwerfen
+                    elif re.match(
+                        r'^(im übrigen|im wesentlichen|in der regel|'
+                        r'im einzelfall|nach maßgabe|im rahmen|'
+                        r'in niedersachsen|in deutschland|'
+                        r'dafür|dazu|dabei|dagegen|daran|darauf|'
+                        r'darüber|darunter|davon|dazu\.?)$',
+                        o_lower,
+                    ):
+                        t.object = None
+                        t.object_type = "UNBEKANNT"
 
                 # ── Schicht 2: Pronomen-Konfidenz-Abzug ──────────────────
                 # Pronomen-Subjekt behalten, aber Konfidenz reduzieren
                 if t.subject and t.subject.strip().lower() in pronouns:
                     t.subject_type = "PRONOMEN"
                     t.confidence   = max(0.0, t.confidence - pron_penalty)
+
+                # ── Schicht 3: Stop-Prädikate ─────────────────────────
+                # Substantive die fälschlich als Verb erkannt werden verwerfen
+                if t.predicate and t.predicate.lower() in stop_predicates:
+                    continue
 
                 # SVO nur speichern wenn Prädikat vorhanden
                 # (Subjekt oder Objekt darf None sein – Normtyp bleibt nützlich)
@@ -212,6 +244,18 @@ class SVOExtractor:
                             object_token = deeper
                         break
 
+            # ── Passiv-Infinitiv: "ist durchzuführen", "ist anzumelden" ───
+            # Beim Passiv ist das grammatische Subjekt das logische Objekt.
+            # Wenn kein Objekt gefunden wurde und Prädikat ein Passiv-Infinitiv
+            # ist (erkennbar an zu+Verb), Subjekt als Objekt übernehmen.
+            if (object_token is None
+                    and subject_token is not None
+                    and predicate
+                    and re.search(r'\bzu\w+en\b', predicate)):
+                # Subjekt wird logisches Objekt – Subjekt auf None setzen
+                object_token   = subject_token
+                subject_token  = None
+
             object_text = self._expand_noun_phrase(object_token) \
                           if object_token else None
 
@@ -219,7 +263,11 @@ class SVOExtractor:
             context = self._extract_context(root, object_token, subject_token)
 
             # Normtyp klassifizieren
-            norm_type, norm_conf = self._classify_normtype(sent.text, norm_cfg)
+            # Erst auf Prädikat-Text (Verb-Cluster), dann auf Satz-Text
+            # Das trifft gespaltene Verbkonstruktionen wie "ist ... durchzuführen"
+            norm_type, norm_conf = self._classify_normtype(
+                predicate + " " + sent.text, norm_cfg
+            )
 
             # Typen bestimmen
             subject_type = self._classify_entity_type(
