@@ -888,6 +888,13 @@ function buildNav(list) {
         <div class="nav-sub">Qualität, Ingest, NLP</div>
       </div>
     </div>
+    <div class="nav-item" onclick="loadConfig('llm_gateway')" id="nav-llm_gateway">
+      <span class="nav-icon">🤖</span>
+      <div>
+        <div class="nav-text">LLM-Gateway</div>
+        <div class="nav-sub">Provider, Modell, Prompts</div>
+      </div>
+    </div>
     <div style="height:1px;background:var(--border);margin:8px 16px"></div>
   `;
   nav.innerHTML = staticItems + list.map(c => `
@@ -953,7 +960,8 @@ function showHome() {
     {name:'embedder', icon:'🔢', label:'Embedding-Modell',     sub:'Modell, Batch-Size, Device'},
     {name:'abbrev',   icon:'📖', label:'Wörterbücher',         sub:'Abkürzungen und Synonyme'},
     {name:'chunker',  icon:'✂️', label:'Chunker-Konfiguration',sub:'Token-Limits, Klassen'},
-    {name:'docs',     icon:'🗂️', label:'Dokument-Metadaten',   sub:'Typen, Titel, Typ-Erkennung'},
+    {name:'docs',        icon:'🗂️', label:'Dokument-Metadaten',   sub:'Typen, Titel, Typ-Erkennung'},
+    {name:'llm_gateway', icon:'🤖', label:'LLM-Gateway',           sub:'Provider, Modell, Prompts'},
   ];
 
   document.getElementById('content').innerHTML = `
@@ -1736,6 +1744,7 @@ function renderForm(name, data) {
   else if (name === 'abbrev')       el.innerHTML = renderAbbrevForm(data);
   else if (name === 'chunker') el.innerHTML = renderTestChunkerForm(data);
   else if (name === 'docs')         el.innerHTML = renderDocsForm(data);
+  else if (name === 'llm_gateway')  el.innerHTML = renderLLMGatewayForm(data);
   else                              el.innerHTML = renderGenericForm(data);
   attachFormListeners(name, data);
 }
@@ -2362,6 +2371,130 @@ function deleteDocEntry(i) {
   renderContent();
 }
 
+// ── LLM-Gateway Formular ─────────────────────────────────────────────────────
+function renderLLMGatewayForm(d) {
+  const providers  = d.providers  || {};
+  const active     = d.active_provider || 'gemini';
+  const PROV_NAMES = Object.keys(providers);
+
+  // Aktiver Provider
+  const activeHtml = `
+    <div class="field-row">
+      <div>
+        <div class="field-label">Aktiver Provider</div>
+        <div class="field-help">Hier wechseln – kein Neustart nötig nach Speichern + Reload</div>
+      </div>
+      <select id="llm-active-provider" onchange="markDirty();updateLLMProviderHint()">
+        ${PROV_NAMES.map(p=>`<option ${p===active?'selected':''}>${p}</option>`).join('')}
+      </select>
+    </div>
+    <div id="llm-provider-hint" style="margin-top:8px;font-size:12px;
+      padding:8px;background:var(--surface2);border-radius:4px;color:var(--accent)">
+      ${getProviderHint(providers[active]||{})}
+    </div>`;
+
+  // Provider-Details Tabs
+  const tabs = PROV_NAMES.map(p=>`
+    <button class="sub-tab ${p===active?'active':''}" onclick="switchLLMTab('${p}')">
+      ${p}
+    </button>`).join('');
+
+  const provCards = PROV_NAMES.map(p => {
+    const pc = providers[p] || {};
+    return `
+    <div class="llm-prov-card" id="llm-prov-${p}"
+      style="display:${p===active?'block':'none'}">
+      ${field('Modell','Modellbezeichnung des Providers',
+        `<input type="text" class="llm-model" data-prov="${p}"
+          value="${escHtml(pc.model||'')}" onchange="markDirty()">`)}
+      ${pc.api_key_env!==undefined ? field('API-Key Variable',
+        'Name der Umgebungsvariable in .env (z.B. GEMINI_API_KEY)',
+        `<input type="text" class="llm-apikey-env" data-prov="${p}"
+          value="${escHtml(pc.api_key_env||'')}" onchange="markDirty()">`) : ''}
+      ${pc.base_url!==undefined ? field('Base URL',
+        'Endpunkt für On-Premise-Modelle (z.B. http://localhost:11434)',
+        `<input type="text" class="llm-base-url" data-prov="${p}"
+          value="${escHtml(pc.base_url||'')}" onchange="markDirty()">`) : ''}
+      ${field('Max. Tokens','',
+        `<input type="number" class="llm-max-tokens" data-prov="${p}"
+          value="${pc.max_tokens||4096}" min="256" max="32768" onchange="markDirty()">`)}
+      ${field('Temperatur','0.0 = deterministisch (empfohlen für Extraktion)',
+        `<input type="number" class="llm-temperature" data-prov="${p}"
+          value="${pc.temperature??0.0}" step="0.1" min="0" max="2" onchange="markDirty()">`)}
+      ${field('Timeout (s)','',
+        `<input type="number" class="llm-timeout" data-prov="${p}"
+          value="${pc.timeout_sek||60}" min="10" max="300" onchange="markDirty()">`)}
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">
+        ${escHtml(pc.beschreibung||'')}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Retry
+  const retry = d.retry || {};
+  const retryHtml = `
+    ${field('Max. Versuche','Anzahl Wiederholungen bei Fehler',
+      `<input type="number" id="llm-retry-max" value="${retry.max_versuche||3}"
+        min="1" max="10" onchange="markDirty()">`)}
+    ${field('Wartezeit (s)','Pause zwischen Versuchen',
+      `<input type="number" id="llm-retry-wait" value="${retry.wartezeit_sek||2}"
+        step="0.5" min="0.5" max="30" onchange="markDirty()">`)}`;
+
+  // Status-Button
+  const statusHtml = `
+    <button class="btn btn-ghost" style="margin-top:8px"
+      onclick="testLLMGateway()">🔌 Verbindung testen</button>
+    <span id="llm-test-result" style="margin-left:12px;font-size:12px"></span>`;
+
+  return sec('Aktiver Provider', activeHtml + statusHtml) +
+    `<div class="section"><div class="section-title">Provider-Konfiguration</div>
+      <div class="sub-tabs" style="margin-bottom:12px">${tabs}</div>
+      ${provCards}
+    </div>` +
+    sec('Retry-Verhalten', retryHtml);
+}
+
+function getProviderHint(pc) {
+  if (!pc.model) return '';
+  const key = pc.api_key_env ? `🔑 API-Key: <code>${pc.api_key_env}</code>` : '';
+  const url  = pc.base_url   ? `🌐 URL: <code>${pc.base_url}</code>` : '';
+  return [pc.beschreibung, key, url].filter(Boolean).join('  ·  ');
+}
+
+function updateLLMProviderHint() {
+  const prov = document.getElementById('llm-active-provider')?.value;
+  const d    = configs[current]?.content || {};
+  const pc   = (d.providers||{})[prov] || {};
+  const hint = document.getElementById('llm-provider-hint');
+  if (hint) hint.textContent = getProviderHint(pc);
+  // Provider-Karten umschalten
+  document.querySelectorAll('.llm-prov-card').forEach(el => {
+    el.style.display = el.id === 'llm-prov-'+prov ? 'block' : 'none';
+  });
+}
+
+function switchLLMTab(prov) {
+  document.querySelectorAll('.llm-prov-card').forEach(el => {
+    el.style.display = el.id === 'llm-prov-'+prov ? 'block' : 'none';
+  });
+  document.querySelectorAll('.sub-tab').forEach(el => {
+    el.classList.toggle('active', el.textContent.trim() === prov);
+  });
+}
+
+async function testLLMGateway() {
+  const btn = document.getElementById('llm-test-result');
+  if (btn) btn.textContent = '⏳ Teste...';
+  try {
+    const r = await apiFetch('/api/v1/llm/status');
+    if (btn) btn.textContent = r.erreichbar
+      ? `✅ ${r.provider} / ${r.model}`
+      : `❌ Nicht erreichbar (${r.provider})`;
+  } catch(e) {
+    if (btn) btn.textContent = `❌ Fehler: ${e.message}`;
+  }
+}
+
 function renderGenericForm(d) {
   return `<div class="section">
     <div class="section-title">YAML-Inhalt</div>
@@ -2417,6 +2550,32 @@ function collectFormData(name) {
   const gi = id => parseInt(gv(id));
 
   const orig = configs[name]?.content || {};
+
+  if (name === 'llm_gateway') {
+    const d = JSON.parse(JSON.stringify(orig));
+    d.active_provider = document.getElementById('llm-active-provider')?.value || orig.active_provider;
+    // Provider-Werte sammeln
+    Object.keys(d.providers||{}).forEach(prov => {
+      const model   = document.querySelector(`.llm-model[data-prov="${prov}"]`)?.value;
+      const apikey  = document.querySelector(`.llm-apikey-env[data-prov="${prov}"]`)?.value;
+      const baseurl = document.querySelector(`.llm-base-url[data-prov="${prov}"]`)?.value;
+      const tokens  = document.querySelector(`.llm-max-tokens[data-prov="${prov}"]`)?.value;
+      const temp    = document.querySelector(`.llm-temperature[data-prov="${prov}"]`)?.value;
+      const timeout = document.querySelector(`.llm-timeout[data-prov="${prov}"]`)?.value;
+      if (!d.providers[prov]) d.providers[prov] = {};
+      if (model   !== undefined) d.providers[prov].model           = model;
+      if (apikey  !== undefined) d.providers[prov].api_key_env     = apikey;
+      if (baseurl !== undefined) d.providers[prov].base_url        = baseurl;
+      if (tokens  !== undefined) d.providers[prov].max_tokens      = parseInt(tokens);
+      if (temp    !== undefined) d.providers[prov].temperature     = parseFloat(temp);
+      if (timeout !== undefined) d.providers[prov].timeout_sek     = parseInt(timeout);
+    });
+    d.retry = {
+      max_versuche:  parseInt(document.getElementById('llm-retry-max')?.value  || 3),
+      wartezeit_sek: parseFloat(document.getElementById('llm-retry-wait')?.value || 2),
+    };
+    return d;
+  }
 
   if (name === 'docs') {
     const d = JSON.parse(JSON.stringify(orig));

@@ -1,0 +1,56 @@
+# services/ingest/prompt_suite/index.yaml
+#
+# Übersicht aller Prompt-Paare der MNR Prompt-Suite.
+# Jeder Eintrag verweist auf ein Unterverzeichnis mit system.txt + user.txt.
+
+prompts:
+
+  - key:          "ps_normtyp"
+    name:         "Normtyp-Klassifikation"
+    beschreibung: "Klassifiziert den Normtyp eines SVO-Tripels (MUST/MAY/...)"
+    version:      "1.0"
+    provider:     "alle"
+    schema:       "normtyp_result"
+    tags:         [nlp, klassifikation, m2]
+
+  - key:          "ps_pipeline"
+    name:         "Vollständige Norm-Pipeline"
+    beschreibung: "7-stufige Pipeline: Dokumentstruktur → Segmente → Entitäten →
+                   Modalität → Normlogik → Triples → Validierung"
+    version:      "1.0"
+    provider:     "alle"
+    schema:       "full_pipeline"
+    tags:         [pipeline, m3, informationsmodell]
+
+  - key:          "ps_svo_enrich"
+    name:         "SVO-Anreicherung"
+    beschreibung: "Reichert bestehende SVOs um Bedingungen, Fristen und
+                   Ausnahmen an"
+    version:      "1.0"
+    provider:     "alle"
+    schema:       "svo_enriched"
+    tags:         [nlp, anreicherung, m2]
+
+  - key:          "ps_entity_extract"
+    name:         "Entitäts-Extraktion"
+    beschreibung: "Extrahiert und klassifiziert Entitäten aus Normtexten"
+    version:      "1.0"
+    provider:     "alle"
+    schema:       "entities"
+    tags:         [nlp, ner, m2]
+
+  - key:          "ps_norm_logic"
+    name:         "Norm-Logik (Wenn-Dann)"
+    beschreibung: "Extrahiert Wenn-Dann-Strukturen aus Normtexten"
+    version:      "1.0"
+    provider:     "alle"
+    schema:       "norm_logic"
+    tags:         [pipeline, normlogik, m3]
+
+  - key:          "ps_validation"
+    name:         "Triple-Validierung"
+    beschreibung: "Validiert erzeugte Triples auf Texttreue und Modalität"
+    version:      "1.0"
+    provider:     "alle"
+    schema:       "validation"
+    tags:         [validierung, qualitaet]

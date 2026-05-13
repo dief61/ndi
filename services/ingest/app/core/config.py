@@ -67,6 +67,11 @@ class Settings(BaseSettings):
     embedding_model: str = "mixedbread-ai/deepset-mxbai-embed-de-large-v1"
     embedding_dimension: int = 1024
 
+    # LLM-Gateway API-Keys (aus .env geladen)
+    gemini_api_key:    str = ""
+    openai_api_key:    str = ""
+    anthropic_api_key: str = ""
+
     # Allgemein
     project_name: str = "ndi"
     log_level: str = "INFO"

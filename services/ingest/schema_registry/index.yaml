@@ -1,0 +1,45 @@
+# services/ingest/schema_registry/index.yaml
+
+schemas:
+
+  - key:          "normtyp_result"
+    name:         "Normtyp-Klassifikations-Ergebnis"
+    beschreibung: "Ergebnis der LLM-Normtyp-Klassifikation"
+    version:      "1.0"
+    tags:         [nlp, m2]
+
+  - key:          "svo_triple"
+    name:         "SVO-Triple (einfach)"
+    beschreibung: "Einfaches Subjekt-Prädikat-Objekt Triple"
+    version:      "1.0"
+    tags:         [nlp, m2]
+
+  - key:          "svo_enriched"
+    name:         "SVO-Triple (angereichert)"
+    beschreibung: "SVO mit Modalität, Bedingung, Frist, Ausnahme"
+    version:      "1.0"
+    tags:         [nlp, m2]
+
+  - key:          "entities"
+    name:         "Entitäten"
+    beschreibung: "Klassifizierte Entitäten aus Normtexten"
+    version:      "1.0"
+    tags:         [nlp, ner]
+
+  - key:          "norm_logic"
+    name:         "Norm-Logik"
+    beschreibung: "Wenn-Dann-Strukturen aus Normtexten"
+    version:      "1.0"
+    tags:         [m3, informationsmodell]
+
+  - key:          "full_pipeline"
+    name:         "Vollständige Pipeline-Ausgabe"
+    beschreibung: "Komplettes Schema mit Segmenten, Entitäten, Normlogik, Triples, Validierung"
+    version:      "1.0"
+    tags:         [pipeline, m3]
+
+  - key:          "validation"
+    name:         "Validierungsergebnis"
+    beschreibung: "Validierung von Triples auf Texttreue und Modalität"
+    version:      "1.0"
+    tags:         [validierung]

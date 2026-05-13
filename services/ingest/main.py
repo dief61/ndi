@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import structlog
 
-from app.api.routes import ingest, health, paket, nlp, config_router, reports_router, kg_router
+from app.api.routes import ingest, health, paket, nlp, config_router, reports_router, kg_router, llm_router
 from app.core.config import settings
 from app.services.ingest_service import IngestService
 from app.services.paket_service import PaketService
@@ -79,3 +79,4 @@ app.include_router(nlp.router,           prefix="/api/v1/nlp",    tags=["NLP"])
 app.include_router(config_router.router,  prefix="/api/v1/config",  tags=["Config"])
 app.include_router(reports_router.router, prefix="/api/v1/reports", tags=["Reports"])
 app.include_router(kg_router.router,      prefix="/api/v1/kg",      tags=["Knowledge Graph"])
+app.include_router(llm_router.router,     prefix="/api/v1/llm",     tags=["LLM Gateway"])

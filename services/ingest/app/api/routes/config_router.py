@@ -26,7 +26,8 @@ CONFIG_FILES = {
     "embedder":SERVICE_ROOT / "embedder_config.yaml",
     "abbrev":  SERVICE_ROOT / "abbrev_dict.yaml",
     "chunker": SERVICE_ROOT / "chunker_config.yaml",
-    "docs":    SERVICE_ROOT / "docs.yaml",
+    "docs":        SERVICE_ROOT / "docs.yaml",
+    "llm_gateway": SERVICE_ROOT / "llm_gateway_config.yaml",
 }
 
 CONFIG_META = {
@@ -54,6 +55,11 @@ CONFIG_META = {
         "label":       "Dokument-Metadaten",
         "description": "Dokumenttypen, Titel, Jurisdiktionen, Typ-Erkennung",
         "icon":        "🗂️",
+    },
+    "llm_gateway": {
+        "label":       "LLM-Gateway",
+        "description": "Provider, Modell, API-Keys, Retry-Verhalten",
+        "icon":        "🤖",
     },
 }
 
