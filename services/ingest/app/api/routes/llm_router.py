@@ -170,6 +170,45 @@ async def llm_complete(req: LLMRequest):
     }
 
 
+# ── Prompt-Bearbeitung ───────────────────────────────────────────────────────
+
+class PromptContent(BaseModel):
+    content: str
+
+
+@router.put("/prompts/{key}/system", summary="System-Prompt speichern")
+async def save_system_prompt(key: str, body: PromptContent):
+    suite = _suite()
+    path  = suite._root / key / "system.txt"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(body.content, encoding="utf-8")
+    suite.reload_all()
+    return {"status": "ok", "key": key, "file": "system.txt"}
+
+
+@router.put("/prompts/{key}/user", summary="User-Prompt speichern")
+async def save_user_prompt(key: str, body: PromptContent):
+    suite = _suite()
+    path  = suite._root / key / "user.txt"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(body.content, encoding="utf-8")
+    suite.reload_all()
+    return {"status": "ok", "key": key, "file": "user.txt"}
+
+
+@router.post("/prompts/{key}/create", summary="Neues Prompt-Paar anlegen")
+async def create_prompt(key: str):
+    suite    = _suite()
+    base_dir = suite._root / key
+    if base_dir.exists():
+        raise HTTPException(409, f"Prompt '{key}' existiert bereits")
+    base_dir.mkdir(parents=True)
+    (base_dir / "system.txt").write_text("Du bist ein hilfreicher Assistent.\n", encoding="utf-8")
+    (base_dir / "user.txt").write_text("{{text}}\n", encoding="utf-8")
+    suite.reload_all()
+    return {"status": "ok", "key": key}
+
+
 @router.post("/reload", summary="Gateway und Prompts neu laden")
 async def llm_reload():
     """Lädt Gateway, Prompts und Schemas neu – nach Konfigurationsänderungen."""

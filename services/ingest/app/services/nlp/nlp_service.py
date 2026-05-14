@@ -27,6 +27,7 @@ from app.core.config import settings
 from app.services.nlp.nlp_processor import NLPProcessor, load_nlp_config
 from app.services.nlp.svo_extractor import SVOExtractor
 from app.services.nlp.ner_extractor import NERExtractor
+from app.services.nlp.llm_normtyp import LLMNormtypClassifier
 from app.services.question_filter import QuestionFilter, load_question_config
 
 logger = structlog.get_logger()
@@ -46,10 +47,11 @@ class NLPService:
 
     def __init__(self, config_path: Optional[Path] = None):
         self.config_path = config_path
-        self.processor   = NLPProcessor(config_path)
-        self.svo         = SVOExtractor(config_path)
-        self.ner         = NERExtractor(config_path)
-        self.qfilter     = QuestionFilter(config_path)
+        self.processor      = NLPProcessor(config_path)
+        self.svo            = SVOExtractor(config_path)
+        self.ner            = NERExtractor(config_path)
+        self.qfilter        = QuestionFilter(config_path)
+        self.llm_normtyp    = LLMNormtypClassifier(config_path)
         self._pool: Optional[asyncpg.Pool] = None
 
     async def _get_pool(self) -> asyncpg.Pool:
@@ -175,12 +177,65 @@ class NLPService:
                 svo_rows = []
                 ner_rows = []
 
+                # SVO + NER für jeden Chunk extrahieren
+                all_svos = []
                 for chunk, analysis in zip(filtered_batch, analyses):
                     chunk_id = str(chunk["id"])
                     doc_uuid = str(chunk["doc_id"])
-
-                    # SVO
                     svos = self.svo.extract(analysis)
+                    all_svos.append((chunk_id, doc_uuid, svos))
+
+                    # NER direkt speichern
+                    entities = self.ner.extract(analysis)
+                    for e in entities:
+                        ner_rows.append((
+                            chunk_id, doc_uuid, job_id,
+                            e.text, e.label,
+                            e.start_char, e.end_char,
+                            e.confidence, e.source,
+                        ))
+
+                # ── LLM-Normtyp-Klassifikation für UNKNOWN-SVOs ───────────
+                # Alle UNKNOWN-SVOs sammeln und in einem Batch klassifizieren
+                unknown_svos   = []
+                unknown_indices = []   # (chunk_idx, svo_idx)
+
+                for c_idx, (chunk_id, doc_uuid, svos) in enumerate(all_svos):
+                    for s_idx, s in enumerate(svos):
+                        if s.norm_type == "UNKNOWN":
+                            unknown_svos.append({
+                                "predicate":     s.predicate or "",
+                                "sentence_text": s.sentence_text or "",
+                                "norm_reference": (
+                                    filtered_batch[c_idx].get("norm_reference") or ""
+                                ),
+                            })
+                            unknown_indices.append((c_idx, s_idx))
+
+                if unknown_svos:
+                    llm_results = await self.llm_normtyp.classify_batch(
+                        unknown_svos
+                    )
+                    # LLM-Ergebnisse in SVOs einsetzen
+                    for (c_idx, s_idx), llm_res in zip(
+                        unknown_indices, llm_results
+                    ):
+                        svo = all_svos[c_idx][2][s_idx]
+                        if llm_res.norm_type != "UNKNOWN":
+                            svo.norm_type            = llm_res.norm_type
+                            svo.norm_type_confidence = llm_res.konfidenz
+
+                    logger.debug(
+                        "LLM-Normtyp-Klassifikation abgeschlossen",
+                        unknown_vorher=len(unknown_svos),
+                        unknown_nachher=sum(
+                            1 for r in llm_results
+                            if r.norm_type == "UNKNOWN"
+                        ),
+                    )
+
+                # SVOs in DB-Rows umwandeln
+                for chunk_id, doc_uuid, svos in all_svos:
                     for s in svos:
                         svo_rows.append((
                             chunk_id, doc_uuid, job_id,
@@ -190,16 +245,6 @@ class NLPService:
                             s.context, s.norm_type,
                             s.norm_type_confidence,
                             s.confidence, s.sentence_text,
-                        ))
-
-                    # NER
-                    entities = self.ner.extract(analysis)
-                    for e in entities:
-                        ner_rows.append((
-                            chunk_id, doc_uuid, job_id,
-                            e.text, e.label,
-                            e.start_char, e.end_char,
-                            e.confidence, e.source,
                         ))
 
                 # Batch in DB schreiben

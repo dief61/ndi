@@ -1,0 +1,97 @@
+[18:21:51] NDI Testlauf – 2026-05-14 18:21:51
+[18:21:51] Log-Datei: /home/mdi/reg-mo/ndi/Test/0514182151.log
+[18:21:51] =================================================================
+[18:21:51]   Projekt:     /home/mdi/reg-mo/ndi
+[18:21:51]   Docs-Dir:    /home/mdi/reg-mo/ndi/Test/docs
+[18:21:51]   Skip-Reset:  False
+[18:21:51]   ✓  .env geladen: /home/mdi/reg-mo/ndi/.env
+[18:21:51] 
+[18:21:51] ─────────────────────────────────────────────────────────────────
+[18:21:51]   Schritt 1: PostgreSQL – alle Tabellen leeren
+[18:21:51] ─────────────────────────────────────────────────────────────────
+[18:21:51]   ✓  norm_documents                      0 Zeilen
+[18:21:51]   ✓  norm_chunks                         0 Zeilen
+[18:21:51]   ✓  ingest_jobs                         0 Zeilen
+[18:21:51]   ✓  ingest_pakete                       0 Zeilen
+[18:21:51]   ✓  nlp_jobs                            0 Zeilen
+[18:21:51]   ✓  svo_extractions                     0 Zeilen
+[18:21:51]   ✓  ner_entities                        0 Zeilen
+[18:21:51]   ✓  PostgreSQL vollständig geleert
+[18:21:51] 
+[18:21:51] ─────────────────────────────────────────────────────────────────
+[18:21:51]   Schritt 2: MinIO – alle Buckets leeren
+[18:21:51] ─────────────────────────────────────────────────────────────────
+[18:21:51]   ✓  mnr-artefakte                       0 Objekte gelöscht
+[18:21:51]   ✓  mnr-dokumente                       4 Objekte gelöscht
+[18:21:51]   ✓  mnr-informationsmodelle             0 Objekte gelöscht
+[18:21:51]   ✓  MinIO geleert – 4 Objekte gelöscht
+[18:21:51] 
+[18:21:51] ─────────────────────────────────────────────────────────────────
+[18:21:51]   Schritt 3: Verifizierung – DB + MinIO leer?
+[18:21:51] ─────────────────────────────────────────────────────────────────
+[18:21:51]   ✓  norm_documents leer                 0 Einträge
+[18:21:51]   ✓  mnr-dokumente leer                  0 Objekte
+[18:21:51]   ✓  Verifizierung erfolgreich – System ist leer
+[18:21:51] 
+[18:21:51] ─────────────────────────────────────────────────────────────────
+[18:21:51]   Schritt 4: FastAPI Readiness prüfen
+[18:21:51] ─────────────────────────────────────────────────────────────────
+[18:21:52]   ✓  FastAPI Status                      ready
+[18:21:52]   ✓    └ postgres                        ok
+[18:21:52]   ✓    └ tika                            ok
+[18:21:52]   ✓  FastAPI ist bereit
+[18:21:52] 
+[18:21:52] ─────────────────────────────────────────────────────────────────
+[18:21:52]   Schritt 5: Dokumente einspielen
+[18:21:52] ─────────────────────────────────────────────────────────────────
+[18:21:52]   ✓  4 PDF-Dateien gefunden:
+[18:21:52]        FAQ1-NHundG.pdf
+[18:21:52]        FAQ2-NHundG.pdf
+[18:21:52]        FAQ3-NHundG.pdf
+[18:21:52]        Hundegesetz.pdf
+[18:21:52] 
+       Einspielen: FAQ1-NHundG.pdf → Titel: 'FAQ1 – Sachkundenachweis' | Typ: auslegung | Jurisdiktion: NDS
+[18:21:52]   ✓  FAQ1-NHundG.pdf                     job_id=2295ca3f... status=queued
+[18:21:52] 
+       Einspielen: FAQ2-NHundG.pdf → Titel: 'FAQ2 – Hunderegister' | Typ: auslegung | Jurisdiktion: NDS
+[18:21:52]   ✓  FAQ2-NHundG.pdf                     job_id=c97a6303... status=queued
+[18:21:52] 
+       Einspielen: FAQ3-NHundG.pdf → Titel: 'FAQ3 – Gefährliche Hunde' | Typ: auslegung | Jurisdiktion: NDS
+[18:21:52]   ✓  FAQ3-NHundG.pdf                     job_id=b6e859c2... status=queued
+[18:21:52] 
+       Einspielen: Hundegesetz.pdf → Titel: 'NHundG – Niedersächsisches Hundegesetz' | Typ: gesetz | Jurisdiktion: NDS | Version: 2020
+[18:21:52]   ✓  Hundegesetz.pdf                     job_id=f6ecbbf7... status=queued
+[18:21:52]   ✓  4 Dokumente eingereiht
+[18:21:52] 
+       Warte auf Abschluss von 4 Jobs...
+[18:22:37]        Noch ausstehend: 4 Jobs...
+[18:23:22]        Noch ausstehend: 4 Jobs...
+[18:23:54]        Noch ausstehend: 4 Jobs...
+[18:24:02]        Noch ausstehend: 4 Jobs...
+[18:24:07]        ✓ FAQ1-NHundG.pdf                     status=done klasse=B chunks=3
+[18:24:07]        ✓ FAQ2-NHundG.pdf                     status=done klasse=B chunks=8
+[18:24:07]        ✓ FAQ3-NHundG.pdf                     status=done klasse=B chunks=3
+[18:24:07]        ✓ Hundegesetz.pdf                     status=done klasse=A chunks=80
+[18:24:07] 
+[18:24:07] ─────────────────────────────────────────────────────────────────
+[18:24:07]   Schritt 6: Ergebnis prüfen
+[18:24:07] ─────────────────────────────────────────────────────────────────
+[18:24:07]   ✓  Dokumente in DB                     4
+[18:24:07]   ✓  Chunks gesamt                       94
+[18:24:07]   ✓  Chunks mit Embedding                94/94
+[18:24:07] 
+       Pro Dokument:
+[18:24:07]   ✓    FAQ1 – Sachkundenachweis          Klasse=B Chunks=3 Emb=3/3
+[18:24:07]   ✓    FAQ2 – Hunderegister              Klasse=B Chunks=8 Emb=8/8
+[18:24:07]   ✓    FAQ3 – Gefährliche Hunde          Klasse=B Chunks=3 Emb=3/3
+[18:24:07]   ✓    NHundG – Niedersächsisches Hun    Klasse=A Chunks=80 Emb=80/80
+[18:24:07]   ✓  Dateien in MinIO                    4
+[18:24:07] 
+       Job-Zusammenfassung:
+[18:24:07]   ✓  Jobs erfolgreich                    4
+[18:24:07]   ✓  Jobs fehlerhaft                     0
+[18:24:07] 
+[18:24:07] =================================================================
+[18:24:07]   ✅  TESTLAUF ERFOLGREICH
+[18:24:07]   Log gespeichert: /home/mdi/reg-mo/ndi/Test/0514182151.log
+[18:24:07] =================================================================

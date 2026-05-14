@@ -190,17 +190,6 @@ svo:
     - "DHVE-Hundeführerscheinprüfung"
     - "Bedarfsgegenstände"
     - "Bedarfsgegenstand"
-    # Neue Artefakte aus UNKNOWN-Analyse (Runde 2)
-    - "MBl"
-    - "Erlaubnisse"
-    - "Hundeführerscheinprüfung"
-    - "Abschlussprüfung"
-    - "Wildtierkrankheiten"
-    - "Wildtierkrankheite"
-    - "Präsidentin"
-    - "Lebensmittel"
-    - "TABELLE"
-    - "Verbraucherinformationsgesetz"
 
   subject_type_patterns:
     suffixes:
@@ -313,10 +302,6 @@ normtypen:
       - '\bsind\s+untersagt\b'
       - '\bist\s+verboten\b'
       - '\bist\s+nicht\s+gestattet\b'
-      - '\bhat\s+keine\s+aufschiebende\b'
-      - '\bkeine\s+aufschiebende\b'
-      - '\bist\s+ausgeschlossen\b'
-      - '\bsind\s+ausgeschlossen\b'
     confidence_boost: 0.05
 
   DEF:
@@ -334,13 +319,7 @@ normtypen:
       - '\bausgenommen\b'
       - '\bausnahmsweise\b'
       - '\bunbeschadet\b'
-      - '\bgilt\s+nicht\b'     # gilt nicht für
-      - '\bfindet\s+nicht\b'   # findet keine Anwendung
-      - '\bbleibt\s+unberührt\b'
-      - '\bbleibt\b'            # bleibt bestehen / bleibt unberührt
-      - '\bvorbehaltlich\b'
-      - '\babweichend\b'
-      # ── Konjunktiv II ───────────────────────────────────────────────────
+      # ── Konjunktiv II (Bedingung/Ausnahme) ──────────────────────────────
       - '\bwürde\b'
       - '\bwürden\b'
       - '\bwäre\b'
@@ -371,9 +350,6 @@ normtypen:
       - '\babnimmt\b'
       - '\berteilt\b'             # erteilt die Erlaubnis (aktiv)
       - '\bwacht\s+.*\s+über\b' # wacht über die Einhaltung
-      - '\berfüllen\b'
-      - '\berfüllt\b'
-      - '\bnehmen\s+wahr\b'
     confidence_boost: 0.0
 
   # ── Neuer Normtyp: SCOPE (Geltungsbereich) ─────────────────────────────────
@@ -392,11 +368,8 @@ normtypen:
       - '\bfindet\s+statt\b'
       - '\bfindet\s+Verwendung\b'
       - '\bfindet\b'             # findet generell (findet Anwendung etc.)
-      - '\bgilt\b'
+      - '\bgilt\b'               # gilt generell
       - '\bgelten\b'
-      - '\bgilt\s+sinngemäß\b'
-      - '\bbestimmt\s+sich\b'
-      - '\bentspricht\b'
     confidence_boost: 0.0
 
   # ── Neuer Normtyp: CHANGE (Rechtsänderung) ──────────────────────────────────
@@ -443,16 +416,13 @@ normtypen:
       # wird + Passiv-Zustand
       - '\bwird\s+bekannt\s+gemacht\b'
       - '\bwird\s+.*\s+mitgeteilt\b'
-      - '\bwird\b'
+      - '\bwird\b'               # wird generell (Passiv-Hilfszeitwort)
       - '\bwerden\b'
       # hat generell (Zustandsbeschreibung)
       - '\bhat\b'
       # ist/sind generell als Fallback für Zustandsbeschreibungen
       - '\bist\b'
       - '\bsind\b'
-      # entspricht / bestimmt sich
-      - '\bentspricht\b'
-      - '\bbestimmt\s+sich\b'
     confidence_boost: 0.0
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -733,7 +703,7 @@ question_filter:
 
 llm_normtyp:
   enabled:         true   # false = nur spaCy, kein LLM-Aufruf
-  batch_size:      30     # SVOs pro LLM-Batch
+  batch_size:      20     # SVOs pro LLM-Batch
   min_confidence:  0.75   # LLM-Konfidenz unter diesem Wert → UNKNOWN bleibt
 
   # Test-Budget: Maximale Anzahl Batches pro NLP-Lauf
@@ -745,7 +715,7 @@ llm_normtyp:
   # Da jetzt 20 SVOs = 1 API-Call: Pause zwischen den Batches
   # Free-Tier Gemini: 1-2s reicht (viel weniger Calls)
   # On-Premise Ollama: 0
-  delay_sek: 9.0
+  delay_sek: 1.0
 
   # Prompts und Antworten in Logfile schreiben
   # Logfiles unter: services/ingest/logs/llm_normtyp_DATUM.log

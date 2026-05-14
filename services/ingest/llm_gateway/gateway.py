@@ -136,7 +136,16 @@ class GeminiAdapter(LLMAdapter):
         model   = self.cfg["model"]
         url     = f"{self._BASE_URL}/{model}:generateContent"
 
-        # Payload – identisch mit funktionierendem curl
+        # Payload – REST-Aufruf
+        gen_config: dict = {
+            "temperature":     self.cfg.get("temperature", 0.0),
+            "maxOutputTokens": self.cfg.get("max_tokens", 8192),
+        }
+        if json_mode:
+            gen_config["responseMimeType"] = "application/json"
+        # Hinweis: thinkingConfig wird in v1beta REST API nicht unterstützt.
+        # Das Modell wählt Thinking-Tiefe automatisch basierend auf der Aufgabe.
+
         payload: dict = {
             "system_instruction": {
                 "parts": [{"text": system_prompt}]
@@ -144,13 +153,8 @@ class GeminiAdapter(LLMAdapter):
             "contents": [
                 {"parts": [{"text": user_prompt}]}
             ],
-            "generationConfig": {
-                "temperature":    self.cfg.get("temperature", 0.0),
-                "maxOutputTokens": self.cfg.get("max_tokens", 8192),
-            },
+            "generationConfig": gen_config,
         }
-        if json_mode:
-            payload["generationConfig"]["responseMimeType"] = "application/json"
 
         headers = {
             "X-goog-api-key":  self._api_key,
@@ -386,10 +390,11 @@ class LLMGateway:
     """
 
     _ADAPTER_MAP = {
-        "gemini":    GeminiAdapter,
-        "openai":    OpenAIAdapter,
-        "anthropic": AnthropicAdapter,
-        "ollama":    OllamaAdapter,
+        "gemini":            GeminiAdapter,   # Gemini 2.5 Flash
+        "gemini_flash_lite": GeminiAdapter,   # Gemini 3.1 Flash-Lite (gleicher Adapter)
+        "openai":            OpenAIAdapter,
+        "anthropic":         AnthropicAdapter,
+        "ollama":            OllamaAdapter,
     }
 
     def __init__(self, config_path: Path = None):

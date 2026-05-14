@@ -1,3 +1,4 @@
 .env
 .venv/
 models
+services\ingest\logs

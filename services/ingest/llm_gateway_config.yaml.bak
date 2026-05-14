@@ -1,0 +1,63 @@
+# services/ingest/llm_gateway/config.yaml
+#
+# LLM-Gateway Konfiguration
+# Provider wechseln: active_provider ändern → kein Code-Eingriff nötig
+# API-Keys: in NDI/.env speichern (niemals hier!)
+
+# ── Aktiver Provider ──────────────────────────────────────────────────────────
+active_provider: gemini    # gemini | openai | anthropic | ollama
+
+# ── Provider-Definitionen ─────────────────────────────────────────────────────
+providers:
+
+  gemini:
+    model:           "gemini-2.5-flash"
+    api_key_env:     "GEMINI_API_KEY"    # Variablenname in .env
+    max_tokens:      8192
+    temperature:     0.0                 # deterministisch für Extraktion
+    timeout_sek:     60
+    beschreibung:    "Google Gemini 2.5 Flash – Free Tier"
+
+  gemini_flash_lite:
+    model:           "gemini-3.1-flash-lite"
+    api_key_env:     "GEMINI_API_KEY"     # gleicher Key wie gemini
+    max_tokens:      8192
+    temperature:     0.0
+    timeout_sek:     60
+    thinking_level:  "low"               # Gemini 3.x: low/medium/high (low = schnell)
+    beschreibung:    "Google Gemini 3.1 Flash-Lite – Free Tier, 2.5× schneller als 2.5 Flash"
+
+  openai:
+    model:           "gpt-4o"
+    api_key_env:     "OPENAI_API_KEY"
+    max_tokens:      8192
+    temperature:     0.0
+    timeout_sek:     60
+    beschreibung:    "OpenAI GPT-4o – Cloud API"
+
+  anthropic:
+    model:           "claude-opus-4-5"
+    api_key_env:     "ANTHROPIC_API_KEY"
+    max_tokens:      8192
+    temperature:     0.0
+    timeout_sek:     60
+    beschreibung:    "Anthropic Claude – Cloud API"
+
+  ollama:
+    model:           "mistral:7b-instruct"
+    base_url:        "http://localhost:11434"
+    max_tokens:      4096
+    temperature:     0.0
+    timeout_sek:     120
+    beschreibung:    "Ollama – On-Premise (lokal)"
+
+# ── Retry-Verhalten ───────────────────────────────────────────────────────────
+retry:
+  max_versuche:  3
+  wartezeit_sek: 8.0   # erhöht für 503-Fehler (Server temporär nicht verfügbar)
+
+# ── Logging ──────────────────────────────────────────────────────────────────
+logging:
+  prompt_loggen:    false   # Prompts in Langfuse/DB loggen
+  antwort_loggen:   false   # Antworten loggen (Datenschutz!)
+  fehler_loggen:    true

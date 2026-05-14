@@ -32,7 +32,10 @@ import yaml
 
 logger = structlog.get_logger()
 
+# Prompt-Texte: services/ingest/prompt_suite/{key}/system.txt + user.txt
 _SUITE_ROOT = Path(__file__).parent.parent / "prompt_suite"
+# Index: services/ingest/prompt_suite_index.yaml (neben den anderen YAMLs)
+_INDEX_PATH = Path(__file__).parent.parent / "prompt_suite_index.yaml"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -93,9 +96,14 @@ class PromptSuite:
     # ── Laden ─────────────────────────────────────────────────────────────────
 
     def _load_index(self) -> list[PromptMeta]:
-        """Lädt index.yaml aus dem Suite-Verzeichnis."""
-        index_path = self._root / "index.yaml"
-        if not index_path.exists():
+        """
+        Lädt prompt_suite_index.yaml aus services/ingest/
+        (neben nlp_config.yaml, docs.yaml etc.).
+        Fallback: index.yaml im prompt_suite/-Verzeichnis.
+        """
+        candidates = [_INDEX_PATH, self._root / "index.yaml"]
+        index_path = next((p for p in candidates if p.exists()), None)
+        if not index_path:
             return []
         with open(index_path, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}

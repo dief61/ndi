@@ -888,11 +888,11 @@ function buildNav(list) {
         <div class="nav-sub">Qualität, Ingest, NLP</div>
       </div>
     </div>
-    <div class="nav-item" onclick="loadConfig('llm_gateway')" id="nav-llm_gateway">
-      <span class="nav-icon">🤖</span>
+    <div class="nav-item" id="nav-__prompts" onclick="showPrompts()">
+      <span class="nav-icon">📝</span>
       <div>
-        <div class="nav-text">LLM-Gateway</div>
-        <div class="nav-sub">Provider, Modell, Prompts</div>
+        <div class="nav-text">Prompt-Suite</div>
+        <div class="nav-sub">System & User Prompts</div>
       </div>
     </div>
     <div style="height:1px;background:var(--border);margin:8px 16px"></div>
@@ -962,6 +962,11 @@ function showHome() {
     {name:'chunker',  icon:'✂️', label:'Chunker-Konfiguration',sub:'Token-Limits, Klassen'},
     {name:'docs',        icon:'🗂️', label:'Dokument-Metadaten',   sub:'Typen, Titel, Typ-Erkennung'},
     {name:'llm_gateway', icon:'🤖', label:'LLM-Gateway',           sub:'Provider, Modell, Prompts'},
+  ];
+  // Prompt-Suite als eigene Karte in der zweiten Zeile
+  const extraCards = [
+    {icon:'📝', label:'Prompt-Suite',   sub:'System & User Prompts', fn:'showPrompts'},
+    {icon:'📐', label:'Schema-Registry',sub:'JSON-Ergebnisstrukturen', fn:'showSchemas'},
   ];
 
   document.getElementById('content').innerHTML = `
@@ -1115,6 +1120,293 @@ function mdToHtml(md) {
   return h;
 }
 
+
+// ── Prompt-Suite ─────────────────────────────────────────────────────────────
+
+let currentPromptKey = null;
+let promptTab        = 'system';   // system | user
+
+async function showPrompts() {
+  if (unsaved && !confirm('Ungespeicherte Änderungen verwerfen?')) return;
+  unsaved = false; current = null;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('nav-__prompts')?.classList.add('active');
+  document.getElementById('toolbar').style.display   = 'flex';
+  document.getElementById('toolbar-title').textContent = '📝  Prompt-Suite';
+  document.getElementById('toolbar-path').textContent  = '';
+  document.getElementById('vbtn-form').style.display   = 'none';
+  document.getElementById('vbtn-raw').style.display    = 'none';
+  document.getElementById('btn-restore').style.display = 'none';
+  document.getElementById('btn-save').style.display    = 'none';
+
+  document.getElementById('content').innerHTML =
+    '<div style="padding:20px;color:var(--muted)"><div class="spinner"></div> Lade Prompts...</div>';
+
+  try {
+    const data = await apiFetch('/api/v1/llm/prompts');
+    renderPromptList(data.prompts || []);
+  } catch(e) {
+    document.getElementById('content').innerHTML =
+      `<div style="padding:20px;color:var(--danger)">Fehler: ${escHtml(e.message)}</div>`;
+  }
+}
+
+function renderPromptList(prompts) {
+  if (!prompts.length) {
+    document.getElementById('content').innerHTML =
+      '<div style="padding:20px;color:var(--muted)">Keine Prompts gefunden.<br>' +
+      'Verzeichnis: <code>services/ingest/prompt_suite/</code></div>';
+    return;
+  }
+
+  const cards = prompts.map(p => `
+    <div class="abbrev-card" style="cursor:pointer" onclick="loadPrompt('${p.key}')">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div>
+          <div style="font-weight:500;color:var(--text)">${escHtml(p.name)}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">
+            ${escHtml(p.beschreibung||'')}
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+          ${(p.tags||[]).map(t=>
+            `<span style="background:var(--surface2);color:var(--muted);
+              font-size:10px;padding:2px 6px;border-radius:4px">${t}</span>`
+          ).join('')}
+          ${p.schema ? `<span style="background:rgba(79,142,247,0.15);color:var(--accent);
+            font-size:10px;padding:2px 6px;border-radius:4px">📐 ${p.schema}</span>` : ''}
+        </div>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted)">
+        <span style="font-family:var(--mono)">${p.key}</span>
+        &nbsp;·&nbsp; v${p.version||'1.0'}
+        &nbsp;·&nbsp; Provider: ${p.provider||'alle'}
+      </div>
+    </div>`).join('');
+
+  document.getElementById('content').innerHTML = `
+    <div style="padding:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-size:14px;font-weight:500">${prompts.length} Prompt-Paare</div>
+        <button class="btn btn-ghost" onclick="showNewPromptDialog()" style="font-size:12px">
+          + Neuer Prompt
+        </button>
+      </div>
+      <div class="abbrev-cards">${cards}</div>
+    </div>`;
+}
+
+async function loadPrompt(key) {
+  currentPromptKey = key;
+  document.getElementById('content').innerHTML =
+    '<div style="padding:20px;color:var(--muted)"><div class="spinner"></div> Lade...</div>';
+
+  try {
+    const data = await apiFetch('/api/v1/llm/prompts/' + key);
+    renderPromptEditor(key, data);
+  } catch(e) {
+    document.getElementById('content').innerHTML =
+      `<div style="padding:20px;color:var(--danger)">Fehler: ${escHtml(e.message)}</div>`;
+  }
+}
+
+function renderPromptEditor(key, data) {
+  const vars = (data.variablen || []).map(v =>
+    `<code style="background:var(--surface2);padding:2px 6px;border-radius:3px;
+      font-size:11px;margin-right:4px">{{${v}}}</code>`
+  ).join('');
+
+  document.getElementById('toolbar-path').textContent = key;
+  document.getElementById('btn-save').style.display   = 'inline-flex';
+
+  // Save-Button überschreiben
+  document.getElementById('btn-save').onclick = () => savePrompt(key);
+
+  document.getElementById('content').innerHTML = `
+    <div style="display:flex;flex-direction:column;height:100%;padding:0">
+
+      <!-- Breadcrumb + Zurück -->
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;
+        border-bottom:1px solid var(--border);flex-shrink:0">
+        <button class="btn btn-ghost" onclick="showPrompts()" style="font-size:12px">
+          ← Alle Prompts
+        </button>
+        <span style="font-size:14px;font-weight:500">${escHtml(data.meta?.name||key)}</span>
+        <span style="font-size:12px;color:var(--muted)">${escHtml(data.meta?.beschreibung||'')}</span>
+      </div>
+
+      <!-- Tabs: System | User | Test -->
+      <div style="display:flex;border-bottom:1px solid var(--border);
+        background:var(--surface);flex-shrink:0">
+        ${['system','user','test'].map(t => `
+          <button class="report-tab ${promptTab===t?'active':''}"
+            onclick="switchPromptTab('${t}','${key}',${JSON.stringify(data)})">
+            ${t==='system'?'⚙️ System':t==='user'?'💬 User':'🧪 Test'}
+          </button>`).join('')}
+        ${vars ? `<div style="margin:auto 16px;font-size:11px;color:var(--muted)">
+          Variablen: ${vars}</div>` : ''}
+      </div>
+
+      <!-- Editor -->
+      <div style="flex:1;overflow:hidden;padding:16px 20px;display:flex;flex-direction:column">
+        <div id="prompt-editor-wrap" style="flex:1;overflow:hidden">
+          ${renderPromptTab(promptTab, key, data)}
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderPromptTab(tab, key, data) {
+  if (tab === 'system') {
+    return `<textarea id="prompt-system-text"
+      style="width:100%;height:calc(100vh - 280px);font-family:var(--mono);
+             font-size:12px;background:var(--surface2);color:var(--text);
+             border:1px solid var(--border);border-radius:6px;padding:12px;resize:none"
+      oninput="markPromptDirty()">${escHtml(data.system_prompt||'')}</textarea>`;
+  }
+  if (tab === 'user') {
+    return `<textarea id="prompt-user-text"
+      style="width:100%;height:calc(100vh - 280px);font-family:var(--mono);
+             font-size:12px;background:var(--surface2);color:var(--text);
+             border:1px solid var(--border);border-radius:6px;padding:12px;resize:none"
+      oninput="markPromptDirty()">${escHtml(data.user_template||'')}</textarea>`;
+  }
+  if (tab === 'test') {
+    const vars = data.variablen || [];
+    const varFields = vars.map(v => `
+      <div style="margin-bottom:8px">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px">{{${v}}}</div>
+        <textarea id="test-var-${v}" rows="2"
+          style="width:100%;font-family:var(--mono);font-size:12px;resize:vertical"
+          placeholder="Wert für {{${v}}}..."></textarea>
+      </div>`).join('');
+
+    return `
+      <div style="display:flex;gap:16px;height:calc(100vh - 280px)">
+        <div style="flex:1;overflow-y:auto">
+          <div style="font-size:13px;font-weight:500;margin-bottom:12px">
+            Variablen befüllen:
+          </div>
+          ${varFields || '<div style="color:var(--muted);font-size:12px">Keine Variablen.</div>'}
+          <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+            <button class="btn btn-primary" onclick="testPrompt('${key}')">
+              ▶ Ausführen
+            </button>
+            <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px">
+              <input type="checkbox" id="test-json-mode" checked>
+              JSON-Modus
+            </label>
+          </div>
+          <div id="test-status" style="margin-top:8px;font-size:12px;color:var(--muted)"></div>
+        </div>
+        <div style="flex:2;display:flex;flex-direction:column">
+          <div style="font-size:13px;font-weight:500;margin-bottom:8px">Antwort:</div>
+          <div id="test-output"
+            style="flex:1;background:#0a0e18;border:1px solid var(--border);
+              border-radius:6px;padding:12px;font-family:var(--mono);font-size:12px;
+              color:#c9d1d9;overflow-y:auto;white-space:pre-wrap">
+            Auf "Ausführen" klicken...
+          </div>
+        </div>
+      </div>`;
+  }
+  return '';
+}
+
+function switchPromptTab(tab, key, data) {
+  promptTab = tab;
+  const wrap = document.getElementById('prompt-editor-wrap');
+  if (wrap) wrap.innerHTML = renderPromptTab(tab, key, data);
+  document.querySelectorAll('.report-tab').forEach(el => {
+    const t = el.textContent.includes('System') ? 'system'
+            : el.textContent.includes('User')   ? 'user' : 'test';
+    el.classList.toggle('active', t === tab);
+  });
+}
+
+function markPromptDirty() {
+  unsaved = true;
+  document.getElementById('btn-save').style.background = 'var(--warn)';
+}
+
+async function savePrompt(key) {
+  const sys = document.getElementById('prompt-system-text')?.value;
+  const usr = document.getElementById('prompt-user-text')?.value;
+
+  if (sys === undefined && usr === undefined) return;
+
+  // Direkt als Dateien speichern via API
+  try {
+    if (sys !== undefined) {
+      await apiFetch('/api/v1/llm/prompts/' + key + '/system', {
+        method: 'PUT',
+        body: JSON.stringify({content: sys}),
+      });
+    }
+    if (usr !== undefined) {
+      await apiFetch('/api/v1/llm/prompts/' + key + '/user', {
+        method: 'PUT',
+        body: JSON.stringify({content: usr}),
+      });
+    }
+    unsaved = false;
+    document.getElementById('btn-save').style.background = '';
+    document.getElementById('toolbar-path').textContent = key + ' ✅';
+    setTimeout(() => {
+      document.getElementById('toolbar-path').textContent = key;
+    }, 2000);
+  } catch(e) {
+    alert('Fehler beim Speichern: ' + e.message);
+  }
+}
+
+async function testPrompt(key) {
+  const out    = document.getElementById('test-output');
+  const status = document.getElementById('test-status');
+  const vars   = {};
+  document.querySelectorAll('[id^="test-var-"]').forEach(el => {
+    const v = el.id.replace('test-var-', '');
+    vars[v] = el.value;
+  });
+  const jsonMode = document.getElementById('test-json-mode')?.checked ?? true;
+
+  if (out) out.textContent = '⏳ Anfrage läuft...';
+  if (status) status.textContent = '';
+  const t0 = Date.now();
+
+  try {
+    const result = await apiFetch('/api/v1/llm/complete', {
+      method: 'POST',
+      body: JSON.stringify({
+        prompt_key: key,
+        variablen:  vars,
+        json_mode:  jsonMode,
+      }),
+    });
+    const elapsed = ((Date.now()-t0)/1000).toFixed(1);
+    if (status) status.textContent =
+      `${result.erfolg?'✅':'❌'} ${result.provider}/${result.model} · ${elapsed}s · `+
+      `${result.input_tokens}→${result.output_tokens} Token`;
+
+    const display = jsonMode && result.parsed
+      ? JSON.stringify(result.parsed, null, 2)
+      : result.content;
+    if (out) out.textContent = display || result.fehler || '(leer)';
+  } catch(e) {
+    if (out) out.textContent = 'Fehler: ' + e.message;
+  }
+}
+
+async function showNewPromptDialog() {
+  const key = prompt('Prompt-Key (z.B. ps_mein_prompt):');
+  if (!key || !key.trim()) return;
+  try {
+    await apiFetch('/api/v1/llm/prompts/' + key.trim() + '/create', {method:'POST'});
+    await loadPrompt(key.trim());
+  } catch(e) {
+    alert('Fehler: ' + e.message);
+  }
+}
 
 // ── Report & Monitor ─────────────────────────────────────────────────────────
 
@@ -1770,8 +2062,8 @@ function toggle(id, label, help, checked) {
 }
 
 function tagInput(id, values) {
-  const tags = (values||[]).map(v =>
-    `<span class="tag">${escHtml(v)}<span class="tag-del" onclick="removeTag('${id}','${v}')">×</span></span>`
+  const tags = (values||[]).filter(v => v !== null && v !== undefined).map(v =>
+    `<span class="tag" data-val="${escHtml(v)}">${escHtml(v)}<span class="tag-del" onclick="removeTag('${id}','${escHtml(v)}')">×</span></span>`
   ).join('');
   return `<div class="tag-container" id="${id}-container" onclick="focusTag('${id}')">
     ${tags}
@@ -1790,6 +2082,7 @@ function renderNlpForm(d) {
   const det = qf.detection || {};
   const spacy = d.spacy || {};
   const worker = d.worker || {};
+  const llm    = d.llm_normtyp || {};
 
   return `
   <div class="section">
@@ -1874,7 +2167,27 @@ function renderNlpForm(d) {
     ${toggle('worker-overwrite','Überschreiben','Bestehende NLP-Ergebnisse neu berechnen', worker.overwrite_existing!==false)}
     ${field('Min. Token','Chunks mit weniger Token überspringen',
       `<input type="number" id="worker-mintoken" value="${worker.min_token_count||10}" min="1" onchange="markDirty()">`)}
+  </div>
+  <div class="section">
+    <div class="section-title">🤖 LLM-Normtyp-Klassifikation</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Klassifiziert UNKNOWN-SVOs via LLM-Gateway. Voraussetzung: Gateway konfiguriert.</p>
+    ${toggle('llm-norm-enabled','LLM aktiviert','false = nur spaCy', llm.enabled!==false)}
+    ${field('Batch-Größe','SVOs pro LLM-Aufruf (Free-Tier: 10–20)',
+      `<input type="number" id="llm-norm-batch" value="${llm.batch_size??20}" min="1" max="100" onchange="markDirty()">`)}
+    ${field('Min. Konfidenz','Unter diesem Wert → UNKNOWN bleibt (0.0–1.0)',
+      `<input type="number" id="llm-norm-conf" value="${llm.min_confidence??0.75}" step="0.05" min="0" max="1" onchange="markDirty()">`)}
+    ${field('Pause zwischen Batch-Calls (s)','20 SVOs = 1 API-Call. Free-Tier: 1-2s. On-Premise: 0',`<input type="number" id="llm-norm-delay" value="${llm.delay_sek??1.0}" step="0.5" min="0" max="60" onchange="markDirty()">`)}
+    ${toggle('llm-norm-log','Prompts + Antworten loggen','Prompts und LLM-Antworten in logs/llm_normtyp_*.log schreiben',llm.log_prompts!==false)}
+    ${field('Test-Budget (Max. Batches)','0 = unbegrenzt. z.B. 2 = max. 2×Batch-Größe SVOs an LLM',
+      `<div style="display:flex;align-items:center;gap:12px"><input type="number" id="llm-norm-maxbatches" value="${llm.test_max_batches??0}" min="0" max="100" onchange="markDirty();updateLLMBudgetHint()"><span id="llm-budget-hint" style="font-size:11px;color:var(--accent)">${(llm.test_max_batches??0)===0?'\u221e unbegrenzt':'max. '+((llm.test_max_batches??0)*(llm.batch_size??20))+' SVOs'}</span></div>`)}
   </div>`;
+}
+
+function updateLLMBudgetHint() {
+  const b=parseInt(document.getElementById('llm-norm-maxbatches')?.value||0);
+  const s=parseInt(document.getElementById('llm-norm-batch')?.value||20);
+  const h=document.getElementById('llm-budget-hint');
+  if(h) h.textContent=b===0?'\u221e unbegrenzt':'max. '+(b*s)+' SVOs';
 }
 
 // ── Embedder Form ─────────────────────────────────────────────────────────────
@@ -2424,6 +2737,13 @@ function renderLLMGatewayForm(d) {
       ${field('Timeout (s)','',
         `<input type="number" class="llm-timeout" data-prov="${p}"
           value="${pc.timeout_sek||60}" min="10" max="300" onchange="markDirty()">`)}
+      ${pc.thinking_level!==undefined ? field('Thinking Level',
+        'Gemini 3.x: low = schnell, high = qualitativ (Standard: low für Extraktion)',
+        `<select class="llm-thinking" data-prov="${p}" onchange="markDirty()">
+          ${['low','medium','high'].map(l=>
+            `<option ${(pc.thinking_level||'low')===l?'selected':''}>${l}</option>`
+          ).join('')}
+         </select>`) : ''}
       <div style="font-size:11px;color:var(--muted);margin-top:8px">
         ${escHtml(pc.beschreibung||'')}
       </div>
@@ -2535,7 +2855,9 @@ function removeTag(id, val) {
 function getTags(id) {
   const container = document.getElementById(id+'-container');
   if (!container) return [];
-  return [...container.querySelectorAll('.tag')].map(t => t.dataset.val);
+  return [...container.querySelectorAll('.tag')]
+    .map(t => t.dataset.val)
+    .filter(v => v !== undefined && v !== null && v !== '');
 }
 function focusTag(id) {
   document.getElementById(id+'-input')?.focus();
@@ -2569,6 +2891,9 @@ function collectFormData(name) {
       if (tokens  !== undefined) d.providers[prov].max_tokens      = parseInt(tokens);
       if (temp    !== undefined) d.providers[prov].temperature     = parseFloat(temp);
       if (timeout !== undefined) d.providers[prov].timeout_sek     = parseInt(timeout);
+      const thinking = document.querySelector(`.llm-thinking[data-prov="${prov}"]`)?.value;
+      if (thinking && d.providers[prov].thinking_level !== undefined)
+        d.providers[prov].thinking_level = thinking;
     });
     d.retry = {
       max_versuche:  parseInt(document.getElementById('llm-retry-max')?.value  || 3),
@@ -2643,9 +2968,16 @@ function collectFormData(name) {
     d.question_filter.detection.require_question_mark = gc('qf-reqmark');
     d.question_filter.detection.question_words      = getTags('qf-qwords');
     d.worker = d.worker || {};
-    d.worker.chunk_batch_size  = gi('worker-batch');
+    d.worker.chunk_batch_size   = gi('worker-batch');
     d.worker.overwrite_existing = gc('worker-overwrite');
-    d.worker.min_token_count   = gi('worker-mintoken');
+    d.worker.min_token_count    = gi('worker-mintoken');
+    d.llm_normtyp = d.llm_normtyp || {};
+    d.llm_normtyp.enabled          = gc('llm-norm-enabled');
+    d.llm_normtyp.batch_size       = gi('llm-norm-batch');
+    d.llm_normtyp.min_confidence   = parseFloat(document.getElementById('llm-norm-conf')?.value || 0.75);
+    d.llm_normtyp.test_max_batches = gi('llm-norm-maxbatches');
+    d.llm_normtyp.delay_sek        = parseFloat(document.getElementById('llm-norm-delay')?.value || 1.0);
+    d.llm_normtyp.log_prompts      = document.getElementById('llm-norm-log')?.checked ?? true;
     return d;
   }
 

@@ -100,22 +100,17 @@ class SVOExtractor:
         object_deps  = svo_cfg.get("object_deps",  ["oa","obj","obl"])
 
         # Stoppwort-Filter aus Config laden
-        stop_subjects = set(
-            w.lower() for w in svo_cfg.get("stop_subjects", [])
-        )
-        stop_objects  = set(
-            w.lower() for w in svo_cfg.get("stop_objects", [])
-        )
+        # None-Einträge aus YAML-Listen herausfiltern
+        def _safe_set(lst):
+            return set(w.lower() for w in (lst or []) if w is not None)
+        stop_subjects = _safe_set(svo_cfg.get("stop_subjects", []))
+        stop_objects  = _safe_set(svo_cfg.get("stop_objects",  []))
         min_subj_len  = svo_cfg.get("min_subject_length", 3)
         min_obj_len   = svo_cfg.get("min_object_length", 3)
-        pronouns      = set(
-            w.lower() for w in svo_cfg.get("pronouns", [])
-        )
+        pronouns      = _safe_set(svo_cfg.get('pronouns', []))
         pron_penalty      = svo_cfg.get("pronoun_confidence_penalty", 0.3)
         # Stop-Prädikate: Substantive die fälschlich als Verb erkannt werden
-        stop_predicates   = set(
-            w.lower() for w in svo_cfg.get("stop_predicates", [])
-        )
+        stop_predicates = _safe_set(svo_cfg.get('stop_predicates', []))
 
         tripel = []
         for sent in analysis.doc.sents:
@@ -130,7 +125,7 @@ class SVOExtractor:
                 # ── Schicht 1: Stoppwort-Filter ───────────────────────────
                 # Subjekt verwerfen wenn reines Stoppwort oder zu kurz
                 if t.subject:
-                    s_lower = t.subject.strip().lower()
+                    s_lower = (t.subject or '').strip().lower()
                     if s_lower in stop_subjects:
                         t.subject = None
                         t.subject_type = "UNBEKANNT"
@@ -148,7 +143,7 @@ class SVOExtractor:
 
                 # Objekt verwerfen wenn reines Stoppwort oder zu kurz
                 if t.object:
-                    o_lower = t.object.strip().lower()
+                    o_lower = (t.object or '').strip().lower()
                     if o_lower in stop_objects:
                         t.object = None
                         t.object_type = "UNBEKANNT"
@@ -173,13 +168,14 @@ class SVOExtractor:
 
                 # ── Schicht 2: Pronomen-Konfidenz-Abzug ──────────────────
                 # Pronomen-Subjekt behalten, aber Konfidenz reduzieren
-                if t.subject and t.subject.strip().lower() in pronouns:
+                if t.subject and (t.subject or '').strip().lower() in pronouns:
                     t.subject_type = "PRONOMEN"
                     t.confidence   = max(0.0, t.confidence - pron_penalty)
 
                 # ── Schicht 3: Stop-Prädikate ─────────────────────────
                 # Substantive die fälschlich als Verb erkannt werden verwerfen
-                if t.predicate and t.predicate.lower() in stop_predicates:
+                pred_lower = (t.predicate or "").lower()
+                if pred_lower and pred_lower in stop_predicates:
                     continue
 
                 # SVO nur speichern wenn Prädikat vorhanden
@@ -235,14 +231,48 @@ class SVOExtractor:
                 else:
                     object_token = None   # kein sinnvolles Objekt
 
-            # Bei AUX-ROOT: Infinitiv-Kind prüfen
+            # ── Objekt aus Vollverb-Cluster holen ─────────────────────
+            # Häufigster Fall: "muss nachweisen" – Objekt hängt am Infinitiv
+            # Schritt 1: AUX-ROOT → alle VERB-Kinder durchsuchen
             if object_token is None and _pos(root) == "AUX":
                 for child in root.children:
-                    if child.dep_ in ("oc", "mo") and _pos(child) == "VERB":
-                        deeper = self._find_dep(child, ["oa","obj","pd","og"])
+                    if _pos(child) in ("VERB", "AUX") and child.dep_ in (
+                        "oc", "mo", "rc", "cj", "app"
+                    ):
+                        # Objekt am Vollverb suchen
+                        deeper = self._find_dep(
+                            child,
+                            ["oa", "obj", "pd", "og", "op", "da", "obl"]
+                        )
                         if deeper is not None and _pos(deeper) not in ("VERB","AUX"):
                             object_token = deeper
-                        break
+                            break
+                        # Noch eine Ebene tiefer (z.B. eingebettete Infinitive)
+                        for grandchild in child.children:
+                            if _pos(grandchild) == "VERB":
+                                deepest = self._find_dep(
+                                    grandchild,
+                                    ["oa", "obj", "pd", "og", "op", "da"]
+                                )
+                                if deepest is not None and                                         _pos(deepest) not in ("VERB","AUX"):
+                                    object_token = deepest
+                                    break
+                        if object_token is not None:
+                            break
+
+            # Schritt 2: Normales VERB als ROOT – Objekt bei Hilfsverb-Kinder suchen
+            if object_token is None and _pos(root) == "VERB":
+                for child in root.children:
+                    if _pos(child) == "AUX":
+                        continue
+                    if _pos(child) == "VERB" and child.dep_ in ("oc", "mo", "cj"):
+                        deeper = self._find_dep(
+                            child,
+                            ["oa", "obj", "pd", "og", "op", "da"]
+                        )
+                        if deeper is not None and _pos(deeper) not in ("VERB","AUX"):
+                            object_token = deeper
+                            break
 
             # ── Passiv-Infinitiv: "ist durchzuführen", "ist anzumelden" ───
             # Beim Passiv ist das grammatische Subjekt das logische Objekt.
