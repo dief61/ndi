@@ -1,0 +1,24 @@
+# Prompt-Suite: ps_pipeline/user.txt → services/ingest/prompt_suite/ps_pipeline/user.txt
+
+Analysiere den folgenden deutschen Rechtstext und erzeuge strukturierte Wissens-Triples.
+
+Dokument: {{document_title}}
+Normreferenz: {{norm_reference}}
+Dokumenttyp: {{source_type}}
+
+Rechtstext:
+{{chunk_text}}
+
+Arbeite in folgenden Schritten:
+
+1. Dokumentstruktur erkennen (Gesetzestitel, Paragraph, Absatz, Satz, Überschrift, Rechtsverweise)
+2. Normsegmente bilden (Normadressat, Tatbestand, Rechtsfolge, Pflicht, Recht, Befugnis, Zuständigkeit, Bedingung, Ausnahme, Frist, Form, Nachweis, Sanktion)
+3. Entitäten extrahieren und klassifizieren
+4. Rechtliche Modalität bestimmen
+5. Normlogik ableiten (Wenn-Dann-Strukturen)
+6. Wissens-Triples erzeugen
+7. Validierung durchführen
+
+Gib ausschließlich valides JSON im folgenden Schema zurück:
+
+{{schema}}

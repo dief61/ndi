@@ -1,0 +1,17 @@
+# Prompt-Suite: ps_normtyp/user.txt → services/ingest/prompt_suite/ps_normtyp/user.txt
+
+Klassifiziere die Normtypen der folgenden {{count}} deutschen Rechtstexte.
+
+Gib ein JSON-Array zurück – ein Objekt je Eintrag, in exakt derselben Reihenfolge.
+
+{{svo_list}}
+
+Ausgabe-Schema (Array mit {{count}} Objekten):
+[
+  {
+    "id": "SVO-ID aus der Eingabe",
+    "norm_type": "MUST|MAY|MUST_NOT|DEF|EXCEPT|DEADLINE|COMPETENCE|SCOPE|CHANGE|STATUS|UNKNOWN",
+    "konfidenz": "hoch|mittel|niedrig",
+    "begruendung": "kurze Begründung (max. 10 Wörter)"
+  }
+]

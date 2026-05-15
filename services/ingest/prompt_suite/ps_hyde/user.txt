@@ -1,0 +1,5 @@
+# Prompt-Suite: ps_hyde/user.txt → services/ingest/prompt_suite/ps_hyde/user.txt
+
+Schreibe einen hypothetischen Normtext als Antwort auf diese Frage:
+
+{{query}}

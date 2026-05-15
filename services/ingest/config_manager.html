@@ -962,6 +962,7 @@ function showHome() {
     {name:'chunker',  icon:'✂️', label:'Chunker-Konfiguration',sub:'Token-Limits, Klassen'},
     {name:'docs',        icon:'🗂️', label:'Dokument-Metadaten',   sub:'Typen, Titel, Typ-Erkennung'},
     {name:'llm_gateway', icon:'🤖', label:'LLM-Gateway',           sub:'Provider, Modell, Prompts'},
+    {name:'rag',         icon:'🔭', label:'RAG-Engine',            sub:'Query, Retrieval, Re-Ranker'},
   ];
   // Prompt-Suite als eigene Karte in der zweiten Zeile
   const extraCards = [
@@ -972,28 +973,108 @@ function showHome() {
   document.getElementById('content').innerHTML = `
     <div class="home-wrap">
       <div class="home-logo-ring">
-        <svg width="120" height="120" viewBox="0 0 120 120">
+        <svg width="140" height="140" viewBox="0 0 140 140">
           <defs>
             <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#4f8ef7;stop-opacity:1"/>
+              <stop offset="0%"   style="stop-color:#4f8ef7;stop-opacity:1"/>
+              <stop offset="50%"  style="stop-color:#9b59f7;stop-opacity:1"/>
               <stop offset="100%" style="stop-color:#64d9a8;stop-opacity:1"/>
             </linearGradient>
+            <linearGradient id="g2" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%"   style="stop-color:#f7c94f;stop-opacity:0.9"/>
+              <stop offset="100%" style="stop-color:#f75f4f;stop-opacity:0.7"/>
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2.5" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="core" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   style="stop-color:#1a2035;stop-opacity:1"/>
+              <stop offset="100%" style="stop-color:#0d1424;stop-opacity:1"/>
+            </radialGradient>
           </defs>
-          <circle cx="60" cy="60" r="54" fill="none" stroke="url(#g1)" stroke-width="2" stroke-dasharray="8 4" opacity="0.6">
+
+          <!-- Äußerer Hintergrundkreis -->
+          <circle cx="70" cy="70" r="68" fill="url(#core)" opacity="0.7"/>
+
+          <!-- Äußerer rotierender Ring (gestrichelt) -->
+          <circle cx="70" cy="70" r="64" fill="none" stroke="url(#g1)"
+            stroke-width="1.5" stroke-dasharray="6 3" opacity="0.5">
             <animateTransform attributeName="transform" type="rotate"
-              values="0 60 60;360 60 60" dur="20s" repeatCount="indefinite"/>
+              values="0 70 70;360 70 70" dur="25s" repeatCount="indefinite"/>
           </circle>
-          <circle cx="60" cy="60" r="46" fill="none" stroke="#2a3348" stroke-width="1"/>
-          <circle cx="60" cy="14" r="4" fill="#4f8ef7" opacity="0.8">
+
+          <!-- Mittlerer Ring -->
+          <circle cx="70" cy="70" r="54" fill="none" stroke="url(#g1)"
+            stroke-width="2" opacity="0.8"/>
+
+          <!-- Innerer gegenläufiger Ring -->
+          <circle cx="70" cy="70" r="44" fill="none" stroke="#9b59f7"
+            stroke-width="1" stroke-dasharray="4 6" opacity="0.4">
             <animateTransform attributeName="transform" type="rotate"
-              values="0 60 60;360 60 60" dur="20s" repeatCount="indefinite"/>
+              values="0 70 70;-360 70 70" dur="18s" repeatCount="indefinite"/>
           </circle>
-          <circle cx="60" cy="106" r="3" fill="#64d9a8" opacity="0.6">
+
+          <!-- 3 umlaufende Datenpunkte (äußerer Orbit) -->
+          <circle cx="70" cy="6" r="5" fill="#4f8ef7" filter="url(#glow)">
             <animateTransform attributeName="transform" type="rotate"
-              values="0 60 60;-360 60 60" dur="15s" repeatCount="indefinite"/>
+              values="0 70 70;360 70 70" dur="12s" repeatCount="indefinite"/>
           </circle>
+          <circle cx="70" cy="6" r="5" fill="#64d9a8" filter="url(#glow)"
+            opacity="0.9">
+            <animateTransform attributeName="transform" type="rotate"
+              values="120 70 70;480 70 70" dur="12s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="70" cy="6" r="5" fill="#9b59f7" filter="url(#glow)"
+            opacity="0.8">
+            <animateTransform attributeName="transform" type="rotate"
+              values="240 70 70;600 70 70" dur="12s" repeatCount="indefinite"/>
+          </circle>
+
+          <!-- 4 umlaufende Datenpunkte (mittlerer Orbit, gegenläufig) -->
+          <circle cx="70" cy="16" r="3.5" fill="#f7c94f" opacity="0.9"
+            filter="url(#glow)">
+            <animateTransform attributeName="transform" type="rotate"
+              values="0 70 70;-360 70 70" dur="9s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="70" cy="16" r="3.5" fill="#f75f4f" opacity="0.7">
+            <animateTransform attributeName="transform" type="rotate"
+              values="90 70 70;-270 70 70" dur="9s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="70" cy="16" r="3.5" fill="#4f8ef7" opacity="0.7">
+            <animateTransform attributeName="transform" type="rotate"
+              values="180 70 70;-180 70 70" dur="9s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="70" cy="16" r="3.5" fill="#64d9a8" opacity="0.7">
+            <animateTransform attributeName="transform" type="rotate"
+              values="270 70 70;-90 70 70" dur="9s" repeatCount="indefinite"/>
+          </circle>
+
+          <!-- Verbindungslinien (Netz) -->
+          <g opacity="0.15" stroke="url(#g1)" stroke-width="0.8">
+            <line x1="70" y1="26" x2="70" y2="114"/>
+            <line x1="26" y1="70" x2="114" y2="70"/>
+            <line x1="40" y1="40" x2="100" y2="100"/>
+            <line x1="100" y1="40" x2="40" y2="100"/>
+          </g>
+
+          <!-- Zentrales Sechseck -->
+          <polygon points="70,45 89,56 89,80 70,91 51,80 51,56"
+            fill="none" stroke="url(#g1)" stroke-width="1.5" opacity="0.6"/>
+
+          <!-- Inneres Sechseck (rotiert) -->
+          <polygon points="70,52 83,60 83,76 70,83 57,76 57,60"
+            fill="rgba(79,142,247,0.08)" stroke="#9b59f7"
+            stroke-width="1" opacity="0.7">
+            <animateTransform attributeName="transform" type="rotate"
+              values="0 70 70;360 70 70" dur="30s" repeatCount="indefinite"/>
+          </polygon>
         </svg>
-        <div class="home-logo-inner">MNR</div>
+        <div class="home-logo-inner" style="font-size:18px;letter-spacing:2px;
+          background:linear-gradient(135deg,#4f8ef7,#9b59f7,#64d9a8);
+          -webkit-background-clip:text;-webkit-text-fill-color:transparent">
+          MNR
+        </div>
       </div>
 
       <div class="home-title">
@@ -1014,7 +1095,7 @@ function showHome() {
           </div>`).join('')}
       </div>
 
-      <span class="home-version">MNR  ·  M1 + M2  ·  Mai 2026</span>
+      <span class="home-version">MNR  ·  M1 + M2 + M3  ·  Mai 2026</span>
     </div>`;
 }
 
@@ -2065,6 +2146,7 @@ function renderForm(name, data) {
   else if (name === 'chunker') el.innerHTML = renderTestChunkerForm(data);
   else if (name === 'docs')         el.innerHTML = renderDocsForm(data);
   else if (name === 'llm_gateway')  el.innerHTML = renderLLMGatewayForm(data);
+  else if (name === 'rag')           el.innerHTML = renderRAGForm(data);
   else                              el.innerHTML = renderGenericForm(data);
   attachFormListeners(name, data);
 }
@@ -2909,6 +2991,152 @@ async function testLLMGateway() {
   } catch(e) {
     if (btn) btn.textContent = `❌ Fehler: ${e.message}`;
   }
+}
+
+// ── RAG-Engine Formular ───────────────────────────────────────────────────────
+function renderRAGForm(d) {
+  const qt   = d.query_transformation || {};
+  const hyde = qt.hyde || {};
+  const sb   = qt.step_back || {};
+  const mq   = qt.multi_query || {};
+  const ret  = d.retrieval || {};
+  const thr  = ret.score_thresholds || {};
+  const pc   = d.parent_child || {};
+  const cr   = d.cross_reference || {};
+  const rr   = d.reranker || {};
+  const kw   = rr.klassen_gewichte || {};
+  const ctx  = d.context || {};
+
+  const hydeHtml = `
+    ${toggle('rag-hyde-enabled','HyDE aktiviert',
+      'Hypothetical Document Embedding – LLM generiert Normtext als Suchvektor',
+      hyde.enabled!==false)}
+    ${field('HyDE Gewicht','0.0–1.0 Anteil am finalen Score',
+      `<input type="number" id="rag-hyde-gewicht" value="${hyde.gewicht??0.8}"
+        step="0.1" min="0" max="1" onchange="markDirty()">`)}
+    ${field('Prompt-Key','Prompt aus der Prompt-Suite',
+      `<input type="text" id="rag-hyde-key" value="${escHtml(hyde.prompt_key||'ps_hyde')}"
+        onchange="markDirty()">`)}`;
+
+  const sbHtml = `
+    ${toggle('rag-sb-enabled','Step-Back aktiviert',
+      'Query auf übergeordnete Normenebene abstrahieren',
+      sb.enabled!==false)}
+    ${field('Gewicht','',
+      `<input type="number" id="rag-sb-gewicht" value="${sb.gewicht??0.6}"
+        step="0.1" min="0" max="1" onchange="markDirty()">`)}`;
+
+  const retHtml = `
+    ${field('Top-K pro Klasse','Kandidaten pro Klasse vor Re-Ranking',
+      `<input type="number" id="rag-topk-klass" value="${ret.top_k_pro_klasse??6}"
+        min="1" max="20" onchange="markDirty()">`)}
+    ${field('Top-K final','Chunks im LLM-Kontext',
+      `<input type="number" id="rag-topk-fin" value="${ret.top_k_final??8}"
+        min="1" max="20" onchange="markDirty()">`)}
+    ${field('Score-Threshold Klasse A','Minimum Cosine-Ähnlichkeit',
+      `<input type="number" id="rag-thr-a" value="${thr.class_a??0.60}"
+        step="0.05" min="0" max="1" onchange="markDirty()">`)}
+    ${field('Score-Threshold Klasse B','',
+      `<input type="number" id="rag-thr-b" value="${thr.class_b??0.60}"
+        step="0.05" min="0" max="1" onchange="markDirty()">`)}
+    ${field('Score-Threshold Klasse C','Erhöht – C-Chunks sollen A/B nicht verdrängen',
+      `<input type="number" id="rag-thr-c" value="${thr.class_c??0.72}"
+        step="0.05" min="0" max="1" onchange="markDirty()">`)}
+    ${toggle('rag-fts','Volltextsuche (FTS)','PostgreSQL FTS kombiniert mit Vektorsuche (RRF)',ret.fts_enabled!==false)}`;
+
+  const rerankerHtml = `
+    ${field('Modell','Cross-Encoder Modell',
+      `<input type="text" id="rag-rr-modell"
+        value="${escHtml(rr.modell||'cross-encoder/ms-marco-MiniLM-L-12-v2')}"
+        onchange="markDirty()">`)}
+    ${field('Top-N Kandidaten','Chunks vor Re-Ranking (> Top-K final)',
+      `<input type="number" id="rag-rr-topn" value="${rr.top_n??16}"
+        min="4" max="50" onchange="markDirty()">`)}
+    ${field('Gewicht Klasse A','1.0 = höchste Priorität',
+      `<input type="number" id="rag-kw-a" value="${kw.A??1.00}"
+        step="0.05" min="0" max="1" onchange="markDirty()">`)}
+    ${field('Gewicht Klasse B','',
+      `<input type="number" id="rag-kw-b" value="${kw.B??0.85}"
+        step="0.05" min="0" max="1" onchange="markDirty()">`)}
+    ${field('Gewicht Klasse C','',
+      `<input type="number" id="rag-kw-c" value="${kw.C??0.65}"
+        step="0.05" min="0" max="1" onchange="markDirty()">`)}`;
+
+  const ctxHtml = `
+    ${field('Max. Tokens','Maximale Kontextlänge für LLM-Prompt',
+      `<input type="number" id="rag-ctx-tokens" value="${ctx.max_tokens??4096}"
+        min="512" max="32768" step="512" onchange="markDirty()">`)}
+    ${toggle('rag-ctx-im','IM-Signale einbauen',
+      'Entity/Attribut/Persistenz-Kandidaten aus M2 im_signals in Kontext',
+      ctx.im_signale!==false)}
+    ${toggle('rag-ctx-label','Klassen-Labels','[RECHTSNORM] / [FACHKONZEPT] Präambeln',
+      ctx.klassen_label!==false)}
+    ${toggle('rag-ctx-trace','Traceability','Normreferenz in jeder Präambel',
+      ctx.traceability!==false)}`;
+
+  return `
+    <div style="padding:12px 20px;background:rgba(79,142,247,0.06);
+      border-bottom:1px solid var(--border);margin-bottom:4px">
+      <div style="font-size:12px;color:var(--accent);font-weight:500">
+        🔭 RAG-Engine · M3 Schritt 1 · In Entwicklung
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">
+        Hybrid-Retrieval: Query-Transformation → Klassen-Retriever →
+        Parent-Child → Cross-Ref → Re-Ranker → Context Assembly
+      </div>
+    </div>`
+    + sec('1.1 Query-Transformation: HyDE', hydeHtml)
+    + sec('1.1 Query-Transformation: Step-Back', sbHtml)
+    + sec('1.2 Retrieval', retHtml)
+    + sec('1.5 Re-Ranker', rerankerHtml)
+    + sec('1.6 Context Assembly', ctxHtml);
+}
+
+// collectFormData für RAG
+function collectRAGFormData(orig) {
+  const gn = id => parseFloat(document.getElementById(id)?.value || 0);
+  const gi = id => parseInt(document.getElementById(id)?.value || 0);
+  const gc = id => document.getElementById(id)?.checked ?? true;
+  const gv = id => document.getElementById(id)?.value || '';
+
+  const d = JSON.parse(JSON.stringify(orig));
+  d.query_transformation = d.query_transformation || {};
+  d.query_transformation.hyde = {
+    ...(d.query_transformation.hyde||{}),
+    enabled:    gc('rag-hyde-enabled'),
+    gewicht:    gn('rag-hyde-gewicht'),
+    prompt_key: gv('rag-hyde-key'),
+  };
+  d.query_transformation.step_back = {
+    ...(d.query_transformation.step_back||{}),
+    enabled: gc('rag-sb-enabled'),
+    gewicht: gn('rag-sb-gewicht'),
+  };
+  d.retrieval = {
+    ...(d.retrieval||{}),
+    top_k_pro_klasse: gi('rag-topk-klass'),
+    top_k_final:      gi('rag-topk-fin'),
+    score_thresholds: {
+      class_a: gn('rag-thr-a'),
+      class_b: gn('rag-thr-b'),
+      class_c: gn('rag-thr-c'),
+    },
+    fts_enabled: gc('rag-fts'),
+  };
+  d.reranker = {
+    ...(d.reranker||{}),
+    modell: gv('rag-rr-modell'),
+    top_n:  gi('rag-rr-topn'),
+    klassen_gewichte: {A: gn('rag-kw-a'), B: gn('rag-kw-b'), C: gn('rag-kw-c')},
+  };
+  d.context = {
+    ...(d.context||{}),
+    max_tokens:   gi('rag-ctx-tokens'),
+    im_signale:   gc('rag-ctx-im'),
+    klassen_label:gc('rag-ctx-label'),
+    traceability: gc('rag-ctx-trace'),
+  };
+  return d;
 }
 
 function renderGenericForm(d) {

@@ -1,0 +1,5 @@
+# Prompt-Suite: ps_step_back/user.txt → services/ingest/prompt_suite/ps_step_back/user.txt
+
+Spezifische Anfrage: {{query}}
+
+Allgemeinere Suchanfrage:

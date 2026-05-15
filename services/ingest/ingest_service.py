@@ -1,0 +1,414 @@
+# services/ingest/app/services/ingest_service.py
+#
+# Orchestriert die vollständige M1-Pipeline:
+# Parsing → Chunking → Embedding → Speicherung
+#
+# Wird aufgerufen von:
+#   - FastAPI Background-Task (über ingest.py Route)
+#   - ingest_cli.py (Kommandozeile)
+#
+# Job-Status wird in ingest_jobs (PostgreSQL) geschrieben.
+
+from __future__ import annotations
+
+import uuid
+from dataclasses import dataclass
+from typing import Optional
+
+import asyncpg
+import structlog
+
+from app.core.config import settings
+from app.services.parser import TikaParser
+from app.services.chunker import ChunkingRouter
+from app.services.embedder import Embedder
+from app.services.storage import DocumentStorage
+from app.services.abbrev_normalizer import AbbrevNormalizer
+from app.services.question_filter import QuestionFilter
+from app.services.doc_type_classifier import DocTypeClassifier
+
+logger = structlog.get_logger()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pipeline-Ergebnis
+# ─────────────────────────────────────────────────────────────────────────────
+
+@dataclass
+class PipelineResult:
+    """Ergebnis eines vollständigen Pipeline-Durchlaufs."""
+    job_id:      str
+    doc_id:      str
+    filename:    str
+    status:      str            # done | error
+    doc_class:   Optional[str]  # A | B | C
+    chunk_count: int
+    error:       Optional[str] = None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# IngestService
+# ─────────────────────────────────────────────────────────────────────────────
+
+class IngestService:
+    """
+    Orchestriert die M1-Ingest-Pipeline.
+
+    Singleton-Nutzung empfohlen (Embedder lädt Modell einmalig).
+    FastAPI: als App-State gespeichert (main.py lifespan).
+    CLI:     direkt instanziiert in ingest_cli.py.
+    """
+
+    def __init__(self):
+        self.parser     = TikaParser()
+        self.normalizer = AbbrevNormalizer()
+        self.chunker    = ChunkingRouter()
+        self.qfilter    = QuestionFilter()
+        self.embedder   = Embedder()
+        self.storage    = DocumentStorage()
+        self.doc_classifier = DocTypeClassifier()
+        self._pg_pool: Optional[asyncpg.Pool] = None
+
+    @property
+    def pool(self) -> Optional[asyncpg.Pool]:
+        return self._pg_pool
+
+    async def get_pool(self) -> asyncpg.Pool:
+        return await self._get_pool()
+
+    async def _get_pool(self) -> asyncpg.Pool:
+        """Lazy-Init des PostgreSQL Connection Pools für Job-Status."""
+        if self._pg_pool is None:
+            self._pg_pool = await asyncpg.create_pool(
+                host=settings.postgres_host,
+                port=settings.postgres_port,
+                user=settings.postgres_user,
+                password=settings.postgres_password,
+                database=settings.postgres_db,
+                min_size=1,
+                max_size=5,
+            )
+        return self._pg_pool
+
+    async def close(self):
+        """Verbindungen schließen (Shutdown-Hook in main.py)."""
+        await self.storage.close()
+        if self._pg_pool:
+            await self._pg_pool.close()
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Job-Status Hilfsmethoden
+    # ─────────────────────────────────────────────────────────────────────────
+
+    async def _log_questions(
+        self,
+        questions: list,
+        doc_id:    str,
+        doc_title: str,
+        doc_class: str,
+        job_id:    str,
+    ):
+        """Persistiert erkannte Fragen in filtered_questions."""
+        pool = await self._get_pool()
+        async with pool.acquire() as conn:
+            internal_doc_id = await conn.fetchval(
+                "SELECT id FROM norm_documents WHERE doc_id = $1", doc_id
+            )
+            if not internal_doc_id:
+                return
+            await conn.executemany(
+                """
+                INSERT INTO filtered_questions (
+                    doc_id, doc_title, doc_class, ingest_job_id,
+                    question_text, question_type,
+                    context_before, context_after,
+                    section_path, chunk_position
+                )
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                """,
+                [
+                    (
+                        internal_doc_id, doc_title, doc_class, job_id,
+                        q.question_text, q.question_type,
+                        q.context_before[:500] if q.context_before else None,
+                        q.context_after[:500]  if q.context_after  else None,
+                        q.section_path, q.chunk_position,
+                    )
+                    for q in questions
+                ],
+            )
+
+    async def _create_job(self, job_id: str, doc_id: str, filename: str):
+        pool = await self._get_pool()
+        async with pool.acquire() as conn:
+            await conn.execute(
+                """
+                INSERT INTO ingest_jobs (job_id, doc_id, filename, status)
+                VALUES ($1, $2, $3, 'queued')
+                ON CONFLICT (job_id) DO NOTHING
+                """,
+                job_id, doc_id, filename,
+            )
+
+    async def _update_job(
+        self,
+        job_id: str,
+        status: str,
+        doc_class: Optional[str] = None,
+        chunk_count: Optional[int] = None,
+        error_message: Optional[str] = None,
+    ):
+        pool = await self._get_pool()
+        finished = "now()" if status in ("done", "error") else "NULL"
+        async with pool.acquire() as conn:
+            await conn.execute(
+                f"""
+                UPDATE ingest_jobs SET
+                    status        = $1,
+                    doc_class     = COALESCE($2, doc_class),
+                    chunk_count   = COALESCE($3, chunk_count),
+                    error_message = COALESCE($4, error_message),
+                    updated_at    = now(),
+                    finished_at   = {finished}
+                WHERE job_id = $5
+                """,
+                status, doc_class, chunk_count, error_message, job_id,
+            )
+
+    async def get_job_status(self, job_id: str) -> Optional[dict]:
+        """Gibt den aktuellen Status eines Jobs zurück."""
+        pool = await self._get_pool()
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT job_id, doc_id, filename, status,
+                       doc_class, chunk_count, error_message,
+                       started_at, updated_at, finished_at
+                FROM ingest_jobs WHERE job_id = $1
+                """,
+                job_id,
+            )
+        if not row:
+            return None
+        return {
+            "job_id":        row["job_id"],
+            "doc_id":        row["doc_id"],
+            "filename":      row["filename"],
+            "status":        row["status"],
+            "doc_class":     row["doc_class"],
+            "chunk_count":   row["chunk_count"],
+            "error_message": row["error_message"],
+            "started_at":    row["started_at"].isoformat() if row["started_at"] else None,
+            "updated_at":    row["updated_at"].isoformat() if row["updated_at"] else None,
+            "finished_at":   row["finished_at"].isoformat() if row["finished_at"] else None,
+        }
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Pipeline
+    # ─────────────────────────────────────────────────────────────────────────
+
+    async def run_pipeline(
+        self,
+        doc_id: str,
+        job_id: str,
+        file_content: bytes,
+        filename: str,
+        metadata,
+        doc_class_override: Optional[str] = None,
+        chunk_limit: Optional[int] = None,
+    ) -> PipelineResult:
+        """
+        Vollständige M1-Pipeline.
+
+        Args:
+            doc_id:             Externe Dokument-UUID
+            job_id:             Job-UUID für Status-Tracking
+            file_content:       Rohe Datei-Bytes
+            filename:           Originalname
+            metadata:           DocumentMetadata
+            doc_class_override: Dokumentklasse erzwingen (A/B/C)
+            chunk_limit:        Nur N Chunks verarbeiten (für Tests)
+
+        Returns:
+            PipelineResult mit Status und Statistiken
+        """
+        log = logger.bind(doc_id=doc_id, job_id=job_id, filename=filename)
+        log.info("Pipeline gestartet")
+
+        await self._create_job(job_id, doc_id, filename)
+
+        try:
+            # ── Schritt 1: Rohdokument → MinIO ───────────────────────────────
+            await self._update_job(job_id, "parsing")
+            log.info("Schritt 1: Dokument in MinIO speichern")
+            minio_path = await self.storage.store_raw_document(
+                doc_id=doc_id,
+                filename=filename,
+                content=file_content,
+            )
+
+            # ── Schritt 2: Dokument-Metadaten → PostgreSQL ───────────────────
+            log.info("Schritt 2: Dokument-Metadaten speichern")
+            await self.storage.create_document_record(
+                doc_id=doc_id,
+                metadata=metadata,
+                minio_path=minio_path,
+            )
+
+            # ── Schritt 3: Tika-Parsing ──────────────────────────────────────
+            log.info("Schritt 3: Tika-Parsing")
+            parsed = await self.parser.parse(
+                content=file_content,
+                filename=filename,
+            )
+            log.info("Parsing abgeschlossen",
+                     doc_class=parsed.doc_class_hint,
+                     char_count=len(parsed.text))
+
+            # ── Schritt 3c: Dokumenttyp bestimmen ───────────────────────────
+            #
+            # Priorität:
+            #   1. CLI/API-Parameter  (_source_type_explicit = True)
+            #   2. docs.yaml Eintrag  (_source_type_from_yaml = True)
+            #   3. Automatische Erkennung via DocTypeClassifier
+            #
+            src_from_cli  = getattr(metadata, "_source_type_explicit",   False)
+            src_from_yaml = getattr(metadata, "_source_type_from_yaml",  False)
+            current_src   = getattr(metadata, "source_type", None) or ""
+
+            if src_from_cli:
+                # Priorität 1: CLI/API – unverändert übernehmen
+                log.info(
+                    "Dokumenttyp: CLI/API-Parameter",
+                    source_type=current_src,
+                )
+
+            elif src_from_yaml:
+                # Priorität 2: docs.yaml – unverändert übernehmen
+                log.info(
+                    "Dokumenttyp: docs.yaml",
+                    source_type=current_src,
+                )
+
+            else:
+                # Priorität 3: Automatische Erkennung
+                log.info("Dokumenttyp: automatische Erkennung läuft")
+                cls_result = self.doc_classifier.classify(
+                    filename=filename,
+                    title=getattr(metadata, "title", filename),
+                    text=parsed.text,
+                    structure=parsed.structure,
+                )
+                if hasattr(metadata, "source_type"):
+                    metadata.source_type = cls_result.source_type
+                log.info(
+                    "Dokumenttyp automatisch erkannt",
+                    source_type=cls_result.source_type,
+                    confidence=cls_result.confidence,
+                    reason=cls_result.reason,
+                )
+
+            # ── Schritt 3b: Abkürzungsauflösung ─────────────────────────────
+            log.info("Schritt 3b: Abkürzungsauflösung")
+            norm_result = self.normalizer.normalize(parsed.text)
+            log.info(
+                "Abkürzungen aufgelöst",
+                count=len(norm_result.replacements),
+                abbrevs=list({r.abbrev for r in norm_result.replacements}),
+            )
+
+            await self._update_job(job_id, "chunking",
+                                   doc_class=parsed.doc_class_hint)
+
+            # ── Schritt 4: Chunking (auf aufgelöstem Text) ───────────────────
+            log.info("Schritt 4: Chunking")
+            chunks = self.chunker.route_and_chunk(
+                text=norm_result.resolved_text,   # aufgelöster Text
+                structure=parsed.structure,
+                doc_id=doc_id,
+                metadata=metadata,
+                doc_class_override=doc_class_override,
+            )
+
+            # Originaltext und abbrev_map in jeden Chunk eintragen
+            import json
+            abbrev_map_json  = norm_result.abbrev_map
+            has_replacements = len(norm_result.replacements) > 0
+
+            for chunk in chunks:
+                if has_replacements:
+                    # Abkürzungen im Chunk-Text rückwärts auflösen
+                    # → Originaltext dieses Chunks
+                    chunk.content_original = norm_result.reverse_text(chunk.text)
+                else:
+                    # Keine Abkürzungen aufgelöst → Original = Resolved
+                    chunk.content_original = None  # spart Speicher
+                chunk.abbrev_map = abbrev_map_json if abbrev_map_json else None
+            log.info("Chunking abgeschlossen", chunk_count=len(chunks))
+
+            # ── Schritt 4b: Fragen-Filter ────────────────────────────────────
+            filter_result = self.qfilter.filter(
+                chunks=chunks,
+                doc_class=parsed.doc_class_hint,
+                full_text=norm_result.resolved_text,
+            )
+            chunks = filter_result.kept_chunks
+
+            # Erkannte Fragen in DB loggen
+            if filter_result.questions:
+                await self._log_questions(
+                    questions=filter_result.questions,
+                    doc_id=doc_id,
+                    doc_title=getattr(metadata, "title", None) or getattr(metadata, "filename", "Unbekannt"),
+                    doc_class=parsed.doc_class_hint,
+                    job_id=job_id,
+                )
+                log.info(
+                    "Fragen geloggt",
+                    fragen=len(filter_result.questions),
+                    gefiltert=len(filter_result.filtered_chunks),
+                )
+
+            # Optionaler Chunk-Limit (für Tests)
+            if chunk_limit and chunk_limit > 0:
+                chunks = chunks[:chunk_limit]
+                log.info("Chunk-Limit aktiv", limit=chunk_limit)
+
+            await self._update_job(job_id, "embedding",
+                                   chunk_count=len(chunks))
+
+            # ── Schritt 5: Embeddings ────────────────────────────────────────
+            log.info("Schritt 5: Embeddings erzeugen")
+            chunks_with_embeddings = await self.embedder.embed_chunks(chunks)
+
+            # ── Schritt 6: PostgreSQL speichern ──────────────────────────────
+            await self._update_job(job_id, "storing")
+            log.info("Schritt 6: Chunks in PostgreSQL speichern")
+            inserted = await self.storage.store_chunks(chunks_with_embeddings)
+
+            # ── Fertig ───────────────────────────────────────────────────────
+            await self._update_job(job_id, "done", chunk_count=inserted)
+            log.info("Pipeline abgeschlossen", chunk_count=inserted)
+
+            return PipelineResult(
+                job_id=job_id,
+                doc_id=doc_id,
+                filename=filename,
+                status="done",
+                doc_class=parsed.doc_class_hint,
+                chunk_count=inserted,
+            )
+
+        except Exception as e:
+            error_msg = str(e)
+            log.error("Pipeline fehlgeschlagen", error=error_msg)
+            await self._update_job(job_id, "error", error_message=error_msg)
+            return PipelineResult(
+                job_id=job_id,
+                doc_id=doc_id,
+                filename=filename,
+                status="error",
+                doc_class=None,
+                chunk_count=0,
+                error=error_msg,
+            )

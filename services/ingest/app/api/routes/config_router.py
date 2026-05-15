@@ -28,6 +28,7 @@ CONFIG_FILES = {
     "chunker": SERVICE_ROOT / "chunker_config.yaml",
     "docs":        SERVICE_ROOT / "docs.yaml",
     "llm_gateway": SERVICE_ROOT / "llm_gateway_config.yaml",
+    "rag":         SERVICE_ROOT / "rag_config.yaml",
 }
 
 CONFIG_META = {
@@ -60,6 +61,11 @@ CONFIG_META = {
         "label":       "LLM-Gateway",
         "description": "Provider, Modell, API-Keys, Retry-Verhalten",
         "icon":        "🤖",
+    },
+    "rag": {
+        "label":       "RAG-Engine",
+        "description": "Hybrid-Retrieval, Query-Transformation, Re-Ranker",
+        "icon":        "🔭",
     },
 }
 

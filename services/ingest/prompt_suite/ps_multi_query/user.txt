@@ -1,0 +1,3 @@
+# Prompt-Suite: ps_multi_query/user.txt → services/ingest/prompt_suite/ps_multi_query/user.txt
+
+Frage: {{query}}

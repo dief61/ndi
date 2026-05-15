@@ -1,0 +1,103 @@
+# services/ingest/rag_config.yaml
+#
+# M3 – RAG-Engine Konfiguration
+# Alle Parameter werden zur Laufzeit gelesen – kein Neustart erforderlich.
+# Änderungen wirken beim nächsten /api/v1/rag/query-Aufruf.
+
+# ── 1.1 Query-Transformation ──────────────────────────────────────────────────
+query_transformation:
+
+  # HyDE – Hypothetical Document Embedding
+  # Das LLM generiert einen hypothetischen Normtext → besserer Suchvektor
+  hyde:
+    enabled:              true
+    gewicht:              0.8         # Anteil am finalen Retrieval-Score
+    prompt_key:           "ps_hyde"
+    skip_if_direktlookup: true        # Überspringen wenn §-Referenz erkannt
+
+  # Step-Back – Query auf übergeordnete Normenebene abstrahieren
+  step_back:
+    enabled:              true
+    gewicht:              0.6
+    prompt_key:           "ps_step_back"
+    nur_bei_typen:        ["NORM"]    # Nur bei Norm-Referenz-Queries sinnvoll
+
+  # Multi-Query – Mehrere Query-Varianten erzeugen (teurer)
+  multi_query:
+    enabled:              false       # Per Bedarf aktivieren
+    count:                3           # Anzahl Varianten
+    gewicht:              0.7
+    prompt_key:           "ps_multi_query"
+    nur_bei_typen:        ["ENTITY", "GENERAL"]
+
+  # Query-Typ Klassifikation
+  query_typen:
+    norm_signale:         ["§", "abs.", "absatz", "satz", "muss", "darf", "soll", "bedarf"]
+    im_signale:           ["entität", "tabelle", "attribut", "spalte", "datenbank", "feld"]
+    entity_signale:       ["zuständig", "wer ist", "welche behörde", "welche rolle"]
+
+# ── 1.2 Retrieval ─────────────────────────────────────────────────────────────
+retrieval:
+
+  # Anzahl Kandidaten pro Klasse vor Re-Ranking
+  top_k_pro_klasse:   6
+  # Anzahl Chunks im finalen Kontext für das LLM
+  top_k_final:        8
+
+  # Score-Thresholds (Vektor-Cosine-Ähnlichkeit)
+  score_thresholds:
+    class_a:          0.60
+    class_b:          0.60
+    class_c:          0.72    # Erhöht: C-Chunks sollen A/B nicht verdrängen
+
+  # PostgreSQL Volltextsuche (FTS)
+  fts_enabled:        true
+  fts_language:       "german"
+
+  # Reciprocal Rank Fusion (RRF) – kombiniert Vektor + FTS
+  rrf_k:              60      # Standard-Parameter, höher = gleichmäßigere Fusion
+
+  # Zeitliche Gültigkeit – Chunks nach valid_to ausschließen
+  filter_abgelaufen:  true
+
+# ── 1.3 Parent-Child-Expansion ────────────────────────────────────────────────
+parent_child:
+
+  # Klasse A: §-Parent immer nachladen
+  class_a_immer:      true
+
+  # Klasse B: Unterkapitel-Parent nur bei abgeschnittenen Chunks
+  class_b_token_grenze: 450   # Über diesem Wert → Parent nachladen
+
+  # Tabellen-Chunks: beschreibenden Abschnitt immer nachladen
+  tabellen_expansion: true
+
+# ── 1.4 Cross-Reference-Expansion (nur Klasse A) ──────────────────────────────
+cross_reference:
+  enabled:            true
+  max_tiefe:          2       # Rekursionstiefe (§ X → § Y → stopp)
+
+# ── 1.5 Re-Ranker ─────────────────────────────────────────────────────────────
+reranker:
+  modell:             "cross-encoder/ms-marco-MiniLM-L-12-v2"
+  top_n:              16      # Kandidaten vor Re-Ranking (mehr als top_k_final)
+
+  # Klassen-Gewichtung: A-Chunks werden bevorzugt
+  klassen_gewichte:
+    A:                1.00    # Rechtstext – höchste Priorität
+    B:                0.85    # Fachdokument
+    C:                0.65    # Ergänzungstext
+
+# ── 1.6 Context Assembly ──────────────────────────────────────────────────────
+context:
+  max_tokens:         4096    # Maximale Kontextlänge für LLM-Prompt
+
+  # Präambeln je Chunk: [RECHTSNORM | § 3 NHundG | MUST]
+  klassen_label:      true
+  traceability:       true    # Normreferenz in jeder Präambel
+
+  # IM-Signal-Annotierungen (aus M2 im_signals-Spalte)
+  im_signale:         true    # Entity/Attribut/Persistenz-Kandidaten einbauen
+
+  # Konfidenz-Hinweis bei Klasse C
+  c_konfidenz_hinweis: true   # "[Konfidenz: niedrig]" bei C-Chunks
