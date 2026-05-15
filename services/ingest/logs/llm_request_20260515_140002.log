@@ -1,0 +1,1384 @@
+# LLM Request-Log  |  gestartet: 15.05.2026 14:00:02
+# Jede Anfrage ist mit #NNN nummeriert.
+# Zugehörige Antwort: llm_response_20260515_140002.log #NNN
+
+========================================================================
+  #0001  |  15.05.2026 14:00:02  |  REQUEST
+========================================================================
+
+── SYSTEM ───────────────────────────────────────────────────────────
+Du bist ein präziser Analyst für deutsche Verwaltungstexte und Rechtssprache.
+
+Deine Aufgabe ist die Klassifikation des Normtyps eines deutschen Rechtstexts.
+
+Gib ausschließlich valides JSON zurück. Keine Markdown-Codeblöcke. Keine Erklärungen.
+
+Normtypen und ihre Auslöser:
+
+MUST     – muss, hat zu, ist zu, sind zu, ist verpflichtet, soll, haben zu,
+           ist nachzuweisen, ist mitzuführen, ist anzumelden, ist durchzuführen,
+           bedarf, bedürfen, unterliegt, pflichtig, hat sicherzustellen,
+           ist abzulegen, ist abzuschließen, ist durchzuführen, ist vorzulegen
+
+MAY      – kann, können, darf, dürfen, ist berechtigt, ist befugt,
+           ist gestattet, ist zulässig, gilt als erteilt, wird erteilt,
+           kann beantragen, kann anordnen, erhält auf Antrag
+
+MUST_NOT – darf nicht, dürfen nicht, ist untersagt, ist verboten,
+           gilt nicht für, ist nicht zulässig, ist ausgeschlossen,
+           ist nicht erlaubt, darf nur, keine aufschiebende Wirkung
+
+DEF      – im Sinne, gilt als (Definition), versteht man, ist definiert als,
+           ist anzusehen als, sind die Kernpunkte
+
+EXCEPT   – es sei denn, sofern nicht, ausgenommen, vorbehaltlich,
+           würde, würden, wäre, abweichend, unbeschadet,
+           gilt nicht (wenn Ausnahmeregel)
+
+DEADLINE – binnen, spätestens, unverzüglich, innerhalb von, bis zum,
+           vor Beginn, innerhalb des ersten Jahres, vor der Aufnahme
+
+COMPETENCE – zuständig ist, obliegt, überwacht, führt, erteilt, nimmt ab,
+              ist die zuständige Behörde, macht bekannt, werden abgenommen durch
+
+SCOPE    – gilt für, findet Anwendung, gilt entsprechend, dient der,
+           dient dem, findet statt, gilt auch für, dient auch der Umsetzung
+
+CHANGE   – geändert, wird geändert, ersetzt, aufgehoben, tritt in Kraft
+
+STATUS   – ist zugelassen, ist anerkannt, besitzt, stellt fest,
+           stellt sicher, ist bekannt, hat die Zulassung,
+           hat keine aufschiebende Wirkung, wird aufgeteilt
+
+UNKNOWN  – kein anderer Typ trifft zu, Text zu kurz oder unvollständig,
+           reine Aufzählung ohne Normauslöser
+
+── USER ─────────────────────────────────────────────────────────────
+Klassifiziere die Normtypen der folgenden 20 deutschen Rechtstexte.
+
+Gib ein JSON-Array zurück – ein Objekt je Eintrag, in exakt derselben Reihenfolge.
+
+SVO-001:
+  Normreferenz: § 1 Zweck des Gesetzes
+  Prädikat:     ist
+  Text:         Zweck des Gesetzes ist es, Gefahren für die öffentliche Sicherheit und Ordnung
+
+vorzubeugen und abzuwehren, die mit dem Halten und dem Führen von Hunden verbunden
+
+sind.
+
+(2)
+
+SVO-002:
+  Normreferenz: § 1 Zweck des Gesetzes
+  Prädikat:     gilt
+  Text:         Dieses Gesetz gilt für das Halten von Hunden in Niedersachsen durch
+
+Hundehalterinnen und Hundehalter, die
+
+1. in Niedersachsen mit alleiniger Wohnung oder mit Hauptwohnung gemeldet sind,
+
+2. sich länger als zwei Monate ununterbrochen in Niedersachsen aufhalten, wobei
+
+unwesentliche Unterbrechungen unberücksichtigt bleiben, oder
+
+3. den Sitz, eine Niederlassung oder eine Betriebsstätte in Niedersachsen haben und der
+
+Hund sich dort aufhält,
+
+sowie für das Führen von Hunden in Niedersachsen.
+
+SVO-003:
+  Normreferenz: § 2 Allgemeine Pflichten
+  Prädikat:     sind
+  Text:         Allgemeine Pflichten
+
+Hunde sind so zu halten und zu führen, dass von ihnen keine Gefahren für die
+
+öffentliche Sicherheit und Ordnung ausgehen.
+
+SVO-004:
+  Normreferenz: 
+  Prädikat:     sind
+  Text:         Kernpunkte des Gesetzes sind die Sachkunde, die Kennzeichnung, die Haftpflichtversicherung und das Zentrale Zentrales Hunderegister.
+
+SVO-005:
+  Normreferenz: 
+  Prädikat:     wird
+  Text:         Dieser Sachkundenachweis ("Hundeführerschein") wird aufgeteilt in eine theoretische Prüfung und eine praktische Prüfung.
+
+SVO-006:
+  Normreferenz: 
+  Prädikat:     ist
+  Text:         Die theoretische Prüfung ist vor Beginn der Hundehaltung, die praktische Prüfung innerhalb des ersten Jahres der Hundehaltung erfolgreich zu absolvieren.
+
+SVO-007:
+  Normreferenz: 
+  Prädikat:     werden
+  Text:         Die Prüfungen zum Sachkundenachweis werden durch zertifizierte Personen abgenommen.
+
+SVO-008:
+  Normreferenz: 
+  Prädikat:     ist
+  Text:         Die Voraussetzung für Anerkennung als Sachkundeprüfer ist die Qualifikation durch entsprechende Lehrgänge bei der Niedersächsischen Tierärztekammer und der Tierärztekammer Schleswig-Holstein.
+
+SVO-009:
+  Normreferenz: 
+  Prädikat:     ist
+  Text:         Der Transponder ist subkutan an der linken Halsseite durch Tierärztinnen und Tierärzte oder andere Personen, die die dafür erforderlichen Kenntnisse und Fähigkeiten besitzen, zu injizieren.
+
+SVO-010:
+  Normreferenz: 
+  Prädikat:     ist
+  Text:         Für die durch einen Hund, der älter ist als sechs Monate, verursachten Schäden (Personenschäden und Sachschäden) ist eine Haftpflichtversicherung abzuschließen.
+
+SVO-011:
+  Normreferenz: 
+  Prädikat:     ist
+  Text:         die Überwachung dieser Maßnahme ist die örtliche Gemeinde.
+
+SVO-012:
+  Normreferenz: 
+  Prädikat:     wird
+  Text:         Zentrales Hunderegister wird durch die GovConnect GmbH im Auftrag des Landes Niedersachsen geführt.
+
+SVO-013:
+  Normreferenz: 
+  Prädikat:     regelt
+  Text:         Ein spezieller Teil des Niedersächsischen Hundegesetzes regelt den Umgang mit gefährlichen Hunden.
+
+SVO-014:
+  Normreferenz: 
+  Prädikat:     hat
+  Text:         Zitat aus dem Paragraphen 7 des Niedersächsisches Gesetz über das Halten von Hunden: "Erhält die Fachbehörde einen Hinweis auf die gesteigerte Aggressivität eines Hundes, insbesondere darauf, dass Menschen oder Tiere gebissen wurden oder eine über das natürliche Maß hinausgehende Kampfbereitschaft, Angriffslust oder Schärfe vorliegt, so hat sie den Hinweis zu prüfen.
+
+SVO-015:
+  Normreferenz: 
+  Prädikat:     stellt
+  Text:         Ergibt diese Prüfung Tatsachen, die den Verdacht rechtfertigen, dass von dem Hund eine Gefahr für die öffentliche Sicherheit ausgeht, so stellt sie fest, dass der Hund gefährlich ist.
+
+Ausgabe-Schema (Array mit 20 Objekten):
+[
+  {
+    "id": "SVO-ID aus der Eingabe",
+    "norm_type": "MUST|MAY|MUST_NOT|DEF|EXCEPT|DEADLINE|COMPETENCE|SCOPE|CHANGE|STATUS|UNKNOWN",
+    "konfidenz": "hoch|mittel|niedrig",
+    "begruendung": "kurze Begründung (max. 10 Wörter)"
+  }
+]
+
+========================================================================
+  #0002  |  15.05.2026 14:00:15  |  REQUEST
+========================================================================
+
+── SYSTEM ───────────────────────────────────────────────────────────
+Du bist ein präziser Analyst für deutsche Verwaltungstexte und Rechtssprache.
+
+Deine Aufgabe ist die Klassifikation des Normtyps eines deutschen Rechtstexts.
+
+Gib ausschließlich valides JSON zurück. Keine Markdown-Codeblöcke. Keine Erklärungen.
+
+Normtypen und ihre Auslöser:
+
+MUST     – muss, hat zu, ist zu, sind zu, ist verpflichtet, soll, haben zu,
+           ist nachzuweisen, ist mitzuführen, ist anzumelden, ist durchzuführen,
+           bedarf, bedürfen, unterliegt, pflichtig, hat sicherzustellen,
+           ist abzulegen, ist abzuschließen, ist durchzuführen, ist vorzulegen
+
+MAY      – kann, können, darf, dürfen, ist berechtigt, ist befugt,
+           ist gestattet, ist zulässig, gilt als erteilt, wird erteilt,
+           kann beantragen, kann anordnen, erhält auf Antrag
+
+MUST_NOT – darf nicht, dürfen nicht, ist untersagt, ist verboten,
+           gilt nicht für, ist nicht zulässig, ist ausgeschlossen,
+           ist nicht erlaubt, darf nur, keine aufschiebende Wirkung
+
+DEF      – im Sinne, gilt als (Definition), versteht man, ist definiert als,
+           ist anzusehen als, sind die Kernpunkte
+
+EXCEPT   – es sei denn, sofern nicht, ausgenommen, vorbehaltlich,
+           würde, würden, wäre, abweichend, unbeschadet,
+           gilt nicht (wenn Ausnahmeregel)
+
+DEADLINE – binnen, spätestens, unverzüglich, innerhalb von, bis zum,
+           vor Beginn, innerhalb des ersten Jahres, vor der Aufnahme
+
+COMPETENCE – zuständig ist, obliegt, überwacht, führt, erteilt, nimmt ab,
+              ist die zuständige Behörde, macht bekannt, werden abgenommen durch
+
+SCOPE    – gilt für, findet Anwendung, gilt entsprechend, dient der,
+           dient dem, findet statt, gilt auch für, dient auch der Umsetzung
+
+CHANGE   – geändert, wird geändert, ersetzt, aufgehoben, tritt in Kraft
+
+STATUS   – ist zugelassen, ist anerkannt, besitzt, stellt fest,
+           stellt sicher, ist bekannt, hat die Zulassung,
+           hat keine aufschiebende Wirkung, wird aufgeteilt
+
+UNKNOWN  – kein anderer Typ trifft zu, Text zu kurz oder unvollständig,
+           reine Aufzählung ohne Normauslöser
+
+── USER ─────────────────────────────────────────────────────────────
+Klassifiziere die Normtypen der folgenden 20 deutschen Rechtstexte.
+
+Gib ein JSON-Array zurück – ein Objekt je Eintrag, in exakt derselben Reihenfolge.
+
+SVO-001:
+  Normreferenz: 
+  Prädikat:     wechseln
+  Text:         RSS Inhaltsverzeichnis Barrierefreiheit zum Seitenanfang zur mobilen Ansicht wechseln
+
+SVO-002:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     ist
+  Text:         Sie ist der
+
+Gemeinde auf Verlangen durch die erfolgreiche Ablegung einer theoretischen und einer
+
+*)
+
+SVO-003:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     dient
+  Text:         Dieses Gesetz dient auch der Umsetzung der Richtlinie 2006/123/EG des Europäischen Parlaments und des
+
+Rates vom 12. Dezember 2006 über Dienstleistungen im Binnenmarkt (ABl.
+
+SVO-004:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     ist
+  Text:         Die theoretische Sachkundenachweis ist vor
+
+der Aufnahme der Hundehaltung, die praktische Prüfung während des ersten Jahres der
+
+Hundehaltung abzulegen.
+
+SVO-005:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     hat
+  Text:         Die die Prüfung abnehmende Person oder Stelle hat über das Bestehen der jeweiligen
+
+Prüfung eine Bescheinigung auszustellen und dafür ein vom Fachministerium für verbindlich
+
+erklärtes Muster zu verwenden.
+
+
+
+SVO-006:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     erhält
+  Text:         Die Anerkennung erhält auf Antrag, wer die
+
+für die Abnahme der Prüfungen erforderlichen Kenntnisse und Fähigkeiten nachweist.
+
+
+
+SVO-007:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     findet
+  Text:         im Übrigen findet § 42 a des Verwaltungsverfahrens-
+
+gesetzes Anwendung.
+
+SVO-008:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     besitzt
+  Text:         2 oder 2 b des Tierschutzgesetzes
+
+(Tierschutzgesetz) zum Halten von Hunden in einem Tierheim oder einer ähnlichen Einrichtung
+
+für die dort gehaltenen Hunde oder zur Ausbildung von Hunden zu Schutzzwecken für
+
+Dritte zur Unterhaltung einer Einrichtung hierfür besitzt,
+
+6. für die Betreuung eines von einer juristischen Person des öffentlichen Rechts oder
+
+fremder Streitkräfte gehaltenen Diensthundes verantwortlich ist, oder
+
+7. einen Blindenführhund o
+
+Ausgabe-Schema (Array mit 20 Objekten):
+[
+  {
+    "id": "SVO-ID aus der Eingabe",
+    "norm_type": "MUST|MAY|MUST_NOT|DEF|EXCEPT|DEADLINE|COMPETENCE|SCOPE|CHANGE|STATUS|UNKNOWN",
+    "konfidenz": "hoch|mittel|niedrig",
+    "begruendung": "kurze Begründung (max. 10 Wörter)"
+  }
+]
+
+========================================================================
+  #0003  |  15.05.2026 14:00:26  |  REQUEST
+========================================================================
+
+── SYSTEM ───────────────────────────────────────────────────────────
+Du bist ein präziser Analyst für deutsche Verwaltungstexte und Rechtssprache.
+
+Deine Aufgabe ist die Klassifikation des Normtyps eines deutschen Rechtstexts.
+
+Gib ausschließlich valides JSON zurück. Keine Markdown-Codeblöcke. Keine Erklärungen.
+
+Normtypen und ihre Auslöser:
+
+MUST     – muss, hat zu, ist zu, sind zu, ist verpflichtet, soll, haben zu,
+           ist nachzuweisen, ist mitzuführen, ist anzumelden, ist durchzuführen,
+           bedarf, bedürfen, unterliegt, pflichtig, hat sicherzustellen,
+           ist abzulegen, ist abzuschließen, ist durchzuführen, ist vorzulegen
+
+MAY      – kann, können, darf, dürfen, ist berechtigt, ist befugt,
+           ist gestattet, ist zulässig, gilt als erteilt, wird erteilt,
+           kann beantragen, kann anordnen, erhält auf Antrag
+
+MUST_NOT – darf nicht, dürfen nicht, ist untersagt, ist verboten,
+           gilt nicht für, ist nicht zulässig, ist ausgeschlossen,
+           ist nicht erlaubt, darf nur, keine aufschiebende Wirkung
+
+DEF      – im Sinne, gilt als (Definition), versteht man, ist definiert als,
+           ist anzusehen als, sind die Kernpunkte
+
+EXCEPT   – es sei denn, sofern nicht, ausgenommen, vorbehaltlich,
+           würde, würden, wäre, abweichend, unbeschadet,
+           gilt nicht (wenn Ausnahmeregel)
+
+DEADLINE – binnen, spätestens, unverzüglich, innerhalb von, bis zum,
+           vor Beginn, innerhalb des ersten Jahres, vor der Aufnahme
+
+COMPETENCE – zuständig ist, obliegt, überwacht, führt, erteilt, nimmt ab,
+              ist die zuständige Behörde, macht bekannt, werden abgenommen durch
+
+SCOPE    – gilt für, findet Anwendung, gilt entsprechend, dient der,
+           dient dem, findet statt, gilt auch für, dient auch der Umsetzung
+
+CHANGE   – geändert, wird geändert, ersetzt, aufgehoben, tritt in Kraft
+
+STATUS   – ist zugelassen, ist anerkannt, besitzt, stellt fest,
+           stellt sicher, ist bekannt, hat die Zulassung,
+           hat keine aufschiebende Wirkung, wird aufgeteilt
+
+UNKNOWN  – kein anderer Typ trifft zu, Text zu kurz oder unvollständig,
+           reine Aufzählung ohne Normauslöser
+
+── USER ─────────────────────────────────────────────────────────────
+Klassifiziere die Normtypen der folgenden 20 deutschen Rechtstexte.
+
+Gib ein JSON-Array zurück – ein Objekt je Eintrag, in exakt derselben Reihenfolge.
+
+SVO-001:
+  Normreferenz: § 4 Kennzeichnung
+  Prädikat:     ist
+  Text:         Kennzeichnung
+
+Ein Hund, der älter als sechs Monate ist, ist durch ein elektronisches Kennzeichen
+
+(Transponder) mit einer Kennnummer zu kennzeichnen.
+
+SVO-002:
+  Normreferenz: § 4 Kennzeichnung
+  Prädikat:     sind
+  Text:         sie sind beim Deutschen Patent- und Markenamt
+
+archivmäßig gesichert niedergelegt.
+
+SVO-003:
+  Normreferenz: § 5 Haftpflichtversicherung
+  Prädikat:     ist
+  Text:         Für die durch einen Hund, der älter als sechs Monate ist, verursachten Schäden ist eine
+
+Haftpflichtversicherung mit einer Mindestversicherungssumme von 500 000 Euro für
+
+Personenschäden und von 250 000 Euro für Sachschäden abzuschließen.
+
+SVO-004:
+  Normreferenz: § 5 Haftpflichtversicherung
+  Prädikat:     ist
+  Text:         Satz 1 des Versicherungsvertragsgesetzes ist die nach § 17 Abs. 1
+
+zuständige Gemeinde.
+
+SVO-005:
+  Normreferenz: § 7 Gefährliche Hunde
+  Prädikat:     stellt
+  Text:         Ergibt die Prüfung nach Satz 1 Tatsachen, die den
+
+Verdacht rechtfertigen, dass von dem Hund eine Gefahr für die öffentliche Sicherheit
+
+ausgeht, so stellt die Fachbehörde fest, dass der Hund gefährlich ist.
+
+SVO-006:
+  Normreferenz: § 7 Gefährliche Hunde
+  Prädikat:     gilt
+  Text:         Absatz 1 Sätze 2
+
+und 3 gilt entsprechend.
+
+SVO-007:
+  Normreferenz: § 9 Beantragung der Erlaubnis
+  Prädikat:     gilt
+  Text:         Wird die Erlaubnis beantragt, so gilt das Halten des gefährlichen
+
+Hundes bis zur Entscheidung über den Antrag als erlaubt.
+
+SVO-008:
+  Normreferenz: § 9 Beantragung der Erlaubnis
+  Prädikat:     ist
+  Text:         diese oder dieser ist darauf hinzuweisen, dass die Gefährlichkeit
+
+des Hundes festgestellt worden ist.
+
+SVO-009:
+  Normreferenz: § 9 Beantragung der Erlaubnis
+  Prädikat:     ist
+  Text:         Ab Feststellung der Gefährlichkeit ist der Hund
+
+außerhalb ausbruchsicherer Grundstücke anzuleinen und hat einen Beißkorb zu tragen.
+
+SVO-010:
+  Normreferenz: 
+  Prädikat:     hat
+  Text:         hat jede/r Hundehalter/-in gem. § 6
+
+SVO-011:
+  Normreferenz: 
+  Prädikat:     melden
+  Text:         Niedersächsisches Gesetz über das Halten von Hunden vor der Vollendung des siebten Lebensmonats des
+Hundes Halterdaten und Angaben zum Hund dem Zentralen Register zu melden.
+
+SVO-012:
+  Normreferenz: 
+  Prädikat:     wurde
+  Text:         Die GovConnect GmbH
+wurde mit der Führung des Zentralen Registers beauftragt.
+
+SVO-013:
+  Normreferenz: § 10 Voraussetzungen und Inhalt der Erlaubnis
+  Prädikat:     ist
+  Text:         Nach Ablauf der Frist ist die Erlaubnis zu
+
+versagen.
+
+(4)
+
+SVO-014:
+  Normreferenz: 
+  Prädikat:     D.O.Q.-Test
+  Text:         Der D.O.Q.-Test 2.0 der Tierärztlichen Arbeitsgemeinschaft für Hundehaltung
+
+SVO-015:
+  Normreferenz: § 11 Zuverlässigkeit
+  Prädikat:     besitzt
+  Text:         Die erforderliche Zuverlässigkeit besitzt in der Regel nicht, wer
+
+1. wegen einer vorsätzlich begangenen Straftat zu einer Geldstrafe von mehr als 60 Tages-
+
+sätzen oder zu einer Freiheitsstrafe rechtskräftig verurteilt worden ist, wenn seit dem
+
+Eintritt der Rechtskraft der letzten Verurteilung fünf Jahre noch nicht verstrichen sind,
+
+oder
+
+2. wiederholt oder gröblich gegen Vorschriften dieses Gesetzes verstoßen hat.
+
+
+
+SVO-016:
+  Normreferenz: § 11 Zuverlässigkeit
+  Prädikat:     hat
+  Text:         Zur Prüfung der Zuverlässigkeit hat die Hundehalter oder der Hundehalter ein Führungs-
+
+zeugnis zur Vorlage bei einer Behörde nach § 30 Abs. 5 des Bundeszentralregistergesetzes
+
+zu beantragen.
+
+SVO-017:
+  Normreferenz: 
+  Prädikat:     hunderegister-nds.de
+  Text:         serviceline@zentrales hunderegister-nds.de (mailto:serviceline@zentrales hunderegister-nds.de)
+
+05.05.26, 15:15 FAQ - Zentrales Hunderegister Niedersachsen
+
+11/12
+
+mailto:serviceline@zentrales hunderegister-nds.de
+
+GESCHÄFTSZEITEN
+
+Mo. bis Fr.
+
+Ausgabe-Schema (Array mit 20 Objekten):
+[
+  {
+    "id": "SVO-ID aus der Eingabe",
+    "norm_type": "MUST|MAY|MUST_NOT|DEF|EXCEPT|DEADLINE|COMPETENCE|SCOPE|CHANGE|STATUS|UNKNOWN",
+    "konfidenz": "hoch|mittel|niedrig",
+    "begruendung": "kurze Begründung (max. 10 Wörter)"
+  }
+]
+
+========================================================================
+  #0004  |  15.05.2026 14:00:44  |  REQUEST
+========================================================================
+
+── SYSTEM ───────────────────────────────────────────────────────────
+Du bist ein präziser Analyst für deutsche Verwaltungstexte und Rechtssprache.
+
+Deine Aufgabe ist die Klassifikation des Normtyps eines deutschen Rechtstexts.
+
+Gib ausschließlich valides JSON zurück. Keine Markdown-Codeblöcke. Keine Erklärungen.
+
+Normtypen und ihre Auslöser:
+
+MUST     – muss, hat zu, ist zu, sind zu, ist verpflichtet, soll, haben zu,
+           ist nachzuweisen, ist mitzuführen, ist anzumelden, ist durchzuführen,
+           bedarf, bedürfen, unterliegt, pflichtig, hat sicherzustellen,
+           ist abzulegen, ist abzuschließen, ist durchzuführen, ist vorzulegen
+
+MAY      – kann, können, darf, dürfen, ist berechtigt, ist befugt,
+           ist gestattet, ist zulässig, gilt als erteilt, wird erteilt,
+           kann beantragen, kann anordnen, erhält auf Antrag
+
+MUST_NOT – darf nicht, dürfen nicht, ist untersagt, ist verboten,
+           gilt nicht für, ist nicht zulässig, ist ausgeschlossen,
+           ist nicht erlaubt, darf nur, keine aufschiebende Wirkung
+
+DEF      – im Sinne, gilt als (Definition), versteht man, ist definiert als,
+           ist anzusehen als, sind die Kernpunkte
+
+EXCEPT   – es sei denn, sofern nicht, ausgenommen, vorbehaltlich,
+           würde, würden, wäre, abweichend, unbeschadet,
+           gilt nicht (wenn Ausnahmeregel)
+
+DEADLINE – binnen, spätestens, unverzüglich, innerhalb von, bis zum,
+           vor Beginn, innerhalb des ersten Jahres, vor der Aufnahme
+
+COMPETENCE – zuständig ist, obliegt, überwacht, führt, erteilt, nimmt ab,
+              ist die zuständige Behörde, macht bekannt, werden abgenommen durch
+
+SCOPE    – gilt für, findet Anwendung, gilt entsprechend, dient der,
+           dient dem, findet statt, gilt auch für, dient auch der Umsetzung
+
+CHANGE   – geändert, wird geändert, ersetzt, aufgehoben, tritt in Kraft
+
+STATUS   – ist zugelassen, ist anerkannt, besitzt, stellt fest,
+           stellt sicher, ist bekannt, hat die Zulassung,
+           hat keine aufschiebende Wirkung, wird aufgeteilt
+
+UNKNOWN  – kein anderer Typ trifft zu, Text zu kurz oder unvollständig,
+           reine Aufzählung ohne Normauslöser
+
+── USER ─────────────────────────────────────────────────────────────
+Klassifiziere die Normtypen der folgenden 20 deutschen Rechtstexte.
+
+Gib ein JSON-Array zurück – ein Objekt je Eintrag, in exakt derselben Reihenfolge.
+
+SVO-001:
+  Normreferenz: § 13 Wesenstest
+  Prädikat:     ist
+  Text:         Der Wesenstest ist von einer vom Fachministerium zugelassenen Person durch-
+
+zuführen.
+
+SVO-002:
+  Normreferenz: § 13 Wesenstest
+  Prädikat:     findet
+  Text:         im Übrigen findet § 42 a des Verwaltungsverfahrensgesetzes
+
+Anwendung.
+
+SVO-003:
+  Normreferenz: 
+  Prädikat:     nach
+  Text:         nach § 6 Abs. 1 Niedersächsisches Gesetz über das Halten von Hunden
+
+SVO-004:
+  Normreferenz: 
+  Prädikat:     sind
+  Text:         Mit dieser Gebühr sind
+Änderungen nach § 6 Abs. 2
+
+SVO-005:
+  Normreferenz: 
+  Prädikat:     abgegolten
+  Text:         Niedersächsisches Gesetz über das Halten von Hunden abgegolten.
+
+SVO-006:
+  Normreferenz: 
+  Prädikat:     bestimmt
+  Text:         Die Höhe der Gebühr bestimmt
+
+sich nach §§ 1, 3, 5 des Niedersächsischen Verwaltungskostengesetzes
+
+(NVwKostG) in Verbindung mit dem Kostentarif laut Anlage zur Allgemeinen
+
+Gebührenordnung (AllGO).
+
+SVO-007:
+  Normreferenz: § 14 Führen eines gefährlichen Hundes
+  Prädikat:     ist
+  Text:         Außerhalb ausbruchsicherer Grundstücke ist ein gefährlicher Hund anzuleinen.
+
+SVO-008:
+  Normreferenz: 
+  Prädikat:     entspricht
+  Text:         von Hunden entspricht, zur Verfügung.
+
+SVO-009:
+  Normreferenz: 
+  Prädikat:     In
+  Text:         In § 3 Abs. 6 Nr. 4
+
+SVO-010:
+  Normreferenz: § 15 Mitwirkungspflichten
+  Prädikat:     wird
+  Text:         Das Grundrecht der Unverletzlichkeit der Wohnung (Artikel 13 Abs. 1 des
+
+Grundgesetzes) wird insoweit eingeschränkt.
+
+SVO-011:
+  Normreferenz: § 16 Zentrales Zentrales Hunderegister
+  Prädikat:     dient
+  Text:         Zentrales Hunderegister dient der
+
+Identifizierung eines Hundes, der Ermittlung der Hundehalter oder des Hundehalters und
+
+der Gewinnung von Erkenntnissen über die Gefährlichkeit von Hunden in Abhängigkeit von
+
+Rasse, Geschlecht und Alter.
+
+(2)
+
+SVO-012:
+  Normreferenz: § 16 Zentrales Zentrales Hunderegister
+  Prädikat:     macht
+  Text:         Das Fachministerium macht die Übertragung
+
+oder Beauftragung im Niedersächsischen Ministerialblatt bekannt.
+
+SVO-013:
+  Normreferenz: § 17 Zuständigkeit
+  Prädikat:     werden
+  Text:         Die Aufgaben der Fachbehörde nach diesem Gesetz werden von den Landkreisen
+
+und kreisfreien Städten wahrgenommen.
+
+SVO-014:
+  Normreferenz: § 17 Zuständigkeit
+  Prädikat:     wird
+  Text:         Die Zuständigkeit der großen selbstständigen
+
+Städte und der selbstständigen Gemeinden wird ausgeschlossen.
+
+
+
+SVO-015:
+  Normreferenz: § 17 Zuständigkeit
+  Prädikat:     Zur
+  Text:         Zur Prüfung der
+
+Voraussetzungen des Satzes 2 Nr. 1 Buchst.
+
+SVO-016:
+  Normreferenz: § 19 Übergangsregelungen
+  Prädikat:     ist
+  Text:         § 19 Übergangsregelungen
+
+(1) Ist ein Hund, der vor dem 1. Juli 2011 durch einen Transponder, der nicht den
+
+Anforderungen nach § 4 Sätze 2 und 3 entspricht, mit einer Kennnummer gekennzeichnet
+
+worden, so ist dies ausreichend.
+
+SVO-017:
+  Normreferenz: § 19 Übergangsregelungen
+  Prädikat:     geändert
+  Text:         , geändert durch Gesetz vom 30. Oktober 2003 (Nds.
+
+SVO-018:
+  Normreferenz: § 19 Übergangsregelungen
+  Prädikat:     gelten
+  Text:         S. 3, gelten
+
+als Erlaubnisse nach § 8 fort.
+
+
+
+Ausgabe-Schema (Array mit 20 Objekten):
+[
+  {
+    "id": "SVO-ID aus der Eingabe",
+    "norm_type": "MUST|MAY|MUST_NOT|DEF|EXCEPT|DEADLINE|COMPETENCE|SCOPE|CHANGE|STATUS|UNKNOWN",
+    "konfidenz": "hoch|mittel|niedrig",
+    "begruendung": "kurze Begründung (max. 10 Wörter)"
+  }
+]
+
+========================================================================
+  #0005  |  15.05.2026 14:00:57  |  REQUEST
+========================================================================
+
+── SYSTEM ───────────────────────────────────────────────────────────
+Du bist ein präziser Analyst für deutsche Verwaltungstexte und Rechtssprache.
+
+Deine Aufgabe ist die Klassifikation des Normtyps eines deutschen Rechtstexts.
+
+Gib ausschließlich valides JSON zurück. Keine Markdown-Codeblöcke. Keine Erklärungen.
+
+Normtypen und ihre Auslöser:
+
+MUST     – muss, hat zu, ist zu, sind zu, ist verpflichtet, soll, haben zu,
+           ist nachzuweisen, ist mitzuführen, ist anzumelden, ist durchzuführen,
+           bedarf, bedürfen, unterliegt, pflichtig, hat sicherzustellen,
+           ist abzulegen, ist abzuschließen, ist durchzuführen, ist vorzulegen
+
+MAY      – kann, können, darf, dürfen, ist berechtigt, ist befugt,
+           ist gestattet, ist zulässig, gilt als erteilt, wird erteilt,
+           kann beantragen, kann anordnen, erhält auf Antrag
+
+MUST_NOT – darf nicht, dürfen nicht, ist untersagt, ist verboten,
+           gilt nicht für, ist nicht zulässig, ist ausgeschlossen,
+           ist nicht erlaubt, darf nur, keine aufschiebende Wirkung
+
+DEF      – im Sinne, gilt als (Definition), versteht man, ist definiert als,
+           ist anzusehen als, sind die Kernpunkte
+
+EXCEPT   – es sei denn, sofern nicht, ausgenommen, vorbehaltlich,
+           würde, würden, wäre, abweichend, unbeschadet,
+           gilt nicht (wenn Ausnahmeregel)
+
+DEADLINE – binnen, spätestens, unverzüglich, innerhalb von, bis zum,
+           vor Beginn, innerhalb des ersten Jahres, vor der Aufnahme
+
+COMPETENCE – zuständig ist, obliegt, überwacht, führt, erteilt, nimmt ab,
+              ist die zuständige Behörde, macht bekannt, werden abgenommen durch
+
+SCOPE    – gilt für, findet Anwendung, gilt entsprechend, dient der,
+           dient dem, findet statt, gilt auch für, dient auch der Umsetzung
+
+CHANGE   – geändert, wird geändert, ersetzt, aufgehoben, tritt in Kraft
+
+STATUS   – ist zugelassen, ist anerkannt, besitzt, stellt fest,
+           stellt sicher, ist bekannt, hat die Zulassung,
+           hat keine aufschiebende Wirkung, wird aufgeteilt
+
+UNKNOWN  – kein anderer Typ trifft zu, Text zu kurz oder unvollständig,
+           reine Aufzählung ohne Normauslöser
+
+── USER ─────────────────────────────────────────────────────────────
+Klassifiziere die Normtypen der folgenden 20 deutschen Rechtstexte.
+
+Gib ein JSON-Array zurück – ein Objekt je Eintrag, in exakt derselben Reihenfolge.
+
+SVO-001:
+  Normreferenz: § 19 Übergangsregelungen
+  Prädikat:     geändert
+  Text:         , geändert durch Gesetz vom 30. Oktober 2003 (Nds.
+
+SVO-002:
+  Normreferenz: § 19 Übergangsregelungen
+  Prädikat:     gelten
+  Text:         S. 3, gelten als Zulassungen nach § 13 fort.
+
+SVO-003:
+  Normreferenz: § 1 Zweck des Gesetzes
+  Prädikat:     ist
+  Text:         Zweck des Gesetzes ist es, Gefahren für die öffentliche Sicherheit und Ordnung
+
+vorzubeugen und abzuwehren, die mit dem Halten und dem Führen von Hunden verbunden
+
+sind.
+
+SVO-004:
+  Normreferenz: § 1 Zweck des Gesetzes
+  Prädikat:     gilt
+  Text:         Dieses Gesetz gilt für das Halten von Hunden in Niedersachsen durch
+
+Hundehalterinnen und Hundehalter, die
+
+1. in Niedersachsen mit alleiniger Wohnung oder mit Hauptwohnung gemeldet sind,
+
+2. sich länger als zwei Monate ununterbrochen in Niedersachsen aufhalten, wobei
+
+unwesentliche Unterbrechungen unberücksichtigt bleiben, oder
+
+3. den Sitz, eine Niederlassung oder eine Betriebsstätte in Niedersachsen haben und der
+
+Hund sich dort aufhält,
+
+sowie für das Führen von Hunden in Niedersachsen.
+
+SVO-005:
+  Normreferenz: § 2 Allgemeine Pflichten
+  Prädikat:     sind
+  Text:         Allgemeine Pflichten
+
+Hunde sind so zu halten und zu führen, dass von ihnen keine Gefahren für die
+
+öffentliche Sicherheit und Ordnung ausgehen.
+
+SVO-006:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     ist
+  Text:         Sie ist der
+
+Gemeinde auf Verlangen durch die erfolgreiche Ablegung einer theoretischen und einer
+
+*)
+
+SVO-007:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     dient
+  Text:         Dieses Gesetz dient auch der Umsetzung der Richtlinie 2006/123/EG des Europäischen Parlaments und des
+
+Rates vom 12. Dezember 2006 über Dienstleistungen im Binnenmarkt (ABl.
+
+SVO-008:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     ist
+  Text:         Die theoretische Sachkundenachweis ist vor
+
+der Aufnahme der Hundehaltung, die praktische Prüfung während des ersten Jahres der
+
+Hundehaltung abzulegen.
+
+SVO-009:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     hat
+  Text:         Die die Prüfung abnehmende Person oder Stelle hat über das Bestehen der jeweiligen
+
+Prüfung eine Bescheinigung auszustellen und dafür ein vom Fachministerium für verbindlich
+
+erklärtes Muster zu verwenden.
+
+SVO-010:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     erhält
+  Text:         Die Anerkennung erhält auf Antrag, wer die
+
+für die Abnahme der Prüfungen erforderlichen Kenntnisse und Fähigkeiten nachweist.
+
+SVO-011:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     findet
+  Text:         im Übrigen findet § 42 a des Verwaltungsverfahrens-
+
+gesetzes Anwendung.
+
+SVO-012:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     besitzt
+  Text:         Sachkundenachweis besitzt auch, wer nachweislich
+
+1. innerhalb der letzten zehn Jahre vor der Aufnahme der Hundehaltung oder Betreuung
+
+für eine juristische Person über einen Zeitraum von mindestens zwei Jahren
+
+ununterbrochen einen Hund gehalten oder für eine juristische Person betreut hat,
+
+2. Tierärztin oder Tierarzt oder Inhaberin oder Inhaber einer Erlaubnis nach § 2 Abs. 2 der
+
+Bundes-Tierärzteordnung zur vorübergehenden Ausübung des tierärztlichen Berufs ist,
+
+
+
+SVO-013:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     besitzt
+  Text:         2 oder 2 b des Tierschutzgesetzes
+
+(Tierschutzgesetz) zum Halten von Hunden in einem Tierheim oder einer ähnlichen Einrichtung
+
+für die dort gehaltenen Hunde oder zur Ausbildung von Hunden zu Schutzzwecken für
+
+Dritte zur Unterhaltung einer Einrichtung hierfür besitzt,
+
+6. für die Betreuung eines von einer juristischen Person des öffentlichen Rechts oder
+
+fremder Streitkräfte gehaltenen Diensthundes verantwortlich ist, oder
+
+7. einen Blindenführhund oder einen Behindertenbegleithund hält.
+
+SVO-014:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     nach
+  Text:         Die nach Satz 1 Nr.
+
+SVO-015:
+  Normreferenz: § 3 Sachkunde
+  Prädikat:     macht
+  Text:         4 als gleichwertig anerkannten Prüfungen macht das Fachministerium
+
+im Niedersächsischen Ministerialblatt bekannt.
+
+SVO-016:
+  Normreferenz: § 4 Kennzeichnung
+  Prädikat:     ist
+  Text:         Kennzeichnung
+
+Ein Hund, der älter als sechs Monate ist, ist durch ein elektronisches Kennzeichen
+
+(Transponder) mit einer Kennnummer zu kennzeichnen.
+
+SVO-017:
+  Normreferenz: § 4 Kennzeichnung
+  Prädikat:     sind
+  Text:         sie sind beim Deutschen Patent- und Markenamt
+
+archivmäßig gesichert niedergelegt.
+
+SVO-018:
+  Normreferenz: § 5 Haftpflichtversicherung
+  Prädikat:     ist
+  Text:         Für die durch einen Hund, der älter als sechs Monate ist, verursachten Schäden ist eine
+
+Haftpflichtversicherung mit einer Mindestversicherungssumme von 500 000 Euro für
+
+Personenschäden und von 250 000 Euro für Sachschäden abzuschließen.
+
+SVO-019:
+  Normreferenz: § 5 Haftpflichtversicherung
+  Prädikat:     ist
+  Text:         Satz 1 des Versicherungsvertragsgesetzes ist die nach § 17 Abs. 1
+
+zuständige Gemeinde.
+
+SVO-020:
+  Normreferenz: § 7 Gefährliche Hunde
+  Prädikat:     hat
+  Text:         Erhält die Fachbehörde einen Hinweis darauf, dass ein Hund, der von einer
+
+Hundehalter oder einem Hundehalter nach § 1 Abs. 2 gehalten wird, eine gesteigerte
+
+Aggressivität aufweist, insbesondere
+
+1. Menschen oder Tiere gebissen oder sonst eine über das natürliche Maß hinausgehende
+
+Kampfbereitschaft, Angriffslust oder Schärfe gezeigt hat oder
+
+2. auf Angriffslust, auf über das natürliche Maß hinausgehende Kampfbereitschaft oder
+
+Schärfe oder auf ein anderes in der Wirkung gleichstehendes Merkmal gezüchtet,
+
+ausgebildet oder abgerichtet ist,
+
+so hat sie den Hinweis zu prüfen.
+
+Ausgabe-Schema (Array mit 20 Objekten):
+[
+  {
+    "id": "SVO-ID aus der Eingabe",
+    "norm_type": "MUST|MAY|MUST_NOT|DEF|EXCEPT|DEADLINE|COMPETENCE|SCOPE|CHANGE|STATUS|UNKNOWN",
+    "konfidenz": "hoch|mittel|niedrig",
+    "begruendung": "kurze Begründung (max. 10 Wörter)"
+  }
+]
+
+========================================================================
+  #0006  |  15.05.2026 14:01:02  |  REQUEST
+========================================================================
+
+── SYSTEM ───────────────────────────────────────────────────────────
+Du bist ein präziser Analyst für deutsche Verwaltungstexte und Rechtssprache.
+
+Deine Aufgabe ist die Klassifikation des Normtyps eines deutschen Rechtstexts.
+
+Gib ausschließlich valides JSON zurück. Keine Markdown-Codeblöcke. Keine Erklärungen.
+
+Normtypen und ihre Auslöser:
+
+MUST     – muss, hat zu, ist zu, sind zu, ist verpflichtet, soll, haben zu,
+           ist nachzuweisen, ist mitzuführen, ist anzumelden, ist durchzuführen,
+           bedarf, bedürfen, unterliegt, pflichtig, hat sicherzustellen,
+           ist abzulegen, ist abzuschließen, ist durchzuführen, ist vorzulegen
+
+MAY      – kann, können, darf, dürfen, ist berechtigt, ist befugt,
+           ist gestattet, ist zulässig, gilt als erteilt, wird erteilt,
+           kann beantragen, kann anordnen, erhält auf Antrag
+
+MUST_NOT – darf nicht, dürfen nicht, ist untersagt, ist verboten,
+           gilt nicht für, ist nicht zulässig, ist ausgeschlossen,
+           ist nicht erlaubt, darf nur, keine aufschiebende Wirkung
+
+DEF      – im Sinne, gilt als (Definition), versteht man, ist definiert als,
+           ist anzusehen als, sind die Kernpunkte
+
+EXCEPT   – es sei denn, sofern nicht, ausgenommen, vorbehaltlich,
+           würde, würden, wäre, abweichend, unbeschadet,
+           gilt nicht (wenn Ausnahmeregel)
+
+DEADLINE – binnen, spätestens, unverzüglich, innerhalb von, bis zum,
+           vor Beginn, innerhalb des ersten Jahres, vor der Aufnahme
+
+COMPETENCE – zuständig ist, obliegt, überwacht, führt, erteilt, nimmt ab,
+              ist die zuständige Behörde, macht bekannt, werden abgenommen durch
+
+SCOPE    – gilt für, findet Anwendung, gilt entsprechend, dient der,
+           dient dem, findet statt, gilt auch für, dient auch der Umsetzung
+
+CHANGE   – geändert, wird geändert, ersetzt, aufgehoben, tritt in Kraft
+
+STATUS   – ist zugelassen, ist anerkannt, besitzt, stellt fest,
+           stellt sicher, ist bekannt, hat die Zulassung,
+           hat keine aufschiebende Wirkung, wird aufgeteilt
+
+UNKNOWN  – kein anderer Typ trifft zu, Text zu kurz oder unvollständig,
+           reine Aufzählung ohne Normauslöser
+
+── USER ─────────────────────────────────────────────────────────────
+Klassifiziere die Normtypen der folgenden 1 deutschen Rechtstexte.
+
+Gib ein JSON-Array zurück – ein Objekt je Eintrag, in exakt derselben Reihenfolge.
+
+SVO-001:
+  Normreferenz: § 7 Gefährliche Hunde
+  Prädikat:     stellt
+  Text:         Ergibt die Prüfung nach Satz 1 Tatsachen, die den
+
+Verdacht rechtfertigen, dass von dem Hund eine Gefahr für die öffentliche Sicherheit
+
+ausgeht, so stellt die Fachbehörde fest, dass der Hund gefährlich ist.
+
+Ausgabe-Schema (Array mit 1 Objekten):
+[
+  {
+    "id": "SVO-ID aus der Eingabe",
+    "norm_type": "MUST|MAY|MUST_NOT|DEF|EXCEPT|DEADLINE|COMPETENCE|SCOPE|CHANGE|STATUS|UNKNOWN",
+    "konfidenz": "hoch|mittel|niedrig",
+    "begruendung": "kurze Begründung (max. 10 Wörter)"
+  }
+]
+
+========================================================================
+  #0007  |  15.05.2026 14:02:36  |  REQUEST
+========================================================================
+
+── SYSTEM ───────────────────────────────────────────────────────────
+Du bist ein präziser Analyst für deutsche Verwaltungstexte und Rechtssprache.
+
+Deine Aufgabe ist die Klassifikation des Normtyps eines deutschen Rechtstexts.
+
+Gib ausschließlich valides JSON zurück. Keine Markdown-Codeblöcke. Keine Erklärungen.
+
+Normtypen und ihre Auslöser:
+
+MUST     – muss, hat zu, ist zu, sind zu, ist verpflichtet, soll, haben zu,
+           ist nachzuweisen, ist mitzuführen, ist anzumelden, ist durchzuführen,
+           bedarf, bedürfen, unterliegt, pflichtig, hat sicherzustellen,
+           ist abzulegen, ist abzuschließen, ist durchzuführen, ist vorzulegen
+
+MAY      – kann, können, darf, dürfen, ist berechtigt, ist befugt,
+           ist gestattet, ist zulässig, gilt als erteilt, wird erteilt,
+           kann beantragen, kann anordnen, erhält auf Antrag
+
+MUST_NOT – darf nicht, dürfen nicht, ist untersagt, ist verboten,
+           gilt nicht für, ist nicht zulässig, ist ausgeschlossen,
+           ist nicht erlaubt, darf nur, keine aufschiebende Wirkung
+
+DEF      – im Sinne, gilt als (Definition), versteht man, ist definiert als,
+           ist anzusehen als, sind die Kernpunkte
+
+EXCEPT   – es sei denn, sofern nicht, ausgenommen, vorbehaltlich,
+           würde, würden, wäre, abweichend, unbeschadet,
+           gilt nicht (wenn Ausnahmeregel)
+
+DEADLINE – binnen, spätestens, unverzüglich, innerhalb von, bis zum,
+           vor Beginn, innerhalb des ersten Jahres, vor der Aufnahme
+
+COMPETENCE – zuständig ist, obliegt, überwacht, führt, erteilt, nimmt ab,
+              ist die zuständige Behörde, macht bekannt, werden abgenommen durch
+
+SCOPE    – gilt für, findet Anwendung, gilt entsprechend, dient der,
+           dient dem, findet statt, gilt auch für, dient auch der Umsetzung
+
+CHANGE   – geändert, wird geändert, ersetzt, aufgehoben, tritt in Kraft
+
+STATUS   – ist zugelassen, ist anerkannt, besitzt, stellt fest,
+           stellt sicher, ist bekannt, hat die Zulassung,
+           hat keine aufschiebende Wirkung, wird aufgeteilt
+
+UNKNOWN  – kein anderer Typ trifft zu, Text zu kurz oder unvollständig,
+           reine Aufzählung ohne Normauslöser
+
+── USER ─────────────────────────────────────────────────────────────
+Klassifiziere die Normtypen der folgenden 20 deutschen Rechtstexte.
+
+Gib ein JSON-Array zurück – ein Objekt je Eintrag, in exakt derselben Reihenfolge.
+
+SVO-001:
+  Normreferenz: § 7 Gefährliche Hunde
+  Prädikat:     gilt
+  Text:         Absatz 1 Sätze 2
+
+und 3 gilt entsprechend.
+
+SVO-002:
+  Normreferenz: § 9 Beantragung der Erlaubnis
+  Prädikat:     gilt
+  Text:         Wird die Erlaubnis beantragt, so gilt das Halten des gefährlichen
+
+Hundes bis zur Entscheidung über den Antrag als erlaubt.
+
+SVO-003:
+  Normreferenz: § 9 Beantragung der Erlaubnis
+  Prädikat:     ist
+  Text:         diese oder dieser ist darauf hinzuweisen, dass die Gefährlichkeit
+
+des Hundes festgestellt worden ist.
+
+SVO-004:
+  Normreferenz: § 9 Beantragung der Erlaubnis
+  Prädikat:     ist
+  Text:         Ab Feststellung der Gefährlichkeit ist der Hund
+
+außerhalb ausbruchsicherer Grundstücke anzuleinen und hat einen Beißkorb zu tragen.
+
+SVO-005:
+  Normreferenz: § 10 Voraussetzungen und Inhalt der Erlaubnis
+  Prädikat:     ist
+  Text:         Die Erlaubnis nach § 8 ist nur zu erteilen, wenn
+
+1. die Hundehalter oder der Hundehalter
+
+a) das 18. Lebensjahr vollendet hat,
+
+b) die zum Halten des Hundes erforderliche Zuverlässigkeit (§ 1 und persönliche
+
+Eignung (§ 1 besitzt und
+
+c) nach der Feststellung der Gefährlichkeit des Hundes eine praktische Sachkunde-
+
+prüfung gemäß § 3 mit dem Hund bestanden hat, § 3 Abs. 6 findet insoweit keine
+
+Anwendung,
+
+2. die Fähigkeit des Hundes zu sozialverträglichem Verhalten durch einen Wesenstest
+
+(§ 1 nachgewiesen ist und
+
+8
+
+3. der Hund gemäß § 4 gekennzeichnet und für ihn eine Versicherung nach § 5 nach-
+
+gewiesen ist.
+
+SVO-006:
+  Normreferenz: § 10 Voraussetzungen und Inhalt der Erlaubnis
+  Prädikat:     ist
+  Text:         Nach Ablauf der Frist ist die Erlaubnis zu
+
+versagen.
+
+SVO-007:
+  Normreferenz: § 11 Zuverlässigkeit
+  Prädikat:     besitzt
+  Text:         Die erforderliche Zuverlässigkeit besitzt in der Regel nicht, wer
+
+1. wegen einer vorsätzlich begangenen Straftat zu einer Geldstrafe von mehr als 60 Tages-
+
+sätzen oder zu einer Freiheitsstrafe rechtskräftig verurteilt worden ist, wenn seit dem
+
+Eintritt der Rechtskraft der letzten Verurteilung fünf Jahre noch nicht verstrichen sind,
+
+oder
+
+2. wiederholt oder gröblich gegen Vorschriften dieses Gesetzes verstoßen hat.
+
+SVO-008:
+  Normreferenz: § 11 Zuverlässigkeit
+  Prädikat:     hat
+  Text:         Zur Prüfung der Zuverlässigkeit hat die Hundehalter oder der Hundehalter ein Führungs-
+
+zeugnis zur Vorlage bei einer Behörde nach § 30 Abs. 5 des Bundeszentralregistergesetzes
+
+zu beantragen.
+
+SVO-009:
+  Normreferenz: § 13 Wesenstest
+  Prädikat:     ist
+  Text:         Der Wesenstest ist von einer vom Fachministerium zugelassenen Person durch-
+
+zuführen.
+
+SVO-010:
+  Normreferenz: § 13 Wesenstest
+  Prädikat:     findet
+  Text:         im Übrigen findet § 42 a des Verwaltungsverfahrensgesetzes
+
+Anwendung.
+
+SVO-011:
+  Normreferenz: § 14 Führen eines gefährlichen Hundes
+  Prädikat:     ist
+  Text:         Außerhalb ausbruchsicherer Grundstücke ist ein gefährlicher Hund anzuleinen.
+
+SVO-012:
+  Normreferenz: § 15 Mitwirkungspflichten
+  Prädikat:     wird
+  Text:         Das Grundrecht der Unverletzlichkeit der Wohnung (Artikel 13 Abs. 1 des
+
+Grundgesetzes) wird insoweit eingeschränkt.
+
+SVO-013:
+  Normreferenz: § 16 Zentrales Zentrales Hunderegister
+  Prädikat:     dient
+  Text:         Zentrales Hunderegister dient der
+
+Identifizierung eines Hundes, der Ermittlung der Hundehalter oder des Hundehalters und
+
+der Gewinnung von Erkenntnissen über die Gefährlichkeit von Hunden in Abhängigkeit von
+
+Rasse, Geschlecht und Alter.
+
+SVO-014:
+  Normreferenz: § 16 Zentrales Zentrales Hunderegister
+  Prädikat:     macht
+  Text:         Das Fachministerium macht die Übertragung
+
+oder Beauftragung im Niedersächsischen Ministerialblatt bekannt.
+
+SVO-015:
+  Normreferenz: § 17 Zuständigkeit
+  Prädikat:     werden
+  Text:         Die Aufgaben der Fachbehörde nach diesem Gesetz werden von den Landkreisen
+
+und kreisfreien Städten wahrgenommen.
+
+SVO-016:
+  Normreferenz: § 17 Zuständigkeit
+  Prädikat:     wird
+  Text:         Die Zuständigkeit der großen selbstständigen
+
+Städte und der selbstständigen Gemeinden wird ausgeschlossen.
+
+SVO-017:
+  Normreferenz: § 17 Zuständigkeit
+  Prädikat:     sind
+  Text:         a) wegen einer vorsätzlich begangenen Straftat zu einer Geldstrafe von mehr als 60
+
+Tagessätzen oder zu einer Freiheitsstrafe rechtskräftig verurteilt worden sind, wenn
+
+seit dem Eintritt der Rechtskraft der letzten Verurteilung fünf Jahre noch nicht
+
+verstrichen sind,
+
+b) geschäftsunfähig sind,
+
+c) aufgrund einer psychischen Krankheit oder einer geistigen oder seelischen
+
+Behinderung nach § 1896 des Bürgerlichen Gesetzbuchs betreut werden oder
+
+d) von Alkohol oder Betäubungsmitteln abhängig sind,
+
+
+
+SVO-018:
+  Normreferenz: § 17 Zuständigkeit
+  Prädikat:     Zur
+  Text:         Zur Prüfung der
+
+Voraussetzungen des Satzes 2 Nr. 1 Buchst.
+
+SVO-019:
+  Normreferenz: § 19 Übergangsregelungen
+  Prädikat:     ist
+  Text:         (1) Ist ein Hund, der vor dem 1. Juli 2011 durch einen Transponder, der nicht den
+
+Anforderungen nach § 4 Sätze 2 und 3 entspricht, mit einer Kennnummer gekennzeichnet
+
+worden, so ist dies ausreichend.
+
+SVO-020:
+  Normreferenz: § 19 Übergangsregelungen
+  Prädikat:     geändert
+  Text:         , geändert durch Gesetz vom 30. Oktober 2003 (Nds.
+
+Ausgabe-Schema (Array mit 20 Objekten):
+[
+  {
+    "id": "SVO-ID aus der Eingabe",
+    "norm_type": "MUST|MAY|MUST_NOT|DEF|EXCEPT|DEADLINE|COMPETENCE|SCOPE|CHANGE|STATUS|UNKNOWN",
+    "konfidenz": "hoch|mittel|niedrig",
+    "begruendung": "kurze Begründung (max. 10 Wörter)"
+  }
+]
+
+========================================================================
+  #0008  |  15.05.2026 14:02:48  |  REQUEST
+========================================================================
+
+── SYSTEM ───────────────────────────────────────────────────────────
+Du bist ein präziser Analyst für deutsche Verwaltungstexte und Rechtssprache.
+
+Deine Aufgabe ist die Klassifikation des Normtyps eines deutschen Rechtstexts.
+
+Gib ausschließlich valides JSON zurück. Keine Markdown-Codeblöcke. Keine Erklärungen.
+
+Normtypen und ihre Auslöser:
+
+MUST     – muss, hat zu, ist zu, sind zu, ist verpflichtet, soll, haben zu,
+           ist nachzuweisen, ist mitzuführen, ist anzumelden, ist durchzuführen,
+           bedarf, bedürfen, unterliegt, pflichtig, hat sicherzustellen,
+           ist abzulegen, ist abzuschließen, ist durchzuführen, ist vorzulegen
+
+MAY      – kann, können, darf, dürfen, ist berechtigt, ist befugt,
+           ist gestattet, ist zulässig, gilt als erteilt, wird erteilt,
+           kann beantragen, kann anordnen, erhält auf Antrag
+
+MUST_NOT – darf nicht, dürfen nicht, ist untersagt, ist verboten,
+           gilt nicht für, ist nicht zulässig, ist ausgeschlossen,
+           ist nicht erlaubt, darf nur, keine aufschiebende Wirkung
+
+DEF      – im Sinne, gilt als (Definition), versteht man, ist definiert als,
+           ist anzusehen als, sind die Kernpunkte
+
+EXCEPT   – es sei denn, sofern nicht, ausgenommen, vorbehaltlich,
+           würde, würden, wäre, abweichend, unbeschadet,
+           gilt nicht (wenn Ausnahmeregel)
+
+DEADLINE – binnen, spätestens, unverzüglich, innerhalb von, bis zum,
+           vor Beginn, innerhalb des ersten Jahres, vor der Aufnahme
+
+COMPETENCE – zuständig ist, obliegt, überwacht, führt, erteilt, nimmt ab,
+              ist die zuständige Behörde, macht bekannt, werden abgenommen durch
+
+SCOPE    – gilt für, findet Anwendung, gilt entsprechend, dient der,
+           dient dem, findet statt, gilt auch für, dient auch der Umsetzung
+
+CHANGE   – geändert, wird geändert, ersetzt, aufgehoben, tritt in Kraft
+
+STATUS   – ist zugelassen, ist anerkannt, besitzt, stellt fest,
+           stellt sicher, ist bekannt, hat die Zulassung,
+           hat keine aufschiebende Wirkung, wird aufgeteilt
+
+UNKNOWN  – kein anderer Typ trifft zu, Text zu kurz oder unvollständig,
+           reine Aufzählung ohne Normauslöser
+
+── USER ─────────────────────────────────────────────────────────────
+Klassifiziere die Normtypen der folgenden 3 deutschen Rechtstexte.
+
+Gib ein JSON-Array zurück – ein Objekt je Eintrag, in exakt derselben Reihenfolge.
+
+SVO-001:
+  Normreferenz: § 19 Übergangsregelungen
+  Prädikat:     gelten
+  Text:         S. 3, gelten
+
+als Erlaubnisse nach § 8 fort.
+
+SVO-002:
+  Normreferenz: § 19 Übergangsregelungen
+  Prädikat:     geändert
+  Text:         , geändert durch Gesetz vom 30. Oktober 2003 (Nds.
+
+SVO-003:
+  Normreferenz: § 19 Übergangsregelungen
+  Prädikat:     gelten
+  Text:         S. 3, gelten als Zulassungen nach § 13 fort.
+
+Ausgabe-Schema (Array mit 3 Objekten):
+[
+  {
+    "id": "SVO-ID aus der Eingabe",
+    "norm_type": "MUST|MAY|MUST_NOT|DEF|EXCEPT|DEADLINE|COMPETENCE|SCOPE|CHANGE|STATUS|UNKNOWN",
+    "konfidenz": "hoch|mittel|niedrig",
+    "begruendung": "kurze Begründung (max. 10 Wörter)"
+  }
+]

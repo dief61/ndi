@@ -513,19 +513,99 @@ ner:
   # Format: "Text": "NEUES_LABEL"
   # Groß-/Kleinschreibung wird ignoriert.
   label_corrections:
+    # ── Globale Flair-Korrekturen (plattformweit) ─────────────────────────
+    # Nur für Entitäten die strukturell IMMER falsch klassifiziert werden.
+    # Register-spezifische Korrekturen gehören in docs.yaml → ner_extensions.
+
     # Privatunternehmen die als Behörde erkannt werden
     "Telekom":        "SONSTIGE"
     "Deutsche Post":  "SONSTIGE"
     "Bundespost":     "BEHÖRDE"
     "TÜV":            "SONSTIGE"
     "DEKRA":          "SONSTIGE"
-    # NER False Positives aus Qualitätsbericht
-    "Feststellung":   "SONSTIGE"   # wird fälschlich als GESETZ erkannt
-    "Feststellungen": "SONSTIGE"
-    "Hundehaltung":   "DATENOBJEKT" # eher Datenobjekt als SONSTIGE
-    "Hundehaltungen": "DATENOBJEKT"
-    "Antragsteller":  "ROLLE"       # ist eine Rolle, nicht SONSTIGE
+
+    # Verwaltungsrechtliche Rollen (Flair-Fehler)
+    "Antragsteller":  "ROLLE"
     "Antragstellerin": "ROLLE"
+    "Antragstellende": "ROLLE"
+
+    # Verwaltungsakte die fälschlich als GESETZ erkannt werden
+    "Feststellung":   "SONSTIGE"
+    "Feststellungen": "SONSTIGE"
+
+  # ── Agnostische Datenobjekte ─────────────────────────────────────────────
+  # Diese Begriffe werden plattformweit als DATENOBJEKT klassifiziert.
+  # Kriterium: Begriff taucht in mind. 3 verschiedenen Rechtsgebieten auf.
+  # Register-spezifische Begriffe → docs.yaml → ner_extensions.DATENOBJEKT
+  agnostische_datenobjekte:
+    # Verwaltungsakte
+    - "Antrag"
+    - "Antragstellung"
+    - "Bescheid"
+    - "Erlaubnis"
+    - "Genehmigung"
+    - "Zulassung"
+    - "Anerkennung"
+    - "Ausnahmegenehmigung"
+    - "Widerspruch"
+    - "Klage"
+    - "Beschwerde"
+    # Nachweise & Dokumente
+    - "Nachweis"
+    - "Bescheinigung"
+    - "Zertifikat"
+    - "Ausweis"
+    - "Zeugnis"
+    - "Urkunde"
+    - "Attest"
+    # Prüfungen & Prozesse
+    - "Prüfung"
+    - "Überprüfung"
+    - "Beurteilung"
+    - "Bewertung"
+    - "Meldung"
+    - "Anmeldung"
+    - "Abmeldung"
+    - "Mitteilung"
+    - "Anzeige"
+    # Register & Verzeichnisse
+    - "Register"
+    - "Verzeichnis"
+    - "Liste"
+    - "Datei"
+    - "Datenbank"
+
+  # ── Agnostische Persistenz-Prädikate ─────────────────────────────────────
+  # Prädikate die auf Datenpersistenz hinweisen (IM-Signal für M3/M4).
+  # Plattformweit gültig – register-unabhängig.
+  persistenz_praedikate:
+    - "speichern"
+    - "führen"
+    - "anlegen"
+    - "registrieren"
+    - "eintragen"
+    - "verwalten"
+    - "erfassen"
+    - "aufnehmen"
+    - "archivieren"
+    - "dokumentieren"
+    - "aufzeichnen"
+
+  # ── Agnostische Attribut-Prädikate ───────────────────────────────────────
+  # Prädikate die auf Datenattribute hinweisen (IM-Signal für M3/M4).
+  attribut_praedikate:
+    - "ist anzugeben"
+    - "sind anzugeben"
+    - "ist mitzuteilen"
+    - "sind mitzuteilen"
+    - "enthält"
+    - "enthalten"
+    - "umfasst"
+    - "umfassen"
+    - "besteht aus"
+    - "bestehen aus"
+    - "hat"
+    - "hat zu enthalten"
 
   # ── Ansatz 4: Kontext-Validierung ────────────────────────────────────────
   # Ein Label wird nur akzeptiert wenn mindestens eines der Signalwörter
@@ -733,7 +813,7 @@ question_filter:
 
 llm_normtyp:
   enabled:         true   # false = nur spaCy, kein LLM-Aufruf
-  batch_size:      30     # SVOs pro LLM-Batch
+  batch_size:      20     # SVOs pro LLM-Batch
   min_confidence:  0.75   # LLM-Konfidenz unter diesem Wert → UNKNOWN bleibt
 
   # Test-Budget: Maximale Anzahl Batches pro NLP-Lauf
@@ -745,7 +825,7 @@ llm_normtyp:
   # Da jetzt 20 SVOs = 1 API-Call: Pause zwischen den Batches
   # Free-Tier Gemini: 1-2s reicht (viel weniger Calls)
   # On-Premise Ollama: 0
-  delay_sek: 9.0
+  delay_sek: 1.0
 
   # Prompts und Antworten in Logfile schreiben
   # Logfiles unter: services/ingest/logs/llm_normtyp_DATUM.log

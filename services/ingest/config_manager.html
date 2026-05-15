@@ -1602,6 +1602,34 @@ function utcToLocal(isoStr, withDate=true) {
   } catch { return isoStr; }
 }
 
+// ── Modal-Dialog ──────────────────────────────────────────────────────────────
+function showModal(title, bodyHtml, onOk) {
+  let modal = document.getElementById('cm-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'cm-modal';
+    modal.style.cssText =
+      'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;' +
+      'display:flex;align-items:center;justify-content:center';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;
+      width:min(560px,90vw);max-height:80vh;overflow-y:auto;padding:24px">
+      <div style="font-size:15px;font-weight:500;margin-bottom:16px">${title}</div>
+      <div>${bodyHtml}</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px">
+        <button class="btn btn-ghost" onclick="document.getElementById('cm-modal').style.display='none'">
+          Abbrechen
+        </button>
+        <button class="btn btn-primary" onclick="(${onOk.toString()})();document.getElementById('cm-modal').style.display='none'">
+          Speichern
+        </button>
+      </div>
+    </div>`;
+  modal.style.display = 'flex';
+}
+
 function tbl(cols, rows, opts={}) {
   const ths = cols.map(c=>`<th>${c}</th>`).join('');
   const trs = rows.map(r=>`<tr>${r.map((c,i)=>`<td>${c??''}</td>`).join('')}</tr>`).join('');
@@ -2169,6 +2197,26 @@ function renderNlpForm(d) {
       `<input type="number" id="worker-mintoken" value="${worker.min_token_count||10}" min="1" onchange="markDirty()">`)}
   </div>
   <div class="section">
+    <div class="section-title">🔍 Agnostische NER-Klassifikation</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
+      Begriffe die plattformweit als DATENOBJEKT klassifiziert werden –
+      unabhängig vom Register. Register-spezifische Begriffe →
+      <strong>Dokument-Metadaten → ner_extensions</strong>.
+    </p>
+    ${field('Agnostische Datenobjekte',
+      'Verwaltungsrechtliche Universalbegriffe (einer je Zeile)',
+      `<textarea id="ner-agnostisch" rows="6" style="width:100%;font-family:var(--mono);font-size:12px;resize:vertical"
+        onchange="markDirty()">${escHtml((ner.agnostische_datenobjekte||[]).join('\n'))}</textarea>`)}
+    ${field('Persistenz-Prädikate',
+      'Prädikate die auf DB-Persistenz hinweisen – IM-Signal für M3/M4 (einer je Zeile)',
+      `<textarea id="ner-persistenz" rows="4" style="width:100%;font-family:var(--mono);font-size:12px;resize:vertical"
+        onchange="markDirty()">${escHtml((ner.persistenz_praedikate||[]).join('\n'))}</textarea>`)}
+    ${field('Attribut-Prädikate',
+      'Prädikate die auf Datenattribute hinweisen – IM-Signal für M3/M4 (einer je Zeile)',
+      `<textarea id="ner-attribut" rows="4" style="width:100%;font-family:var(--mono);font-size:12px;resize:vertical"
+        onchange="markDirty()">${escHtml((ner.attribut_praedikate||[]).join('\n'))}</textarea>`)}
+  </div>
+  <div class="section">
     <div class="section-title">🤖 LLM-Normtyp-Klassifikation</div>
     <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Klassifiziert UNKNOWN-SVOs via LLM-Gateway. Voraussetzung: Gateway konfiguriert.</p>
     ${toggle('llm-norm-enabled','LLM aktiviert','false = nur spaCy', llm.enabled!==false)}
@@ -2598,6 +2646,12 @@ function renderDocsForm(d) {
           ).join('')}
         </select>
       </td>
+      <td>
+        <button class="btn btn-ghost" style="font-size:11px;padding:3px 6px"
+          onclick="editNerExtensions('${escHtml(doc.fname)}')">
+          ${Object.keys(doc.ner_extensions||{}).length > 0 ? '✏️' : '+'} NER
+        </button>
+      </td>
       <td><button class="del-row" onclick="deleteDocEntry(${i})">×</button></td>
     </tr>`).join('');
 
@@ -2665,6 +2719,48 @@ function renderDocsForm(d) {
     </table>
     <button class="add-row-btn" onclick="addDocEntry()">+ Neues Dokument</button>
   </div>`;
+}
+
+function editNerExtensions(fname) {
+  const d    = configs[current].content;
+  const doc  = d[fname] || {};
+  const ext  = doc.ner_extensions || {};
+  const LABELS = ['DATENOBJEKT','ROLLE','BEHÖRDE','SONSTIGE'];
+
+  const fieldsHtml = LABELS.map(lbl => `
+    <div style="margin-bottom:12px">
+      <div style="font-size:12px;font-weight:500;color:var(--accent);margin-bottom:4px">
+        ${lbl} <span style="font-weight:400;color:var(--muted);font-size:11px">(einer je Zeile)</span>
+      </div>
+      <textarea id="nerext-${lbl}" rows="3"
+        style="width:100%;font-family:var(--mono);font-size:12px;resize:vertical"
+        placeholder="z.B. Hundehaltung">${(ext[lbl]||[]).join('\n')}</textarea>
+    </div>`).join('');
+
+  showModal(
+    'NER-Erweiterungen: ' + fname,
+    '<p style="font-size:12px;color:var(--muted);margin-bottom:16px">' +
+    'Register-spezifische Begriffe nur für dieses Dokument.<br>' +
+    'Plattformweite Begriffe → NLP-Konfiguration → Agnostische Datenobjekte.</p>' +
+    fieldsHtml,
+    function() {
+      const parseLines = id => (document.getElementById(id)?.value||'')
+        .split('\n').map(l=>l.trim()).filter(Boolean);
+      const newExt = {};
+      LABELS.forEach(lbl => {
+        const vals = parseLines('nerext-' + lbl);
+        if (vals.length > 0) newExt[lbl] = vals;
+      });
+      if (!d[fname]) d[fname] = {};
+      if (Object.keys(newExt).length > 0) {
+        d[fname].ner_extensions = newExt;
+      } else {
+        delete d[fname].ner_extensions;
+      }
+      markDirty();
+      renderContent();
+    }
+  );
 }
 
 function addDocEntry() {
@@ -2971,6 +3067,15 @@ function collectFormData(name) {
     d.worker.chunk_batch_size   = gi('worker-batch');
     d.worker.overwrite_existing = gc('worker-overwrite');
     d.worker.min_token_count    = gi('worker-mintoken');
+    // agnostische NER-Listen aus Textareas
+    const nerCfg = d.ner || {};
+    const parseLines = id => (document.getElementById(id)?.value||'')
+      .split('\n').map(l=>l.trim()).filter(Boolean);
+    nerCfg.agnostische_datenobjekte = parseLines('ner-agnostisch');
+    nerCfg.persistenz_praedikate    = parseLines('ner-persistenz');
+    nerCfg.attribut_praedikate      = parseLines('ner-attribut');
+    d.ner = nerCfg;
+
     d.llm_normtyp = d.llm_normtyp || {};
     d.llm_normtyp.enabled          = gc('llm-norm-enabled');
     d.llm_normtyp.batch_size       = gi('llm-norm-batch');

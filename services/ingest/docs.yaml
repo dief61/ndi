@@ -218,6 +218,30 @@ Hundegesetz.pdf:
   title:        NHundG – Niedersächsisches Hundegesetz
   jurisdiction: NDS
   version:      "2020"
+  # ── Register-spezifische NER-Erweiterungen ────────────────────────────────
+  # Diese Labels gelten NUR für dieses Dokument.
+  # Plattformweit gültige Begriffe → nlp_config.yaml → agnostische_datenobjekte
+  ner_extensions:
+    DATENOBJEKT:
+      - "Hundehaltung"
+      - "Hundehaltungen"
+      - "Wesenstest"
+      - "Hundeführerschein"
+      - "Hundeführerscheinprüfung"
+      - "Leinenpflicht"
+      - "Maulkorbpflicht"
+      - "Zentrales Hunderegister"
+      - "Hunderegister"
+      - "Transponder"
+      - "Mikrochip"
+    ROLLE:
+      - "Hundehalter"
+      - "Hundehalterin"
+      - "Hundeführer"
+      - "Tierhalter"
+    SONSTIGE:
+      - "gefährlicher Hund"
+      - "Wesensmerkmale"
 
 FAQ1-NHundG.pdf:
   source_type:  auslegung

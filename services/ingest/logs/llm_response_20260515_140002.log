@@ -1,0 +1,1459 @@
+# LLM Response-Log  |  gestartet: 15.05.2026 14:00:02
+# Jede Antwort ist mit #NNN nummeriert.
+# Zugehöriger Request: llm_request_20260515_140002.log #NNN
+
+========================================================================
+  #0001  |  15.05.2026 14:00:14  |  RESPONSE  |  12562ms  |  ✅ OK
+========================================================================
+── ANTWORT (RAW) ────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Beschreibt lediglich den Zweck, keine direkte Normpflicht."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält den Anwendungsbereich des Gesetzes."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Formuliert eine verbindliche Verhaltenspflicht."
+  },
+  {
+    "id": "SVO-004",
+    "norm_type": "DEF",
+    "konfidenz": "hoch",
+    "begruendung": "Definiert die Kernpunkte des Gesetzes."
+  },
+  {
+    "id": "SVO-005",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Beschreibt den Status der Aufteilung der Prüfung."
+  },
+  {
+    "id": "SVO-006",
+    "norm_type": "DEADLINE",
+    "konfidenz": "hoch",
+    "begruendung": "Legt zeitliche Fristen für die Prüfung fest."
+  },
+  {
+    "id": "SVO-007",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Regelt die Zuständigkeit für die Abnahme der Prüfungen."
+  },
+  {
+    "id": "SVO-008",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Definiert die Voraussetzungen für den Status als Sachkundeprüfer."
+  },
+  {
+    "id": "SVO-009",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält eine verbindliche Handlungspflicht."
+  },
+  {
+    "id": "SVO-010",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Verpflichtet zum Abschluss einer Haftpflichtversicherung."
+  },
+  {
+    "id": "SVO-011",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Bestimmt die zuständige Behörde für die Überwachung."
+  },
+  {
+    "id": "SVO-012",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Regelt die Zuständigkeit für die Führung des Registers."
+  },
+  {
+    "id": "SVO-013",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Bestimmt den Anwendungsbereich für gefährliche Hunde."
+  },
+  {
+    "id": "SVO-014",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Verpflichtet die Behörde zur Prüfung von Hinweisen."
+  },
+  {
+    "id": "SVO-015",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Stellt den Status der Gefährlichkeit eines Hundes fest."
+  }
+]
+
+── GEPARST ──────────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Beschreibt lediglich den Zweck, keine direkte Normpflicht."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält den Anwendungsbereich des Gesetzes."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Formuliert eine verbindliche Verhaltenspflicht."
+  },
+  {
+    "id": "SVO-004",
+    "norm_type": "DEF",
+    "konfidenz": "hoch",
+    "begruendung": "Definiert die Kernpunkte des Gesetzes."
+  },
+  {
+    "id": "SVO-005",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Beschreibt den Status der Aufteilung der Prüfung."
+  },
+  {
+    "id": "SVO-006",
+    "norm_type": "DEADLINE",
+    "konfidenz": "hoch",
+    "begruendung": "Legt zeitliche Fristen für die Prüfung fest."
+  },
+  {
+    "id": "SVO-007",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Regelt die Zuständigkeit für die Abnahme der Prüfungen."
+  },
+  {
+    "id": "SVO-008",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Definiert die Voraussetzungen für den Status als Sachkundeprüfer."
+  },
+  {
+    "id": "SVO-009",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält eine verbindliche Handlungspflicht."
+  },
+  {
+    "id": "SVO-010",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Verpflichtet zum Abschluss einer Haftpflichtversicherung."
+  },
+  {
+    "id": "SVO-011",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Bestimmt die zuständige Behörde für die Überwachung."
+  },
+  {
+    "id": "SVO-012",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Regelt die Zuständigkeit für die Führung des Registers."
+  },
+  {
+    "id": "SVO-013",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Bestimmt den Anwendungsbereich für gefährliche Hunde."
+  },
+  {
+    "id": "SVO-014",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Verpflichtet die Behörde zur Prüfung von Hinweisen."
+  },
+  {
+    "id": "SVO-015",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Stellt den Status der Gefährlichkeit eines Hundes fest."
+  }
+]
+
+========================================================================
+  #0002  |  15.05.2026 14:00:25  |  RESPONSE  |  10022ms  |  ✅ OK
+========================================================================
+── ANTWORT (RAW) ────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Kein normativer Rechtstext, sondern Navigationshinweis."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Verpflichtung zur Ablegung einer Prüfung."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung dient der Umsetzung."
+  },
+  {
+    "id": "SVO-004",
+    "norm_type": "DEADLINE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält zeitliche Vorgaben vor Aufnahme und während des Jahres."
+  },
+  {
+    "id": "SVO-005",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Verpflichtung hat auszustellen und zu verwenden."
+  },
+  {
+    "id": "SVO-006",
+    "norm_type": "MAY",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung erhält auf Antrag."
+  },
+  {
+    "id": "SVO-007",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung findet Anwendung."
+  },
+  {
+    "id": "SVO-008",
+    "norm_type": "STATUS",
+    "konfidenz": "mittel",
+    "begruendung": "Beschreibt den Status der Verantwortlichkeit oder Zulassung."
+  },
+  {
+    "id": "SVO-009",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-010",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-011",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-012",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-013",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-014",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-015",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-016",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-017",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-018",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-019",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-020",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  }
+]
+
+── GEPARST ──────────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Kein normativer Rechtstext, sondern Navigationshinweis."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Verpflichtung zur Ablegung einer Prüfung."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung dient der Umsetzung."
+  },
+  {
+    "id": "SVO-004",
+    "norm_type": "DEADLINE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält zeitliche Vorgaben vor Aufnahme und während des Jahres."
+  },
+  {
+    "id": "SVO-005",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Verpflichtung hat auszustellen und zu verwenden."
+  },
+  {
+    "id": "SVO-006",
+    "norm_type": "MAY",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung erhält auf Antrag."
+  },
+  {
+    "id": "SVO-007",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung findet Anwendung."
+  },
+  {
+    "id": "SVO-008",
+    "norm_type": "STATUS",
+    "konfidenz": "mittel",
+    "begruendung": "Beschreibt den Status der Verantwortlichkeit oder Zulassung."
+  },
+  {
+    "id": "SVO-009",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-010",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-011",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-012",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-013",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-014",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-015",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-016",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-017",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-018",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-019",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  },
+  {
+    "id": "SVO-020",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Eintrag fehlt in der Eingabeliste."
+  }
+]
+
+========================================================================
+  #0003  |  15.05.2026 14:00:43  |  RESPONSE  |  16849ms  |  ✅ OK
+========================================================================
+── ANTWORT (RAW) ────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'ist ... zu kennzeichnen' entspricht 'ist zu'."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "STATUS",
+    "konfidenz": "mittel",
+    "begruendung": "Beschreibt den aktuellen Zustand der Sicherung."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'ist ... abzuschließen' entspricht 'ist abzuschließen'."
+  },
+  {
+    "id": "SVO-004",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "mittel",
+    "begruendung": "Identifiziert die zuständige Behörde."
+  },
+  {
+    "id": "SVO-005",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Behördliche Feststellung eines Status."
+  },
+  {
+    "id": "SVO-006",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'gilt entsprechend' entspricht 'gilt entsprechend'."
+  },
+  {
+    "id": "SVO-007",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'gilt als erlaubt' entspricht 'gilt als'."
+  },
+  {
+    "id": "SVO-008",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'ist ... hinzuweisen' entspricht 'ist zu'."
+  },
+  {
+    "id": "SVO-009",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'ist ... anzuleinen' und 'hat ... zu tragen'."
+  },
+  {
+    "id": "SVO-010",
+    "norm_type": "MUST",
+    "konfidenz": "mittel",
+    "begruendung": "Auslöser 'hat' in Verbindung mit Pflichten."
+  },
+  {
+    "id": "SVO-011",
+    "norm_type": "MUST",
+    "konfidenz": "mittel",
+    "begruendung": "Implizite Pflicht zur Meldung."
+  },
+  {
+    "id": "SVO-012",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Zuweisung einer Aufgabe an eine Stelle."
+  },
+  {
+    "id": "SVO-013",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'ist ... zu versagen' entspricht 'ist zu'."
+  },
+  {
+    "id": "SVO-014",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Reine Bezeichnung ohne Normauslöser."
+  },
+  {
+    "id": "SVO-015",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Feststellung einer Eigenschaft/eines Status."
+  },
+  {
+    "id": "SVO-016",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'hat ... zu beantragen' entspricht 'hat zu'."
+  },
+  {
+    "id": "SVO-017",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Kontaktinformationen ohne normativen Charakter."
+  }
+]
+
+── GEPARST ──────────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'ist ... zu kennzeichnen' entspricht 'ist zu'."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "STATUS",
+    "konfidenz": "mittel",
+    "begruendung": "Beschreibt den aktuellen Zustand der Sicherung."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'ist ... abzuschließen' entspricht 'ist abzuschließen'."
+  },
+  {
+    "id": "SVO-004",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "mittel",
+    "begruendung": "Identifiziert die zuständige Behörde."
+  },
+  {
+    "id": "SVO-005",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Behördliche Feststellung eines Status."
+  },
+  {
+    "id": "SVO-006",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'gilt entsprechend' entspricht 'gilt entsprechend'."
+  },
+  {
+    "id": "SVO-007",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'gilt als erlaubt' entspricht 'gilt als'."
+  },
+  {
+    "id": "SVO-008",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'ist ... hinzuweisen' entspricht 'ist zu'."
+  },
+  {
+    "id": "SVO-009",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'ist ... anzuleinen' und 'hat ... zu tragen'."
+  },
+  {
+    "id": "SVO-010",
+    "norm_type": "MUST",
+    "konfidenz": "mittel",
+    "begruendung": "Auslöser 'hat' in Verbindung mit Pflichten."
+  },
+  {
+    "id": "SVO-011",
+    "norm_type": "MUST",
+    "konfidenz": "mittel",
+    "begruendung": "Implizite Pflicht zur Meldung."
+  },
+  {
+    "id": "SVO-012",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Zuweisung einer Aufgabe an eine Stelle."
+  },
+  {
+    "id": "SVO-013",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'ist ... zu versagen' entspricht 'ist zu'."
+  },
+  {
+    "id": "SVO-014",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Reine Bezeichnung ohne Normauslöser."
+  },
+  {
+    "id": "SVO-015",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Feststellung einer Eigenschaft/eines Status."
+  },
+  {
+    "id": "SVO-016",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Auslöser 'hat ... zu beantragen' entspricht 'hat zu'."
+  },
+  {
+    "id": "SVO-017",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Kontaktinformationen ohne normativen Charakter."
+  }
+]
+
+========================================================================
+  #0004  |  15.05.2026 14:00:56  |  RESPONSE  |  11816ms  |  ✅ OK
+========================================================================
+── ANTWORT (RAW) ────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung ist durchzuführen."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung findet Anwendung."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Reine Referenz ohne Normauslöser."
+  },
+  {
+    "id": "SVO-004",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Fragmentarischer Satz ohne Normauslöser."
+  },
+  {
+    "id": "SVO-005",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Fragmentarischer Satz ohne Normauslöser."
+  },
+  {
+    "id": "SVO-006",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "mittel",
+    "begruendung": "Beschreibt eine Berechnungsgrundlage ohne expliziten Normauslöser."
+  },
+  {
+    "id": "SVO-007",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung ist anzuleinen."
+  },
+  {
+    "id": "SVO-008",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Fragmentarischer Satz ohne Normauslöser."
+  },
+  {
+    "id": "SVO-009",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Reine Referenz ohne Normauslöser."
+  },
+  {
+    "id": "SVO-010",
+    "norm_type": "STATUS",
+    "konfidenz": "mittel",
+    "begruendung": "Stellt den rechtlichen Status einer Einschränkung fest."
+  },
+  {
+    "id": "SVO-011",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung dient der."
+  },
+  {
+    "id": "SVO-012",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung macht bekannt."
+  },
+  {
+    "id": "SVO-013",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Regelt die Zuständigkeit der Behörden."
+  },
+  {
+    "id": "SVO-014",
+    "norm_type": "MUST_NOT",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung wird ausgeschlossen."
+  },
+  {
+    "id": "SVO-015",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Fragmentarischer Satz ohne Normauslöser."
+  },
+  {
+    "id": "SVO-016",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung ist ausreichend."
+  },
+  {
+    "id": "SVO-017",
+    "norm_type": "CHANGE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung geändert."
+  },
+  {
+    "id": "SVO-018",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung gelten als fort."
+  }
+]
+
+── GEPARST ──────────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung ist durchzuführen."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung findet Anwendung."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Reine Referenz ohne Normauslöser."
+  },
+  {
+    "id": "SVO-004",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Fragmentarischer Satz ohne Normauslöser."
+  },
+  {
+    "id": "SVO-005",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Fragmentarischer Satz ohne Normauslöser."
+  },
+  {
+    "id": "SVO-006",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "mittel",
+    "begruendung": "Beschreibt eine Berechnungsgrundlage ohne expliziten Normauslöser."
+  },
+  {
+    "id": "SVO-007",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung ist anzuleinen."
+  },
+  {
+    "id": "SVO-008",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Fragmentarischer Satz ohne Normauslöser."
+  },
+  {
+    "id": "SVO-009",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Reine Referenz ohne Normauslöser."
+  },
+  {
+    "id": "SVO-010",
+    "norm_type": "STATUS",
+    "konfidenz": "mittel",
+    "begruendung": "Stellt den rechtlichen Status einer Einschränkung fest."
+  },
+  {
+    "id": "SVO-011",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung dient der."
+  },
+  {
+    "id": "SVO-012",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung macht bekannt."
+  },
+  {
+    "id": "SVO-013",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Regelt die Zuständigkeit der Behörden."
+  },
+  {
+    "id": "SVO-014",
+    "norm_type": "MUST_NOT",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung wird ausgeschlossen."
+  },
+  {
+    "id": "SVO-015",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Fragmentarischer Satz ohne Normauslöser."
+  },
+  {
+    "id": "SVO-016",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung ist ausreichend."
+  },
+  {
+    "id": "SVO-017",
+    "norm_type": "CHANGE",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung geändert."
+  },
+  {
+    "id": "SVO-018",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Enthält die Formulierung gelten als fort."
+  }
+]
+
+========================================================================
+  #0005  |  15.05.2026 14:01:01  |  RESPONSE  |  3963ms  |  ✅ OK
+========================================================================
+── ANTWORT (RAW) ────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "CHANGE",
+    "konfidenz": "hoch",
+    "begruendung": "Das Wort geändert indiziert eine Normänderung."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Gilt als Zulassung beschreibt einen rechtlichen Status."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "DEF",
+    "konfidenz": "hoch",
+    "begruendung": "Zweckbestimmung definiert den Sinn des Gesetzes."
+  },
+  {
+    "id": "SVO-004",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Gilt für definiert den Anwendungsbereich."
+  },
+  {
+    "id": "SVO-005",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Sind zu halten drückt eine Verpflichtung aus."
+  },
+  {
+    "id": "SVO-006",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Ist auf Verlangen nachzuweisen ist eine Pflicht."
+  },
+  {
+    "id": "SVO-007",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Dient der Umsetzung definiert den Anwendungsbereich."
+  },
+  {
+    "id": "SVO-008",
+    "norm_type": "DEADLINE",
+    "konfidenz": "hoch",
+    "begruendung": "Vor Aufnahme und während des ersten Jahres sind Fristen."
+  },
+  {
+    "id": "SVO-009",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Hat auszustellen ist eine rechtliche Verpflichtung."
+  },
+  {
+    "id": "SVO-010",
+    "norm_type": "MAY",
+    "konfidenz": "hoch",
+    "begruendung": "Erhält auf Antrag ist eine Berechtigung."
+  },
+  {
+    "id": "SVO-011",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Findet Anwendung definiert den Geltungsbereich."
+  },
+  {
+    "id": "SVO-012",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Besitzt Sachkundenachweis beschreibt einen Status."
+  },
+  {
+    "id": "SVO-013",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Besitzt beschreibt die Erfüllung von Voraussetzungen."
+  },
+  {
+    "id": "SVO-014",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Fragmentarischer Text ohne Prädikat oder Normauslöser."
+  },
+  {
+    "id": "SVO-015",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Macht bekannt beschreibt eine behördliche Zuständigkeit."
+  },
+  {
+    "id": "SVO-016",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Ist zu kennzeichnen ist eine klare Verpflichtung."
+  },
+  {
+    "id": "SVO-017",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Sind niedergelegt beschreibt einen Zustand."
+  },
+  {
+    "id": "SVO-018",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Ist abzuschließen ist eine Verpflichtung."
+  },
+  {
+    "id": "SVO-019",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Zuständige Gemeinde definiert die Behördenzuständigkeit."
+  },
+  {
+    "id": "SVO-020",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Hat zu prüfen ist eine behördliche Pflicht."
+  }
+]
+
+── GEPARST ──────────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "CHANGE",
+    "konfidenz": "hoch",
+    "begruendung": "Das Wort geändert indiziert eine Normänderung."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Gilt als Zulassung beschreibt einen rechtlichen Status."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "DEF",
+    "konfidenz": "hoch",
+    "begruendung": "Zweckbestimmung definiert den Sinn des Gesetzes."
+  },
+  {
+    "id": "SVO-004",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Gilt für definiert den Anwendungsbereich."
+  },
+  {
+    "id": "SVO-005",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Sind zu halten drückt eine Verpflichtung aus."
+  },
+  {
+    "id": "SVO-006",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Ist auf Verlangen nachzuweisen ist eine Pflicht."
+  },
+  {
+    "id": "SVO-007",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Dient der Umsetzung definiert den Anwendungsbereich."
+  },
+  {
+    "id": "SVO-008",
+    "norm_type": "DEADLINE",
+    "konfidenz": "hoch",
+    "begruendung": "Vor Aufnahme und während des ersten Jahres sind Fristen."
+  },
+  {
+    "id": "SVO-009",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Hat auszustellen ist eine rechtliche Verpflichtung."
+  },
+  {
+    "id": "SVO-010",
+    "norm_type": "MAY",
+    "konfidenz": "hoch",
+    "begruendung": "Erhält auf Antrag ist eine Berechtigung."
+  },
+  {
+    "id": "SVO-011",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "Findet Anwendung definiert den Geltungsbereich."
+  },
+  {
+    "id": "SVO-012",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Besitzt Sachkundenachweis beschreibt einen Status."
+  },
+  {
+    "id": "SVO-013",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Besitzt beschreibt die Erfüllung von Voraussetzungen."
+  },
+  {
+    "id": "SVO-014",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "hoch",
+    "begruendung": "Fragmentarischer Text ohne Prädikat oder Normauslöser."
+  },
+  {
+    "id": "SVO-015",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Macht bekannt beschreibt eine behördliche Zuständigkeit."
+  },
+  {
+    "id": "SVO-016",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Ist zu kennzeichnen ist eine klare Verpflichtung."
+  },
+  {
+    "id": "SVO-017",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Sind niedergelegt beschreibt einen Zustand."
+  },
+  {
+    "id": "SVO-018",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Ist abzuschließen ist eine Verpflichtung."
+  },
+  {
+    "id": "SVO-019",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "Zuständige Gemeinde definiert die Behördenzuständigkeit."
+  },
+  {
+    "id": "SVO-020",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "Hat zu prüfen ist eine behördliche Pflicht."
+  }
+]
+
+========================================================================
+  #0006  |  15.05.2026 14:01:15  |  RESPONSE  |  13073ms  |  ✅ OK
+========================================================================
+── ANTWORT (RAW) ────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Die Fachbehörde stellt einen rechtlichen Status fest."
+  }
+]
+
+── GEPARST ──────────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Die Fachbehörde stellt einen rechtlichen Status fest."
+  }
+]
+
+========================================================================
+  #0007  |  15.05.2026 14:02:47  |  RESPONSE  |  11364ms  |  ✅ OK
+========================================================================
+── ANTWORT (RAW) ────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "gilt entsprechend ist ein Auslöser für SCOPE."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "gilt als erlaubt beschreibt einen Rechtsstatus."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "ist darauf hinzuweisen impliziert eine Verpflichtung."
+  },
+  {
+    "id": "SVO-004",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "ist anzuleinen und hat zu tragen sind Verpflichtungen."
+  },
+  {
+    "id": "SVO-005",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "ist zu erteilen und nachgewiesen ist sind Anforderungen."
+  },
+  {
+    "id": "SVO-006",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "ist zu versagen ist eine klare Verpflichtung."
+  },
+  {
+    "id": "SVO-007",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "besitzt beschreibt die Eigenschaft der Zuverlässigkeit."
+  },
+  {
+    "id": "SVO-008",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "hat zu beantragen ist eine klare Verpflichtung."
+  },
+  {
+    "id": "SVO-009",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "ist durchzuführen ist eine klare Verpflichtung."
+  },
+  {
+    "id": "SVO-010",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "findet Anwendung ist ein Auslöser für SCOPE."
+  },
+  {
+    "id": "SVO-011",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "ist anzuleinen ist eine klare Verpflichtung."
+  },
+  {
+    "id": "SVO-012",
+    "norm_type": "STATUS",
+    "konfidenz": "mittel",
+    "begruendung": "wird eingeschränkt beschreibt einen rechtlichen Status."
+  },
+  {
+    "id": "SVO-013",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "dient der ist ein Auslöser für SCOPE."
+  },
+  {
+    "id": "SVO-014",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "macht bekannt ist eine behördliche Zuständigkeit."
+  },
+  {
+    "id": "SVO-015",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "werden wahrgenommen beschreibt die Zuständigkeit der Behörden."
+  },
+  {
+    "id": "SVO-016",
+    "norm_type": "MUST_NOT",
+    "konfidenz": "hoch",
+    "begruendung": "wird ausgeschlossen ist ein Ausschluss von Zuständigkeit."
+  },
+  {
+    "id": "SVO-017",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "niedrig",
+    "begruendung": "reine Aufzählung von Tatbeständen ohne Normauslöser."
+  },
+  {
+    "id": "SVO-018",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "niedrig",
+    "begruendung": "Textfragment ohne vollständiges Prädikat."
+  },
+  {
+    "id": "SVO-019",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "ist ausreichend beschreibt einen rechtlichen Status."
+  },
+  {
+    "id": "SVO-020",
+    "norm_type": "CHANGE",
+    "konfidenz": "hoch",
+    "begruendung": "geändert ist ein Auslöser für CHANGE."
+  }
+]
+
+── GEPARST ──────────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "gilt entsprechend ist ein Auslöser für SCOPE."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "gilt als erlaubt beschreibt einen Rechtsstatus."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "ist darauf hinzuweisen impliziert eine Verpflichtung."
+  },
+  {
+    "id": "SVO-004",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "ist anzuleinen und hat zu tragen sind Verpflichtungen."
+  },
+  {
+    "id": "SVO-005",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "ist zu erteilen und nachgewiesen ist sind Anforderungen."
+  },
+  {
+    "id": "SVO-006",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "ist zu versagen ist eine klare Verpflichtung."
+  },
+  {
+    "id": "SVO-007",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "besitzt beschreibt die Eigenschaft der Zuverlässigkeit."
+  },
+  {
+    "id": "SVO-008",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "hat zu beantragen ist eine klare Verpflichtung."
+  },
+  {
+    "id": "SVO-009",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "ist durchzuführen ist eine klare Verpflichtung."
+  },
+  {
+    "id": "SVO-010",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "findet Anwendung ist ein Auslöser für SCOPE."
+  },
+  {
+    "id": "SVO-011",
+    "norm_type": "MUST",
+    "konfidenz": "hoch",
+    "begruendung": "ist anzuleinen ist eine klare Verpflichtung."
+  },
+  {
+    "id": "SVO-012",
+    "norm_type": "STATUS",
+    "konfidenz": "mittel",
+    "begruendung": "wird eingeschränkt beschreibt einen rechtlichen Status."
+  },
+  {
+    "id": "SVO-013",
+    "norm_type": "SCOPE",
+    "konfidenz": "hoch",
+    "begruendung": "dient der ist ein Auslöser für SCOPE."
+  },
+  {
+    "id": "SVO-014",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "macht bekannt ist eine behördliche Zuständigkeit."
+  },
+  {
+    "id": "SVO-015",
+    "norm_type": "COMPETENCE",
+    "konfidenz": "hoch",
+    "begruendung": "werden wahrgenommen beschreibt die Zuständigkeit der Behörden."
+  },
+  {
+    "id": "SVO-016",
+    "norm_type": "MUST_NOT",
+    "konfidenz": "hoch",
+    "begruendung": "wird ausgeschlossen ist ein Ausschluss von Zuständigkeit."
+  },
+  {
+    "id": "SVO-017",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "niedrig",
+    "begruendung": "reine Aufzählung von Tatbeständen ohne Normauslöser."
+  },
+  {
+    "id": "SVO-018",
+    "norm_type": "UNKNOWN",
+    "konfidenz": "niedrig",
+    "begruendung": "Textfragment ohne vollständiges Prädikat."
+  },
+  {
+    "id": "SVO-019",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "ist ausreichend beschreibt einen rechtlichen Status."
+  },
+  {
+    "id": "SVO-020",
+    "norm_type": "CHANGE",
+    "konfidenz": "hoch",
+    "begruendung": "geändert ist ein Auslöser für CHANGE."
+  }
+]
+
+========================================================================
+  #0008  |  15.05.2026 14:03:02  |  RESPONSE  |  13454ms  |  ✅ OK
+========================================================================
+── ANTWORT (RAW) ────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Beschreibt den Fortbestand eines rechtlichen Status."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "CHANGE",
+    "konfidenz": "hoch",
+    "begruendung": "Bezieht sich explizit auf eine Änderung durch ein Gesetz."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Beschreibt den Fortbestand einer Zulassung."
+  }
+]
+
+── GEPARST ──────────────────────────────────────────────────────────
+[
+  {
+    "id": "SVO-001",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Beschreibt den Fortbestand eines rechtlichen Status."
+  },
+  {
+    "id": "SVO-002",
+    "norm_type": "CHANGE",
+    "konfidenz": "hoch",
+    "begruendung": "Bezieht sich explizit auf eine Änderung durch ein Gesetz."
+  },
+  {
+    "id": "SVO-003",
+    "norm_type": "STATUS",
+    "konfidenz": "hoch",
+    "begruendung": "Beschreibt den Fortbestand einer Zulassung."
+  }
+]

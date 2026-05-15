@@ -141,10 +141,20 @@ class NERExtractor:
     def __init__(self, config_path: Optional[Path] = None):
         self.config_path = config_path
 
-    def extract(self, analysis: ChunkAnalysis) -> list[NEREntity]:
+    def extract(
+        self,
+        analysis:     ChunkAnalysis,
+        doc_filename: str = "",   # Dateiname für ner_extensions in docs.yaml
+    ) -> list[NEREntity]:
         """
         Extrahiert NER-Entitäten aus einer ChunkAnalysis.
-        Liest Konfiguration frisch von Disk bei jedem Aufruf.
+
+        Zweischicht-NER:
+          Schicht 1: Agnostische Basis (nlp_config.yaml → agnostische_datenobjekte)
+          Schicht 2: Register-spezifisch (docs.yaml → ner_extensions)
+
+        doc_filename: Dateiname des Quelldokuments (z.B. "Hundegesetz.pdf")
+                      für den Zugriff auf ner_extensions in docs.yaml.
         """
         cfg      = load_nlp_config(self.config_path)
         ner_cfg  = cfg.get("ner", {})
@@ -205,6 +215,21 @@ class NERExtractor:
         }
         if label_corrections:
             entities = self._apply_label_corrections(entities, label_corrections)
+
+        # ── Zweischicht-NER: agnostisch + register-spezifisch ───────────────
+        # Schicht 1: agnostische Datenobjekte aus nlp_config.yaml
+        agnostische = {
+            w.lower()
+            for w in ner_cfg.get("agnostische_datenobjekte", [])
+            if w is not None
+        }
+        # Schicht 2: register-spezifische Erweiterungen aus docs.yaml
+        doc_extensions = self._load_doc_extensions(doc_filename)
+
+        if agnostische or doc_extensions:
+            entities = self._apply_zweischicht_ner(
+                entities, agnostische, doc_extensions
+            )
 
         # ── Ansatz 5: §-Normreferenzen filtern ──────────────────────────
         # §-Nummern allein (§ 8) oder mit Abs./Satz (§ 10 Abs. 4) sind
@@ -410,6 +435,84 @@ class NERExtractor:
                 pass   # verworfen
             else:
                 result.append(e)
+        return result
+
+    def _load_doc_extensions(self, doc_filename: str) -> dict:
+        """
+        Lädt register-spezifische NER-Erweiterungen aus docs.yaml.
+        Returns: {"DATENOBJEKT": set(...), "ROLLE": set(...), ...}
+        """
+        if not doc_filename:
+            return {}
+        try:
+            from pathlib import Path
+            import yaml as _yaml
+            docs_path = (self.config_path or Path(__file__).parents[3]).parent                         if self.config_path else Path(__file__).parents[3]
+            # docs.yaml suchen
+            candidates = [
+                docs_path / "docs.yaml",
+                docs_path.parent / "docs.yaml",
+                Path(__file__).parents[3] / "docs.yaml",
+            ]
+            docs_yaml = next((p for p in candidates if p.exists()), None)
+            if not docs_yaml:
+                return {}
+            docs = _yaml.safe_load(docs_yaml.read_text(encoding="utf-8")) or {}
+            entry = docs.get(doc_filename, {})
+            extensions = entry.get("ner_extensions", {})
+            return {
+                label: {v.lower() for v in values if v}
+                for label, values in extensions.items()
+            }
+        except Exception as e:
+            logger.debug("ner_extensions Laden fehlgeschlagen",
+                         doc=doc_filename, error=str(e))
+            return {}
+
+    def _apply_zweischicht_ner(
+        self,
+        entities:      list,
+        agnostische:   set,
+        doc_extensions: dict,
+    ) -> list:
+        """
+        Zweischicht-NER:
+          Schicht 1: Agnostische Basis (nlp_config.yaml)
+          Schicht 2: Register-spezifisch (docs.yaml)
+
+        Priorität: Explizites Label > Agnostisch > Bestehendes Label
+        """
+        result = []
+        for e in entities:
+            text_lower = (e.text or "").lower()
+
+            # Schicht 2: Register-spezifisch (höchste Priorität)
+            matched = False
+            import dataclasses as _dc
+            for label, terms in doc_extensions.items():
+                if text_lower in terms:
+                    if e.label != label:
+                        logger.debug(
+                            "NER Register-Extension",
+                            text=e.text,
+                            alt=e.label,
+                            neu=label,
+                        )
+                        e = _dc.replace(e, label=label)
+                    matched = True
+                    break
+
+            # Schicht 1: Agnostisch (wenn nicht durch Schicht 2 erfasst)
+            if not matched and text_lower in agnostische:
+                if e.label not in ("DATENOBJEKT",):
+                    logger.debug(
+                        "NER Agnostisch-Klassifikation",
+                        text=e.text,
+                        alt=e.label,
+                    )
+                    e = _dc.replace(e, label="DATENOBJEKT")
+
+            result.append(e)
         return result
 
     def _apply_label_corrections(

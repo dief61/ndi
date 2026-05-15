@@ -180,13 +180,16 @@ class NLPService:
                 # SVO + NER für jeden Chunk extrahieren
                 all_svos = []
                 for chunk, analysis in zip(filtered_batch, analyses):
-                    chunk_id = str(chunk["id"])
-                    doc_uuid = str(chunk["doc_id"])
+                    chunk_id     = str(chunk["id"])
+                    doc_uuid     = str(chunk["doc_id"])
+                    # doc_filename für ner_extensions (Zweischicht-NER)
+                    doc_filename = str(chunk.get("metadata", {}).get(
+                        "original_filename", "") or "")
                     svos = self.svo.extract(analysis)
                     all_svos.append((chunk_id, doc_uuid, svos))
 
-                    # NER direkt speichern
-                    entities = self.ner.extract(analysis)
+                    # NER – mit doc_filename für register-spezifische Erweiterungen
+                    entities = self.ner.extract(analysis, doc_filename=doc_filename)
                     for e in entities:
                         ner_rows.append((
                             chunk_id, doc_uuid, job_id,
