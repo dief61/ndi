@@ -897,19 +897,41 @@ function buildNav(list) {
     </div>
     <div style="height:1px;background:var(--border);margin:8px 16px"></div>
   `;
-  nav.innerHTML = staticItems + list.map(c => `
-    <div class="nav-item" id="nav-${c.name}" onclick="loadConfig('${c.name}')">
-      <span class="nav-icon">${c.icon}</span>
-      <div>
-        <div class="nav-text">${c.label}</div>
-        <div class="nav-sub">${c.description.substring(0,30)}...</div>
-      </div>
-    </div>
-  `).join('');
+  const navItems = list.map(c => {
+    const isQuery   = c.name === 'query';
+    const separator = isQuery
+      ? '<div style="height:1px;background:var(--border);margin:8px 16px"></div>' : '';
+    const style     = isQuery
+      ? 'background:rgba(79,142,247,0.06);' : '';
+    const textStyle = isQuery
+      ? 'style="color:var(--accent)"' : '';
+    return separator + `
+      <div class="nav-item" id="nav-${c.name}"
+           onclick="loadConfig('${c.name}')" style="${style}">
+        <span class="nav-icon">${c.icon}</span>
+        <div>
+          <div class="nav-text" ${textStyle}>${c.label}</div>
+          <div class="nav-sub">${c.description.substring(0,30)}...</div>
+        </div>
+      </div>`;
+  }).join('');
+  nav.innerHTML = staticItems + navItems;
 }
 
 // ── Load Config ───────────────────────────────────────────────────────────────
 async function loadConfig(name) {
+  // Query-UI benötigt kein YAML – direkt rendern
+  if (name === 'query') {
+    if (unsaved && !confirm('Ungespeicherte Änderungen verwerfen?')) return;
+    unsaved = false;
+    current = name;
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('nav-query')?.classList.add('active');
+    document.getElementById('toolbar').style.display = 'none';
+    document.getElementById('content').innerHTML = renderQueryUI();
+    return;
+  }
+
   if (unsaved && !confirm('Ungespeicherte Änderungen verwerfen?')) return;
   unsaved = false;
   current = name;
@@ -963,6 +985,7 @@ function showHome() {
     {name:'docs',        icon:'🗂️', label:'Dokument-Metadaten',   sub:'Typen, Titel, Typ-Erkennung'},
     {name:'llm_gateway', icon:'🤖', label:'LLM-Gateway',           sub:'Provider, Modell, Prompts'},
     {name:'rag',         icon:'🔭', label:'RAG-Engine',            sub:'Query, Retrieval, Re-Ranker'},
+    {name:'query',       icon:'💬', label:'Normen-Abfrage',         sub:'RAG-Abfrage mit Quellen & Timing'},
   ];
   // Prompt-Suite als eigene Karte in der zweiten Zeile
   const extraCards = [
@@ -2147,6 +2170,7 @@ function renderForm(name, data) {
   else if (name === 'docs')         el.innerHTML = renderDocsForm(data);
   else if (name === 'llm_gateway')  el.innerHTML = renderLLMGatewayForm(data);
   else if (name === 'rag')           el.innerHTML = renderRAGForm(data);
+  else if (name === 'query')         el.innerHTML = renderQueryUI();
   else                              el.innerHTML = renderGenericForm(data);
   attachFormListeners(name, data);
 }
@@ -3139,6 +3163,240 @@ function collectRAGFormData(orig) {
   return d;
 }
 
+// ── Query-UI ──────────────────────────────────────────────────────────────────
+function renderQueryUI() {
+  return `
+  <div style="padding:20px;max-width:900px;margin:0 auto">
+
+    <div style="margin-bottom:16px">
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px">
+        💬 Normen-Abfrage
+      </div>
+      <div style="font-size:12px;color:var(--muted)">
+        Stellt eine natürlichsprachliche Frage an das RAG-System.
+        Zeigt Antwort-Kontext, Quellen, IM-Signale und Timing.
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input id="rag-query-input" type="text"
+        placeholder="z.B. Was muss ein Hundehalter nachweisen?"
+        style="flex:1;padding:10px 14px;border-radius:6px;border:1px solid var(--border);
+               background:var(--surface);color:var(--text);font-size:14px"
+        onkeydown="if(event.key==='Enter') runQuery()"
+      />
+      <button class="btn btn-primary" onclick="runQuery()"
+        style="padding:10px 20px;white-space:nowrap">
+        ▶ Abfragen
+      </button>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;
+                    color:var(--muted);cursor:pointer;white-space:nowrap">
+        <input type="checkbox" id="rag-debug" checked> Debug
+      </label>
+    </div>
+
+    <!-- Schnellauswahl -->
+    <div style="margin-bottom:20px;display:flex;flex-wrap:wrap;gap:6px">
+      ${[
+        'Was muss ein Hundehalter nachweisen?',
+        'Was steht in § 3 Abs. 1 NHundG?',
+        'Wer ist zuständig für den Wesenstest?',
+        'Welche Entitäten hat das Hunderegister?',
+        'Welche Fristen gelten für die Anmeldung?',
+      ].map(q => `<button class="btn btn-ghost" style="font-size:11px;padding:4px 8px"
+        onclick="document.getElementById('rag-query-input').value=${JSON.stringify(q)};runQuery()"
+        >${escHtml(q)}</button>`).join('')}
+    </div>
+
+    <!-- Ergebnisbereich -->
+    <div id="rag-result-area"></div>
+  </div>`;
+}
+
+async function runQuery() {
+  const queryText = document.getElementById('rag-query-input')?.value?.trim();
+  if (!queryText) return;
+  const debug = document.getElementById('rag-debug')?.checked ?? true;
+
+  const area = document.getElementById('rag-result-area');
+  area.innerHTML = '<div class="loading"><div class="spinner"></div> RAG-Pipeline läuft...</div>';
+
+  try {
+    const res = await fetch('/api/v1/rag/query', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({query: queryText, debug}),
+    });
+
+    if (!res.ok) {
+      const txt = await res.text();
+      area.innerHTML = `<div style="color:#f75f4f;padding:12px;border:1px solid #f75f4f;
+        border-radius:6px">Fehler ${res.status}: ${escHtml(txt)}</div>`;
+      return;
+    }
+
+    const d = await res.json();
+    area.innerHTML = renderQueryResult(queryText, d);
+
+  } catch(e) {
+    area.innerHTML = `<div style="color:#f75f4f;padding:12px">Netzwerkfehler: ${escHtml(e.message)}</div>`;
+  }
+}
+
+function renderQueryResult(query, d) {
+  const di        = d.debug_info || {};
+  const chunks    = d.chunks || [];
+  const tracea    = d.traceability || [];
+  const kontext   = d.kontext || '';
+
+  // ── Timing-Badge ─────────────────────────────────────────────────────────
+  const timingHtml = di.dauer_ms_gesamt ? `
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+      ${[
+        ['Gesamt',    di.dauer_ms_gesamt],
+        ['Transform', di.dauer_ms_transform],
+        ['Retrieval', di.dauer_ms_retrieval],
+        ['Re-Rank',   di.dauer_ms_reranking],
+        ['Assembly',  di.dauer_ms_assembly],
+      ].map(([lbl, ms]) => ms !== undefined ? `
+        <span style="font-size:11px;padding:3px 8px;border-radius:12px;
+          background:rgba(79,142,247,0.1);color:var(--accent)">
+          ${lbl}: ${ms}ms
+        </span>` : '').join('')}
+      <span style="font-size:11px;padding:3px 8px;border-radius:12px;
+        background:rgba(100,217,168,0.1);color:#64d9a8">
+        ${d.query_typ} | Direktlookup: ${d.direktlookup ? 'ja' : 'nein'}
+      </span>
+      <span style="font-size:11px;padding:3px 8px;border-radius:12px;
+        background:rgba(155,89,247,0.1);color:#9b59f7">
+        ${di.chunks_retrieval || 0} → ${di.chunks_final || chunks.length} Chunks
+      </span>
+    </div>` : '';
+
+  // ── Beste Quellen ─────────────────────────────────────────────────────────
+  const chunksHtml = chunks.length === 0 ? '<p style="color:var(--muted)">Keine Chunks gefunden.</p>' :
+    chunks.map((c, i) => `
+      <div style="border:1px solid var(--border);border-radius:6px;margin-bottom:8px;overflow:hidden">
+        <div style="padding:8px 12px;background:rgba(79,142,247,0.06);
+          display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">
+          <div>
+            <span style="font-size:11px;font-weight:600;color:var(--accent)">
+              #${i+1} ${escHtml(c.praembel)}
+            </span>
+            ${c.norm_reference ?
+              `<span style="font-size:10px;color:var(--muted);margin-left:8px">
+                ${escHtml(c.norm_reference)}
+              </span>` : ''}
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:11px;padding:2px 6px;border-radius:4px;
+              ${c.doc_class==='A' ? 'background:rgba(79,142,247,0.15);color:#4f8ef7' :
+                c.doc_class==='B' ? 'background:rgba(100,217,168,0.15);color:#64d9a8' :
+                'background:rgba(247,201,79,0.15);color:#f7c94f'}">
+              Klasse ${escHtml(c.doc_class)}
+            </span>
+            <span style="font-size:11px;color:var(--muted)">Score: ${c.score}</span>
+          </div>
+        </div>
+        <div style="padding:10px 12px;font-size:12px;font-family:var(--mono);
+          color:var(--text);white-space:pre-wrap;max-height:120px;overflow-y:auto;
+          line-height:1.5">
+          ${escHtml(cleanDisplayText(c.content).substring(0, 400))}${c.content.length > 400 ? '…' : ''}
+        </div>
+      </div>`).join('');
+
+  // ── Kontext-Vorschau ──────────────────────────────────────────────────────
+  const kontextHtml = kontext ? `
+    <details style="margin-top:16px">
+      <summary style="cursor:pointer;font-size:13px;font-weight:500;
+        color:var(--accent);padding:8px 0">
+        📄 Assemblierter LLM-Kontext (${kontext.length} Zeichen, ${tracea.length} Quellen)
+      </summary>
+      <div style="margin-top:8px;padding:12px;border:1px solid var(--border);
+        border-radius:6px;font-size:11px;font-family:var(--mono);
+        white-space:pre-wrap;max-height:300px;overflow-y:auto;
+        background:rgba(0,0,0,0.15);color:var(--text);line-height:1.6">
+        ${escHtml(kontext.substring(0, 2000))}${kontext.length > 2000 ? '\n…' : ''}
+      </div>
+    </details>` : '';
+
+  // ── Traceability ──────────────────────────────────────────────────────────
+  const traceHtml = tracea.length ? `
+    <details style="margin-top:8px">
+      <summary style="cursor:pointer;font-size:13px;font-weight:500;
+        color:var(--accent);padding:8px 0">
+        🔗 Traceability (${tracea.length} Quellen)
+      </summary>
+      <div style="margin-top:8px;overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead>
+            <tr style="background:rgba(79,142,247,0.08)">
+              ${['#','Klasse','Normreferenz','Typ','Score','IM','Quelle'].map(
+                h => `<th style="padding:6px 8px;text-align:left;
+                  border-bottom:1px solid var(--border);color:var(--muted)">${h}</th>`
+              ).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${tracea.map(t => `
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.05)">
+                <td style="padding:5px 8px">${t.quelle_nr}</td>
+                <td style="padding:5px 8px">
+                  <span style="padding:1px 5px;border-radius:3px;font-size:10px;
+                    ${t.doc_class==='A' ? 'background:rgba(79,142,247,0.15);color:#4f8ef7' :
+                      t.doc_class==='B' ? 'background:rgba(100,217,168,0.15);color:#64d9a8' :
+                      'background:rgba(247,201,79,0.15);color:#f7c94f'}">
+                    ${escHtml(t.doc_class)}
+                  </span>
+                </td>
+                <td style="padding:5px 8px;max-width:200px;overflow:hidden;
+                  text-overflow:ellipsis;white-space:nowrap">
+                  ${escHtml(t.norm_reference || t.section_path || '–')}
+                </td>
+                <td style="padding:5px 8px;color:var(--muted)">${escHtml(t.chunk_type||'')}</td>
+                <td style="padding:5px 8px">${t.score}</td>
+                <td style="padding:5px 8px">${t.im_signals ? '✅' : '–'}</td>
+                <td style="padding:5px 8px;color:var(--muted);font-size:10px">
+                  ${escHtml(t.retrieval_src||'')}
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </details>` : '';
+
+  // ── Debug-Vektoren ────────────────────────────────────────────────────────
+  const vektorenArr = (di.transform || di).vektoren || [];
+  const vektorHtml  = vektorenArr.length ? `
+    <details style="margin-top:8px">
+      <summary style="cursor:pointer;font-size:13px;font-weight:500;
+        color:var(--accent);padding:8px 0">
+        🔍 Query-Vektoren (${vektorenArr.length})
+      </summary>
+      <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">
+        ${vektorenArr.map(v => `
+          <div style="padding:8px 10px;border:1px solid var(--border);border-radius:4px;
+            font-size:11px">
+            <span style="font-weight:600;color:var(--accent)">${escHtml(v.strategie)}</span>
+            <span style="color:var(--muted);margin:0 8px">Gewicht: ${v.gewicht}</span>
+            <span style="font-family:var(--mono);color:var(--text)">${escHtml(v.text)}</span>
+          </div>`).join('')}
+      </div>
+    </details>` : '';
+
+  return `
+    <div>
+      ${timingHtml}
+      <div style="font-size:13px;font-weight:500;margin-bottom:8px">
+        📑 Top-Quellen (${chunks.length})
+      </div>
+      ${chunksHtml}
+      ${kontextHtml}
+      ${traceHtml}
+      ${vektorHtml}
+    </div>`;
+}
+
 function renderGenericForm(d) {
   return `<div class="section">
     <div class="section-title">YAML-Inhalt</div>
@@ -3467,6 +3725,16 @@ function escHtml(s) {
   return String(s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Bereinigt PDF-Parsing-Artefakte für die Anzeige
+function cleanDisplayText(text) {
+  if (!text) return '';
+  text = text.replace(/\n\n(?=[a-zäöüa-zäöü])/g, ' ');
+  text = text.replace(/(?<![.!?:;\n])\n(?=[a-zA-ZäöüÄÖÜ])/g, ' ');
+  text = text.replace(/\n{3,}/g, '\n\n');
+  text = text.replace(/  +/g, ' ');
+  return text.trim();
 }
 
 window.addEventListener('beforeunload', e => {

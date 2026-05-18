@@ -359,9 +359,21 @@ class TikaParser:
         # Mehr als 2 aufeinanderfolgende Leerzeilen auf 2 reduzieren
         text = re.sub(r'\n{3,}', '\n\n', text)
 
+        # ── Maßnahme 8: Mitten-im-Satz Zeilenumbrüche zusammenführen ────────
+        # PDF-Artefakt: Tika bricht Zeilen am physischen Zeilenende um.
+        # Doppelte Leerzeilen vor Kleinbuchstaben → Leerzeichen
+        text = re.sub(r'\n\n(?=[a-zäöü])', ' ', text)
+        # Einzelne Zeilenumbrüche nach Nicht-Satzzeichen → Leerzeichen
+        text = re.sub(r'(?<![.!?:;\n])\n(?=[a-zäöüA-ZÄÖÜ])(?!\s*\d+\.)', ' ', text)
+        # Verbleibende Mehrfach-Leerzeilen reduzieren
+        text = re.sub(r'\n{3,}', '\n\n', text)
+
         # Leerzeichen am Zeilenanfang/-ende entfernen
         lines = [line.strip() for line in text.splitlines()]
         text = '\n'.join(lines)
+
+        # Mehrfache Leerzeichen bereinigen
+        text = re.sub(r'  +', ' ', text)
 
         return text.strip()
 

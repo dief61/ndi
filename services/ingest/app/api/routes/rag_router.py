@@ -50,7 +50,8 @@ class RAGResponse(BaseModel):
     query:           str
     query_typ:       str            # NORM | ENTITY | IM | GENERAL
     chunks:          list[RAGChunk]
-    kontext:         str            # Assembliierter Kontext-String für LLM
+    kontext:         str            # Assemblierter Kontext-String für LLM
+    traceability:    list[dict]     # Quellenverweise je Kontext-Quelle
     direktlookup:    bool           # True wenn §-Referenz direkt gefunden
     debug_info:      Optional[dict] # QueryBundle (nur wenn debug=True)
 
@@ -106,28 +107,20 @@ async def rag_query(req: RAGRequest, request: Request):
 
     Aktuell: Mock-Antwort (Gerüst-Phase)
     """
-    # ── Schritt 1.1: Query-Transformation ───────────────────────────────────
-    from app.services.rag.query_transformer import QueryTransformer
+    # ── RAG-Pipeline (Schritte 1.1–1.6) ─────────────────────────────────────
+    from app.services.rag.rag_pipeline import RAGPipeline
 
-    transformer = QueryTransformer()
-    bundle      = await transformer.transform(
+    ingest_service = request.app.state.ingest_service
+    pool           = await ingest_service._get_pool()
+
+    pipeline = RAGPipeline(
+        pool     = pool,
+        embedder = ingest_service.embedder,
+    )
+    result = await pipeline.run(
         query = req.query,
         debug = req.debug,
     )
-
-    # ── Schritt 1.2–1.4: Retrieval ───────────────────────────────────────────
-    from app.services.rag.retriever import HybridRetriever
-    ingest_service = request.app.state.ingest_service
-    pool = await ingest_service._get_pool()
-    retriever = HybridRetriever(
-        pool=pool,
-        embedder=ingest_service.embedder,
-    )
-    raw_chunks = await retriever.retrieve(bundle)
-    sorted_chunks = sorted(raw_chunks, key=lambda c: c.score, reverse=True)
-    cfg    = yaml.safe_load(open(_RAG_CFG_PATH).read()) if _RAG_CFG_PATH.exists() else {}
-    top_k  = cfg.get("retrieval", {}).get("top_k_final", 8)
-    display = sorted_chunks[:top_k]
 
     rag_chunks = [
         RAGChunk(
@@ -140,29 +133,19 @@ async def rag_query(req: RAGRequest, request: Request):
             confidence_weight = c.confidence_weight,
             praembel          = _build_praembel(c),
         )
-        for c in display
+        for c in result.chunks
     ]
 
     return RAGResponse(
-        query        = bundle.original_query,
-        query_typ    = bundle.query_typ,
+        query        = result.original_query,
+        query_typ    = result.query_typ,
         chunks       = rag_chunks,
-        kontext      = "",
-        direktlookup = bundle.direktlookup,
+        kontext      = result.kontext,
+        traceability = result.traceability,
+        direktlookup = result.direktlookup,
         debug_info   = {
-            "query_typ":        bundle.query_typ,
-            "norm_reference":   bundle.norm_reference,
-            "direktlookup":     bundle.direktlookup,
-            "vektoren_anzahl":  len(bundle.vektoren),
-            "chunks_gesamt":    len(raw_chunks),
-            "chunks_angezeigt": len(display),
-            "vektoren": [
-                {"strategie": v.strategie, "gewicht": v.gewicht,
-                 "text": v.text[:80]}
-                for v in bundle.vektoren
-            ],
-            "metadata_filter": bundle.metadata_filter,
-            **bundle.debug,
+            **result.stats,
+            **(result.debug or {}),
         } if req.debug else None,
     )
 
