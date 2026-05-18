@@ -1,0 +1,6 @@
+# Prompt-Suite: ps_antwort/user.txt → services/ingest/prompt_suite/ps_antwort/user.txt
+
+{{kontext}}
+
+═══════════════════════════════════════════════════════════════════
+Frage: {{query}}

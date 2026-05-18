@@ -863,8 +863,15 @@ async function init() {
 }
 
 // ── Navigation ───────────────────────────────────────────────────────────────
+// ── Hilfs-Funktion: Nav-Trenner ───────────────────────────────────────────────
+function navSep() {
+  return '<div style="height:1px;background:var(--border);margin:6px 14px;opacity:0.6"></div>';
+}
+
 function buildNav(list) {
   const nav = document.getElementById('nav');
+
+  // ── Feste Einträge (Reihenfolge laut Spezifikation) ──────────────────────
   const staticItems = `
     <div class="nav-item active" id="nav-__home" onclick="showHome()">
       <span class="nav-icon">🏠</span>
@@ -873,14 +880,15 @@ function buildNav(list) {
         <div class="nav-sub">Startseite</div>
       </div>
     </div>
+    ${navSep()}
     <div class="nav-item" id="nav-__config_md" onclick="showConfigMd()">
       <span class="nav-icon">📋</span>
       <div>
         <div class="nav-text">Config-Übersicht</div>
-        <div class="nav-sub">CONFIG.md (nur Anzeige)</div>
+        <div class="nav-sub">CONFIG.md</div>
       </div>
     </div>
-    <div style="height:1px;background:var(--border);margin:8px 16px"></div>
+    ${navSep()}
     <div class="nav-item" id="nav-__reports" onclick="showReports()">
       <span class="nav-icon">📊</span>
       <div>
@@ -888,24 +896,43 @@ function buildNav(list) {
         <div class="nav-sub">Qualität, Ingest, NLP</div>
       </div>
     </div>
+    ${navSep()}
     <div class="nav-item" id="nav-__prompts" onclick="showPrompts()">
       <span class="nav-icon">📝</span>
       <div>
         <div class="nav-text">Prompt-Suite</div>
-        <div class="nav-sub">System & User Prompts</div>
+        <div class="nav-sub">Alle Prompts (Anzeige)</div>
       </div>
     </div>
-    <div style="height:1px;background:var(--border);margin:8px 16px"></div>
+    ${navSep()}
   `;
-  const navItems = list.map(c => {
-    const isQuery   = c.name === 'query';
-    const separator = isQuery
-      ? '<div style="height:1px;background:var(--border);margin:8px 16px"></div>' : '';
-    const style     = isQuery
-      ? 'background:rgba(79,142,247,0.06);' : '';
-    const textStyle = isQuery
-      ? 'style="color:var(--accent)"' : '';
-    return separator + `
+
+  // ── Reihenfolge der dynamischen Karten ─────────────────────────────────────
+  // docs und abbrev zuerst, dann restliche Configs, query zuletzt
+  const ORDER = ['docs','abbrev','nlp','embedder','chunker','llm_gateway','rag','query'];
+  const sorted = [...list].sort((a,b) => {
+    const ia = ORDER.indexOf(a.name), ib = ORDER.indexOf(b.name);
+    return (ia<0?99:ia) - (ib<0?99:ib);
+  });
+
+  // Gruppen mit Trenner: [docs,abbrev] | [nlp,embedder,chunker,llm_gateway,rag] | [query]
+  const GROUP1 = ['docs','abbrev'];
+  const GROUP2 = ['nlp','embedder','chunker','llm_gateway','rag'];
+  const GROUP3 = ['query'];
+
+  let prev_group = null;
+  const navItems = sorted.map(c => {
+    const isQuery = c.name === 'query';
+    const grp = GROUP1.includes(c.name) ? 1
+              : GROUP2.includes(c.name) ? 2
+              : GROUP3.includes(c.name) ? 3 : 4;
+    const sep  = (prev_group !== null && grp !== prev_group) ? navSep() : '';
+    prev_group = grp;
+
+    const style     = isQuery ? 'background:rgba(79,142,247,0.06);' : '';
+    const textStyle = isQuery ? 'style="color:var(--accent)"' : '';
+
+    return sep + `
       <div class="nav-item" id="nav-${c.name}"
            onclick="loadConfig('${c.name}')" style="${style}">
         <span class="nav-icon">${c.icon}</span>
@@ -915,6 +942,7 @@ function buildNav(list) {
         </div>
       </div>`;
   }).join('');
+
   nav.innerHTML = staticItems + navItems;
 }
 
@@ -978,14 +1006,14 @@ function showHome() {
   document.getElementById('btn-save').style.display    = 'none';
 
   const cards = [
-    {name:'nlp',      icon:'🧠', label:'NLP-Konfiguration',   sub:'spaCy, SVO, NER, Fragen-Filter'},
-    {name:'embedder', icon:'🔢', label:'Embedding-Modell',     sub:'Modell, Batch-Size, Device'},
-    {name:'abbrev',   icon:'📖', label:'Wörterbücher',         sub:'Abkürzungen und Synonyme'},
-    {name:'chunker',  icon:'✂️', label:'Chunker-Konfiguration',sub:'Token-Limits, Klassen'},
-    {name:'docs',        icon:'🗂️', label:'Dokument-Metadaten',   sub:'Typen, Titel, Typ-Erkennung'},
-    {name:'llm_gateway', icon:'🤖', label:'LLM-Gateway',           sub:'Provider, Modell, Prompts'},
-    {name:'rag',         icon:'🔭', label:'RAG-Engine',            sub:'Query, Retrieval, Re-Ranker'},
-    {name:'query',       icon:'💬', label:'Normen-Abfrage',         sub:'RAG-Abfrage mit Quellen & Timing'},
+    {name:'query',       icon:'💬', label:'Normen-Abfrage',         sub:'RAG live testen'},
+    {name:'docs',        icon:'🗂️', label:'Dokument-Metadaten',     sub:'Typen, Titel, NER-Extensions'},
+    {name:'abbrev',      icon:'📖', label:'Wörterbücher',           sub:'Abkürzungen und Synonyme'},
+    {name:'nlp',         icon:'🧠', label:'NLP-Konfiguration',      sub:'spaCy, SVO, NER, LLM-Normtyp'},
+    {name:'embedder',    icon:'🔢', label:'Embedding-Modell',       sub:'Modell, Batch-Size, Device'},
+    {name:'chunker',     icon:'✂️', label:'Chunker-Konfiguration',  sub:'Token-Limits, Klassen A/B/C'},
+    {name:'llm_gateway', icon:'🤖', label:'LLM-Gateway',            sub:'Provider, Modell, Retry'},
+    {name:'rag',         icon:'🔭', label:'RAG-Engine',             sub:'Query, Retrieval, Re-Ranker'},
   ];
   // Prompt-Suite als eigene Karte in der zweiten Zeile
   const extraCards = [
@@ -1118,7 +1146,7 @@ function showHome() {
           </div>`).join('')}
       </div>
 
-      <span class="home-version">MNR  ·  M1 + M2 + M3  ·  Mai 2026</span>
+      <span class="home-version">MNR  ·  M1 + M2 + M3  ·  Mai 2026 (RAG vollständig)</span>
     </div>`;
 }
 
@@ -1264,7 +1292,7 @@ function renderPromptList(prompts) {
   }
 
   const cards = prompts.map(p => `
-    <div class="abbrev-card" style="cursor:pointer" onclick="loadPrompt('${p.key}')">
+    <div class="abbrev-card" style="cursor:pointer" onclick="loadPromptReadonly('${p.key}')">
       <div style="display:flex;justify-content:space-between;align-items:start">
         <div>
           <div style="font-weight:500;color:var(--text)">${escHtml(p.name)}</div>
@@ -1279,6 +1307,8 @@ function renderPromptList(prompts) {
           ).join('')}
           ${p.schema ? `<span style="background:rgba(79,142,247,0.15);color:var(--accent);
             font-size:10px;padding:2px 6px;border-radius:4px">📐 ${p.schema}</span>` : ''}
+          <span style="background:rgba(100,217,168,0.12);color:#64d9a8;
+            font-size:10px;padding:2px 6px;border-radius:4px">👁 nur lesen</span>
         </div>
       </div>
       <div style="margin-top:8px;font-size:11px;color:var(--muted)">
@@ -1291,12 +1321,71 @@ function renderPromptList(prompts) {
   document.getElementById('content').innerHTML = `
     <div style="padding:20px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div style="font-size:14px;font-weight:500">${prompts.length} Prompt-Paare</div>
-        <button class="btn btn-ghost" onclick="showNewPromptDialog()" style="font-size:12px">
-          + Neuer Prompt
-        </button>
+        <div>
+          <div style="font-size:14px;font-weight:500">${prompts.length} Prompt-Paare</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">
+            Nur-Lese-Ansicht · Prompts in
+            <code>services/ingest/prompt_suite/</code>
+          </div>
+        </div>
       </div>
       <div class="abbrev-cards">${cards}</div>
+    </div>`;
+}
+
+async function loadPromptReadonly(key) {
+  currentPromptKey = key;
+  document.getElementById('content').innerHTML =
+    '<div style="padding:20px;color:var(--muted)"><div class="spinner"></div> Lade...</div>';
+  try {
+    const data = await apiFetch('/api/v1/llm/prompts/' + key);
+    renderPromptReadonly(key, data);
+  } catch(e) {
+    document.getElementById('content').innerHTML =
+      `<div style="padding:20px;color:var(--danger)">Fehler: ${escHtml(e.message)}</div>`;
+  }
+}
+
+function renderPromptReadonly(key, data) {
+  const vars = (data.variablen || []).map(v =>
+    `<code style="background:var(--surface2);padding:2px 6px;border-radius:3px;
+      font-size:11px;margin-right:4px">{{${v}}}</code>`
+  ).join('');
+
+  document.getElementById('toolbar-path').textContent = key;
+  document.getElementById('btn-save').style.display   = 'none';
+
+  const mkTab = (label, txt, icon) => `
+    <details style="margin-bottom:12px">
+      <summary style="cursor:pointer;padding:8px 12px;border-radius:6px;
+        border:1px solid var(--border);font-size:12px;font-weight:500;
+        color:var(--accent);list-style:none;display:flex;align-items:center;gap:6px">
+        ${icon} ${label}
+        <span style="margin-left:auto;font-size:10px;color:var(--muted)">
+          ${txt ? txt.length + ' Zeichen' : 'leer'}
+        </span>
+      </summary>
+      <pre style="margin:4px 0 0;padding:14px;border:1px solid var(--border);
+        border-top:none;border-radius:0 0 6px 6px;font-family:var(--mono);
+        font-size:12px;white-space:pre-wrap;background:rgba(0,0,0,0.15);
+        color:var(--text);max-height:400px;overflow-y:auto;line-height:1.6">${escHtml(txt||'')}</pre>
+    </details>`;
+
+  document.getElementById('content').innerHTML = `
+    <div style="padding:20px;max-width:860px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+        <button class="btn btn-ghost" onclick="showPrompts()" style="font-size:12px">
+          ← Alle Prompts
+        </button>
+        <div>
+          <div style="font-size:15px;font-weight:500">${escHtml(data.meta?.name||key)}</div>
+          <div style="font-size:11px;color:var(--muted)">${escHtml(data.meta?.beschreibung||'')}</div>
+        </div>
+      </div>
+      ${vars ? `<div style="margin-bottom:16px;font-size:11px;color:var(--muted)">
+        Variablen: ${vars}</div>` : ''}
+      ${mkTab('⚙️ System-Prompt', data.system_prompt, '⚙️')}
+      ${mkTab('💬 User-Prompt',   data.user_prompt,   '💬')}
     </div>`;
 }
 
@@ -3273,6 +3362,27 @@ function renderQueryResult(query, d) {
       </span>
     </div>` : '';
 
+  // ── LLM-Antwort ──────────────────────────────────────────────────────────
+  const antwortHtml = d.antwort ? `
+    <div style="border:2px solid var(--accent);border-radius:8px;
+      margin-bottom:20px;overflow:hidden">
+      <div style="padding:10px 14px;background:rgba(79,142,247,0.1);
+        display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div style="font-weight:600;color:var(--accent);font-size:13px">
+          &#x1F4A1; Antwort
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          ${d.antwort_normtyp ? '<span style="font-size:11px;padding:2px 7px;border-radius:4px;background:rgba(79,142,247,0.15);color:#4f8ef7">' + escHtml(d.antwort_normtyp) + '</span>' : ''}
+          ${d.antwort_konfidenz ? '<span style="font-size:11px;padding:2px 7px;border-radius:4px;' + (d.antwort_konfidenz==='hoch' ? 'background:rgba(100,217,168,0.15);color:#64d9a8' : d.antwort_konfidenz==='mittel' ? 'background:rgba(247,201,79,0.15);color:#f7c94f' : 'background:rgba(247,95,79,0.15);color:#f75f4f') + '">Konfidenz: ' + escHtml(d.antwort_konfidenz) + '</span>' : ''}
+        </div>
+      </div>
+      <div style="padding:14px;font-size:13px;color:var(--text);line-height:1.7">
+        ${escHtml(d.antwort)}
+      </div>
+      ${d.antwort_quellen && d.antwort_quellen.length ? '<div style="padding:8px 14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)">&#x1F4CE; Quellen: ' + d.antwort_quellen.map(q => '<span style="margin-right:8px;color:var(--accent)">' + escHtml(q) + '</span>').join('') + '</div>' : ''}
+      ${d.antwort_hinweis ? '<div style="padding:8px 14px;border-top:1px solid var(--border);font-size:11px;color:#f7c94f">&#x26A0;&#xFE0F; ' + escHtml(d.antwort_hinweis) + '</div>' : ''}
+    </div>` : '';
+
   // ── Beste Quellen ─────────────────────────────────────────────────────────
   const chunksHtml = chunks.length === 0 ? '<p style="color:var(--muted)">Keine Chunks gefunden.</p>' :
     chunks.map((c, i) => `
@@ -3387,6 +3497,7 @@ function renderQueryResult(query, d) {
   return `
     <div>
       ${timingHtml}
+      ${antwortHtml}
       <div style="font-size:13px;font-weight:500;margin-bottom:8px">
         📑 Top-Quellen (${chunks.length})
       </div>

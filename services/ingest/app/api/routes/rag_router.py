@@ -53,7 +53,12 @@ class RAGResponse(BaseModel):
     kontext:         str            # Assemblierter Kontext-String für LLM
     traceability:    list[dict]     # Quellenverweise je Kontext-Quelle
     direktlookup:    bool           # True wenn §-Referenz direkt gefunden
-    debug_info:      Optional[dict] # QueryBundle (nur wenn debug=True)
+    antwort:         Optional[str]  = None   # LLM-Antwort (Schritt 2)
+    antwort_normtyp: Optional[str]  = None
+    antwort_quellen: list[str]      = []
+    antwort_konfidenz: Optional[str]= None
+    antwort_hinweis: Optional[str]  = None
+    debug_info:      Optional[dict] = None
 
 
 # ── Endpunkte ─────────────────────────────────────────────────────────────────
@@ -136,14 +141,20 @@ async def rag_query(req: RAGRequest, request: Request):
         for c in result.chunks
     ]
 
+    a = result.llm_antwort
     return RAGResponse(
-        query        = result.original_query,
-        query_typ    = result.query_typ,
-        chunks       = rag_chunks,
-        kontext      = result.kontext,
-        traceability = result.traceability,
-        direktlookup = result.direktlookup,
-        debug_info   = {
+        query              = result.original_query,
+        query_typ          = result.query_typ,
+        chunks             = rag_chunks,
+        kontext            = result.kontext,
+        traceability       = result.traceability,
+        direktlookup       = result.direktlookup,
+        antwort            = a.antwort            if a else None,
+        antwort_normtyp    = a.normtyp            if a else None,
+        antwort_quellen    = a.quellen            if a else [],
+        antwort_konfidenz  = a.konfidenz          if a else None,
+        antwort_hinweis    = a.hinweis            if a else None,
+        debug_info         = {
             **result.stats,
             **(result.debug or {}),
         } if req.debug else None,

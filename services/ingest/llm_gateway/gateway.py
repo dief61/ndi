@@ -141,7 +141,12 @@ class GeminiAdapter(LLMAdapter):
             "temperature":     self.cfg.get("temperature", 0.0),
             "maxOutputTokens": self.cfg.get("max_tokens", 8192),
         }
-        if json_mode:
+        # json_mode nur aktivieren wenn der Provider es zuverlässig unterstützt.
+        # Bekanntes Problem: Gemini Flash-Lite ignoriert bei json_mode=True
+        # den System-Prompt und liefert ein generisches Template.
+        # Steuerung: llm_gateway_config.yaml → providers.X.json_mode_unterstuetzt
+        json_mode_ok = self.cfg.get("json_mode_unterstuetzt", True)
+        if json_mode and json_mode_ok:
             gen_config["responseMimeType"] = "application/json"
         # Hinweis: thinkingConfig wird in v1beta REST API nicht unterstützt.
         # Das Modell wählt Thinking-Tiefe automatisch basierend auf der Aufgabe.
@@ -179,9 +184,12 @@ class GeminiAdapter(LLMAdapter):
             usage   = data.get("usageMetadata", {})
             dauer   = int((time.monotonic() - t0) * 1000)
 
+            # parsed nur wenn json_mode UND Provider unterstützt es
+            # Bei json_mode_ok=False: rohen Text zurückgeben, kein Parse
+            do_parse = json_mode and json_mode_ok
             return LLMResult(
                 content=content,
-                parsed=self._parse_json(content) if json_mode else None,
+                parsed=self._parse_json(content) if do_parse else None,
                 provider="gemini",
                 model=model,
                 input_tokens=usage.get("promptTokenCount",     0),

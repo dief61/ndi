@@ -96,6 +96,17 @@ reranker:
   # Direktlookup-Bonus: Direkt gefundene Chunks immer oben
   direktlookup_boost: 2.0     # Score-Multiplikator für direktlookup-Chunks
 
+# ── 2. LLM-Antwort-Generierung ───────────────────────────────────────────────
+antwort:
+  enabled:          true        # false = nur Kontext zurückgeben, kein LLM-Aufruf
+  prompt_key:       "ps_antwort"
+  max_tokens:       1024        # Maximale Antwortlänge
+  json_mode:        true
+  # Fallback wenn LLM nicht verfügbar: Kontext direkt zurückgeben
+  fallback_kontext: true
+  # Konfidenz-Schwelle: unter diesem Wert → hinweis ergänzen
+  min_konfidenz:    "mittel"
+
 # ── 1.6 Context Assembly ──────────────────────────────────────────────────────
 context:
   max_tokens:         4096    # Maximale Kontextlänge für LLM-Prompt
